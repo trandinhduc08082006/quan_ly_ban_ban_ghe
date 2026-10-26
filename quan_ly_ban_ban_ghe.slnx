@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="QuanLyBanBanGhe.GUI/QuanLyBanBanGhe.GUI.csproj" Id="6772107d-4dc6-4766-8a8b-c04aaf49159f" />
+  <Project Path="QuanLyBanBanGhe.BLL/QuanLyBanBanGhe.BLL.csproj" Id="81f89c19-979d-4337-9e79-d93c73d4ba24" />
+  <Project Path="QuanLyBanBanGhe.DAL/QuanLyBanBanGhe.DAL.csproj" Id="292938bc-29e3-4127-9f0e-922b5a0fa2d8" />
+  <Project Path="QuanLyBanBanGhe.DTO/QuanLyBanBanGhe.DTO.csproj" Id="d8e983a4-9d00-459c-9895-a0d8a1699743" />
+</Solution>
