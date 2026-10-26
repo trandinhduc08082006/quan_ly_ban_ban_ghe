@@ -280,3 +280,66 @@ CREATE INDEX IX_pbh_ma_khach ON dbo.phieu_bao_hanh(ma_khach);
 CREATE INDEX IX_pbh_ma_hang ON dbo.phieu_bao_hanh(ma_hang);
 CREATE INDEX IX_pbh_trang_thai ON dbo.phieu_bao_hanh(trang_thai);
 GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.cong_viec WHERE ma_cong_viec = 'CV0001')
+BEGIN
+    INSERT INTO dbo.cong_viec (ma_cong_viec, ten_cong_viec, muc_luong, trang_thai_xoa)
+    VALUES ('CV0001', N'Quản lý cửa hàng', 18000000.00, 0);
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.nhan_vien WHERE ma_nhan_vien = 'NV0001')
+BEGIN
+    INSERT INTO dbo.nhan_vien (ma_nhan_vien, ten_nhan_vien, gioi_tinh, ngay_sinh, dien_thoai, dia_chi, trang_thai_xoa, ma_cong_viec)
+    VALUES ('NV0001', N'Văn Admin', N'Nam', '1988-03-12', '0912345678', N'Số 12 Chùa Láng, Đống Đa, Hà Nội', 0, 'CV0001');
+END
+
+IF NOT EXISTS (SELECT 1 FROM dbo.nhan_vien WHERE ma_nhan_vien = 'NV0002')
+BEGIN
+    INSERT INTO dbo.nhan_vien (ma_nhan_vien, ten_nhan_vien, gioi_tinh, ngay_sinh, dien_thoai, dia_chi, trang_thai_xoa, ma_cong_viec)
+    VALUES ('NV0002', N'Thị Admin', N'Nữ', '1990-07-25', '0987654321', N'Số 45 Cầu Giấy, Cầu Giấy, Hà Nội', 0, 'CV0001');
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.tai_khoan WHERE ten_dang_nhap = 'admin_phu')
+BEGIN
+    INSERT INTO dbo.tai_khoan (ten_dang_nhap, mat_khau, quyen, trang_thai_hoat_dong, ma_nhan_vien)
+    VALUES ('admin_phu', 'ad89b64d66caa8e30e5d5ce4a9763f4ecc205814c412175f3e2c50027471426d', N'QuanLy', 1, 'NV0001');
+END
+
+IF NOT EXISTS (SELECT 1 FROM dbo.tai_khoan WHERE ten_dang_nhap = 'admin')
+BEGIN
+    INSERT INTO dbo.tai_khoan (ten_dang_nhap, mat_khau, quyen, trang_thai_hoat_dong, ma_nhan_vien)
+    VALUES ('admin', 'ad89b64d66caa8e30e5d5ce4a9763f4ecc205814c412175f3e2c50027471426d', N'QuanLy', 1, 'NV0002');
+END
+GO
+
+CREATE OR ALTER TRIGGER TR_tai_khoan_chan_xoa_admin
+ON dbo.tai_khoan
+FOR DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF EXISTS (SELECT 1 FROM deleted WHERE ten_dang_nhap IN ('admin', 'admin_phu'))
+    BEGIN
+        RAISERROR(N'Không thể xóa 2 tài khoản Quản trị viên hệ thống (admin, admin_phu)!', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+END
+GO
+
+CREATE OR ALTER TRIGGER TR_nhan_vien_chan_xoa_admin
+ON dbo.nhan_vien
+FOR DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF EXISTS (SELECT 1 FROM deleted WHERE ma_nhan_vien IN ('NV0001', 'NV0002'))
+    BEGIN
+        RAISERROR(N'Không thể xóa 2 nhân viên Quản trị viên hệ thống (NV0001, NV0002)!', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+END
+GO

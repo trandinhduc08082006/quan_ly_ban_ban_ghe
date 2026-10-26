@@ -40,6 +40,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             txtMaHang.CharacterCasing = CharacterCasing.Upper;
             txtMaHang.KeyPress += (s, ev) => UIHelper.ChiChoPhepNhapMa(ev);
             txtDonGiaNhap.KeyPress += (s, ev) => UIHelper.ChiChoPhepNhapSo(ev);
+            txtDonGiaNhap.MaxLength = 15;
             txtThoiGianBaoHanh.KeyPress += (s, ev) => UIHelper.ChiChoPhepNhapSo(ev);
 
             LoadDanhSachThuocTinh();
@@ -413,7 +414,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             txtTenHang.Clear();
             txtDonGiaNhap.Clear();
             txtDonGiaBan.Clear();
-            txtSoLuong.Clear();
+            txtSoLuong.Text = "0";
             txtThoiGianBaoHanh.Clear();
             txtGhiChu.Clear();
             txtTenAnh.Clear();
@@ -530,6 +531,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             ThietLapTrangThai(FormMode.Insert);
             UIHelper.XoaChonLuoi(dgvHangHoa);
             txtMaHang.Text = hangHoaBLL.SinhMaHangHoaMoi();
+            txtSoLuong.Text = "0";
             txtTenHang.Focus();
         }
 
@@ -634,6 +636,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             if (!decimal.TryParse(rawGiaNhap, out decimal giaNhap) || giaNhap < 0)
             {
                 MessageBox.Show("Đơn giá nhập phải là số hợp lệ và không được nhỏ hơn 0!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtDonGiaNhap.Focus();
+                return;
+            }
+
+            if (giaNhap > 1000000000000m)
+            {
+                MessageBox.Show("Đơn giá nhập không được vượt quá 1,000 tỷ VNĐ!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtDonGiaNhap.Focus();
                 return;
             }

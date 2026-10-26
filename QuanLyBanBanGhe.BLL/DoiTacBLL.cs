@@ -70,6 +70,14 @@ namespace QuanLyBanBanGhe.BLL
                 throw new InvalidOperationException(string.Format("Không tìm thấy khách hàng '{0}' để xóa!", maKhach));
             }
 
+            int soPhieuBH = dal.DemPhieuBaoHanhChuaHoanTat(maKhach);
+            if (soPhieuBH > 0)
+            {
+                throw new InvalidOperationException(string.Format(
+                    "Không thể xóa khách hàng '{0}' vì hiện tại đang có {1} phiếu bảo hành đang tiếp nhận hoặc xử lý chưa hoàn tất!",
+                    maKhach, soPhieuBH));
+            }
+
             return dal.XoaMemKhachHang(maKhach);
         }
 

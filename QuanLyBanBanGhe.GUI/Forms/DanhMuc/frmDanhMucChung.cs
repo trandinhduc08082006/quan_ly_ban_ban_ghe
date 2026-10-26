@@ -187,6 +187,11 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
 
         private void btnSua_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txtMa.Text))
+            {
+                MessageBox.Show("Vui lòng chọn thuộc tính cần sửa từ danh sách!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             ThietLapTrangThai(FormMode.Update);
         }
 

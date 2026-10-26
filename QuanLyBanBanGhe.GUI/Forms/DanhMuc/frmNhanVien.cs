@@ -15,6 +15,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
         private Button btnKhoiPhuc;
         private ComboBox cboLocTrangThai;
         private Label lblLocTrangThai;
+        private FormMode currentModeCV;
+        private bool dangTaiDuLieuCV;
 
         public frmNhanVien()
         {
@@ -24,6 +26,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
 
         private void frmNhanVien_Load(object sender, EventArgs e)
         {
+            if (!string.Equals(UserSession.Quyen, "QuanLy", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Chỉ có tài khoản quyền Quản lý mới được phép truy cập vào chức năng này!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                this.Close();
+                return;
+            }
+
             KhoiTaoQuyen();
             LoadDanhSachCongViec();
 
@@ -61,6 +70,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             XoaTrang();
             ThietLapTrangThai(FormMode.View);
             UIHelper.XoaChonLuoi(dgvNhanVien);
+
+            KhoiTaoTabCongViec();
         }
 
         private void KhoiTaoBoLocTrangThai()
@@ -120,7 +131,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             cboQuyen.SelectedIndex = -1;
         }
 
-        private void LoadDanhSachCongViec()
+        private void LoadDanhSachCongViec(string selectedMaCV = null)
         {
             dangTaiDuLieu = true;
             try
@@ -129,7 +140,14 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 cboCongViec.DataSource = dt;
                 cboCongViec.DisplayMember = "ten_cong_viec";
                 cboCongViec.ValueMember = "ma_cong_viec";
-                cboCongViec.SelectedIndex = -1;
+                if (!string.IsNullOrEmpty(selectedMaCV))
+                {
+                    cboCongViec.SelectedValue = selectedMaCV;
+                }
+                else
+                {
+                    cboCongViec.SelectedIndex = -1;
+                }
             }
             catch (Exception ex)
             {
@@ -257,6 +275,17 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                     txtTenDangNhap.ReadOnly = true;
                     txtLuong.ReadOnly = true;
                     btnResetMatKhau.Enabled = !dangXemDaXoa && !string.IsNullOrEmpty(txtTenDangNhap.Text);
+
+                    bool laTaiKhoanHeThong = string.Equals(txtMaNV.Text.Trim(), "NV0001", StringComparison.OrdinalIgnoreCase) ||
+                                             string.Equals(txtMaNV.Text.Trim(), "NV0002", StringComparison.OrdinalIgnoreCase) ||
+                                             string.Equals(txtTenDangNhap.Text.Trim(), "admin", StringComparison.OrdinalIgnoreCase) ||
+                                             string.Equals(txtTenDangNhap.Text.Trim(), "admin_phu", StringComparison.OrdinalIgnoreCase);
+                    bool laChinhMinh = string.Equals(txtMaNV.Text.Trim(), UserSession.MaNV, StringComparison.OrdinalIgnoreCase);
+
+                    if (laTaiKhoanHeThong || laChinhMinh)
+                    {
+                        btnXoa.Enabled = false;
+                    }
                     break;
 
                 case FormMode.Insert:
@@ -275,6 +304,18 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                     txtTenDangNhap.ReadOnly = !string.IsNullOrEmpty(txtTenDangNhap.Text);
                     txtLuong.ReadOnly = true;
                     btnResetMatKhau.Enabled = !string.IsNullOrEmpty(txtTenDangNhap.Text);
+
+                    bool laTKHeThongUpdate = string.Equals(txtMaNV.Text.Trim(), "NV0001", StringComparison.OrdinalIgnoreCase) ||
+                                            string.Equals(txtMaNV.Text.Trim(), "NV0002", StringComparison.OrdinalIgnoreCase) ||
+                                            string.Equals(txtTenDangNhap.Text.Trim(), "admin", StringComparison.OrdinalIgnoreCase) ||
+                                            string.Equals(txtTenDangNhap.Text.Trim(), "admin_phu", StringComparison.OrdinalIgnoreCase);
+                    if (laTKHeThongUpdate)
+                    {
+                        cboQuyen.Enabled = false;
+                        chkTrangThaiHoatDong.Enabled = false;
+                        cboCongViec.Enabled = false;
+                    }
+
                     txtTenNV.Focus();
                     break;
             }
@@ -462,6 +503,24 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 return;
             }
 
+            string maNV = txtMaNV.Text.Trim();
+            string tenDangNhap = txtTenDangNhap.Text.Trim();
+
+            if (string.Equals(maNV, "NV0001", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(maNV, "NV0002", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(tenDangNhap, "admin", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(tenDangNhap, "admin_phu", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Không thể xóa 2 tài khoản Quản trị viên hệ thống (admin, admin_phu)!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.Equals(maNV, UserSession.MaNV, StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Không thể xóa tài khoản của chính mình đang đăng nhập!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             DialogResult dr = MessageBox.Show(
                 string.Format("Bạn có chắc chắn muốn xóa nhân viên '{0}' không? Hệ thống sẽ khóa tài khoản liên kết (nếu có).", txtTenNV.Text),
                 "Xác nhận xóa",
@@ -564,6 +623,21 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 };
             }
 
+            if (tk != null && (string.Equals(tk.TenDangNhap, "admin", StringComparison.OrdinalIgnoreCase) || string.Equals(tk.TenDangNhap, "admin_phu", StringComparison.OrdinalIgnoreCase)))
+            {
+                if (!chkTrangThaiHoatDong.Checked)
+                {
+                    MessageBox.Show("Không thể vô hiệu hóa 2 tài khoản Quản trị viên hệ thống (admin, admin_phu)!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (cboQuyen.SelectedItem?.ToString() != "QuanLy")
+                {
+                    MessageBox.Show("Không thể thay đổi quyền Quản lý của 2 tài khoản Quản trị viên hệ thống (admin, admin_phu)!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+
             try
             {
                 if (currentMode == FormMode.Insert)
@@ -593,6 +667,413 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             XoaTrang();
             ThietLapTrangThai(FormMode.View);
             UIHelper.XoaChonLuoi(dgvNhanVien);
+        }
+
+        private void KhoiTaoTabCongViec()
+        {
+            dangTaiDuLieuCV = true;
+            try
+            {
+                cboLocTrangThaiCV.Items.Clear();
+                cboLocTrangThaiCV.Items.Add("Đang hoạt động");
+                cboLocTrangThaiCV.Items.Add("Đã xóa");
+                cboLocTrangThaiCV.SelectedIndex = 0;
+            }
+            finally
+            {
+                dangTaiDuLieuCV = false;
+            }
+
+            UIHelper.FormatCurrencyColumns(dgvCongViec, "colMucLuongCV");
+            UIHelper.GanXoaChonTuDong(dgvCongViec);
+
+            txtMaCV.CharacterCasing = CharacterCasing.Upper;
+            txtMucLuongCV.KeyPress += (s, ev) => UIHelper.ChiChoPhepNhapSo(ev);
+            txtMucLuongCV.MaxLength = 15;
+            txtMucLuongCV.Leave += txtMucLuongCV_Leave;
+
+            LoadDanhSachCongViecGrid();
+            XoaTrangCV();
+            ThietLapTrangThaiCV(FormMode.View);
+            UIHelper.XoaChonLuoi(dgvCongViec);
+        }
+
+        private void LoadDanhSachCongViecGrid()
+        {
+            dangTaiDuLieuCV = true;
+            try
+            {
+                bool chiLayDangHoatDong = cboLocTrangThaiCV.SelectedIndex == 0;
+                DataTable dt = nhanSuBLL.LayDanhSachCongViec(chiLayDangHoatDong);
+                dgvCongViec.DataSource = dt;
+                UIHelper.XoaChonLuoi(dgvCongViec);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải danh sách công việc: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                dangTaiDuLieuCV = false;
+            }
+        }
+
+        private void txtMucLuongCV_Leave(object sender, EventArgs e)
+        {
+            string text = txtMucLuongCV.Text.Replace(",", "").Replace(".", "").Trim();
+            if (decimal.TryParse(text, out decimal val))
+            {
+                txtMucLuongCV.Text = val.ToString("N0");
+            }
+            else
+            {
+                txtMucLuongCV.Text = "0";
+            }
+        }
+
+        private decimal LayMucLuongCV()
+        {
+            string text = txtMucLuongCV.Text.Replace(",", "").Replace(".", "").Trim();
+            if (decimal.TryParse(text, out decimal val))
+            {
+                return val;
+            }
+            return 0;
+        }
+
+        private void XoaTrangCV()
+        {
+            txtMaCV.Clear();
+            txtTenCV.Clear();
+            txtMucLuongCV.Text = "0";
+        }
+
+        private void ThietLapTrangThaiCV(FormMode mode)
+        {
+            currentModeCV = mode;
+            bool dangXemDaXoa = cboLocTrangThaiCV.SelectedIndex == 1;
+
+            if (dangXemDaXoa)
+            {
+                btnThemCV.Visible = false;
+                btnSuaCV.Visible = false;
+                btnXoaCV.Visible = false;
+                btnLuuCV.Visible = false;
+                btnBoQuaCV.Visible = false;
+                btnKhoiPhucCV.Visible = true;
+                btnKhoiPhucCV.Enabled = (mode == FormMode.Selected);
+                txtMaCV.ReadOnly = true;
+                txtTenCV.ReadOnly = true;
+                txtMucLuongCV.ReadOnly = true;
+                return;
+            }
+
+            btnThemCV.Visible = true;
+            btnSuaCV.Visible = true;
+            btnXoaCV.Visible = true;
+            btnLuuCV.Visible = true;
+            btnBoQuaCV.Visible = true;
+            btnKhoiPhucCV.Visible = false;
+
+            UIHelper.SetButtonState(mode, btnThemCV, btnSuaCV, btnXoaCV, btnLuuCV, btnBoQuaCV);
+
+            switch (mode)
+            {
+                case FormMode.View:
+                    txtMaCV.ReadOnly = true;
+                    txtTenCV.ReadOnly = true;
+                    txtMucLuongCV.ReadOnly = true;
+                    break;
+
+                case FormMode.Selected:
+                    txtMaCV.ReadOnly = true;
+                    txtTenCV.ReadOnly = true;
+                    txtMucLuongCV.ReadOnly = true;
+                    break;
+
+                case FormMode.Insert:
+                    txtMaCV.ReadOnly = true;
+                    txtTenCV.ReadOnly = false;
+                    txtMucLuongCV.ReadOnly = false;
+                    XoaTrangCV();
+                    txtMaCV.Text = nhanSuBLL.SinhMaCongViecTuDong();
+                    txtTenCV.Focus();
+                    break;
+
+                case FormMode.Update:
+                    txtMaCV.ReadOnly = true;
+                    txtTenCV.ReadOnly = false;
+                    txtMucLuongCV.ReadOnly = false;
+                    txtTenCV.Focus();
+                    break;
+            }
+        }
+
+        private void dgvCongViec_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || currentModeCV == FormMode.Insert || currentModeCV == FormMode.Update)
+            {
+                return;
+            }
+
+            if (dgvCongViec.Rows[e.RowIndex].DataBoundItem is DataRowView drv)
+            {
+                txtMaCV.Text = drv["ma_cong_viec"]?.ToString() ?? string.Empty;
+                txtTenCV.Text = drv["ten_cong_viec"]?.ToString() ?? string.Empty;
+                decimal mucLuong = drv["muc_luong"] != DBNull.Value ? Convert.ToDecimal(drv["muc_luong"]) : 0;
+                txtMucLuongCV.Text = mucLuong.ToString("N0");
+                ThietLapTrangThaiCV(FormMode.Selected);
+            }
+        }
+
+        private void dgvCongViec_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0)
+            {
+                return;
+            }
+
+            if (dgvCongViec.Columns[e.ColumnIndex].Name == "colTrangThaiCV" && e.Value != null)
+            {
+                bool daXoa = false;
+                if (e.Value is bool b)
+                {
+                    daXoa = b;
+                }
+                else if (int.TryParse(e.Value.ToString(), out int val))
+                {
+                    daXoa = val == 1;
+                }
+
+                e.Value = daXoa ? "Đã xóa" : "Đang hoạt động";
+                e.FormattingApplied = true;
+            }
+        }
+
+        private void btnThemCV_Click(object sender, EventArgs e)
+        {
+            ThietLapTrangThaiCV(FormMode.Insert);
+        }
+
+        private void btnSuaCV_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtMaCV.Text))
+            {
+                MessageBox.Show("Vui lòng chọn công việc cần sửa trên lưới!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            ThietLapTrangThaiCV(FormMode.Update);
+        }
+
+        private void btnXoaCV_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtMaCV.Text))
+            {
+                MessageBox.Show("Vui lòng chọn công việc cần xóa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string maCV = txtMaCV.Text.Trim();
+            string tenCV = txtTenCV.Text.Trim();
+
+            if (maCV == "CV0001")
+            {
+                MessageBox.Show("Không thể xóa công việc mặc định của hệ thống (CV0001)!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (nhanSuBLL.KiemTraCongViecDangDuocSuDung(maCV))
+            {
+                MessageBox.Show("Không thể xóa công việc này vì đang có nhân viên đảm nhận. Vui lòng chuyển công việc cho nhân viên trước!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DialogResult result = MessageBox.Show(string.Format("Bạn có chắc chắn muốn xóa công việc '{0}' ({1}) không?", tenCV, maCV), "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    if (nhanSuBLL.XoaMemCongViec(maCV, UserSession.Quyen))
+                    {
+                        MessageBox.Show("Xóa công việc thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadDanhSachCongViecGrid();
+                        LoadDanhSachCongViec();
+                        LoadDanhSachNhanVien();
+                        XoaTrangCV();
+                        ThietLapTrangThaiCV(FormMode.View);
+                        UIHelper.XoaChonLuoi(dgvCongViec);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi xóa công việc: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void btnLuuCV_Click(object sender, EventArgs e)
+        {
+            string tenCV = txtTenCV.Text.Trim();
+            if (string.IsNullOrWhiteSpace(tenCV))
+            {
+                MessageBox.Show("Tên công việc không được để trống!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtTenCV.Focus();
+                return;
+            }
+
+            decimal mucLuong = LayMucLuongCV();
+            if (mucLuong < 0)
+            {
+                MessageBox.Show("Mức lương cơ bản không được âm!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtMucLuongCV.Focus();
+                return;
+            }
+
+            if (mucLuong > 1000000000000m)
+            {
+                MessageBox.Show("Mức lương cơ bản không được vượt quá 1,000 tỷ VNĐ!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtMucLuongCV.Focus();
+                return;
+            }
+
+            CongViecDTO cv = new CongViecDTO
+            {
+                MaCongViec = txtMaCV.Text.Trim().ToUpper(),
+                TenCongViec = tenCV,
+                MucLuong = mucLuong
+            };
+
+            try
+            {
+                if (currentModeCV == FormMode.Insert)
+                {
+                    if (nhanSuBLL.ThemCongViec(cv, UserSession.Quyen))
+                    {
+                        MessageBox.Show("Thêm công việc mới thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                else if (currentModeCV == FormMode.Update)
+                {
+                    if (nhanSuBLL.SuaCongViec(cv, UserSession.Quyen))
+                    {
+                        MessageBox.Show("Cập nhật công việc thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+
+                LoadDanhSachCongViecGrid();
+                LoadDanhSachCongViec();
+                LoadDanhSachNhanVien();
+                XoaTrangCV();
+                ThietLapTrangThaiCV(FormMode.View);
+                UIHelper.XoaChonLuoi(dgvCongViec);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Thông báo lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnBoQuaCV_Click(object sender, EventArgs e)
+        {
+            XoaTrangCV();
+            ThietLapTrangThaiCV(FormMode.View);
+            UIHelper.XoaChonLuoi(dgvCongViec);
+        }
+
+        private void cboLocTrangThaiCV_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (dangTaiDuLieuCV)
+            {
+                return;
+            }
+
+            XoaTrangCV();
+            ThietLapTrangThaiCV(FormMode.View);
+            LoadDanhSachCongViecGrid();
+        }
+
+        private void btnKhoiPhucCV_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtMaCV.Text))
+            {
+                MessageBox.Show("Vui lòng chọn công việc cần khôi phục trên lưới!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string maCV = txtMaCV.Text.Trim();
+            string tenCV = txtTenCV.Text.Trim();
+
+            DialogResult result = MessageBox.Show(string.Format("Bạn có muốn khôi phục công việc '{0}' ({1}) không?", tenCV, maCV), "Xác nhận khôi phục", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    if (nhanSuBLL.KhoiPhucCongViec(maCV, UserSession.Quyen))
+                    {
+                        MessageBox.Show("Khôi phục công việc thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadDanhSachCongViecGrid();
+                        LoadDanhSachCongViec();
+                        LoadDanhSachNhanVien();
+                        XoaTrangCV();
+                        ThietLapTrangThaiCV(FormMode.View);
+                        UIHelper.XoaChonLuoi(dgvCongViec);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi khôi phục công việc: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void tabMainNhanSu_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabMainNhanSu.SelectedIndex == 0)
+            {
+                string selectedMaCV = cboCongViec.SelectedValue?.ToString();
+                bool dangNhapLieu = (currentMode == FormMode.Insert || currentMode == FormMode.Update);
+
+                LoadDanhSachCongViec(dangNhapLieu ? selectedMaCV : null);
+                LoadDanhSachNhanVien();
+
+                if (currentMode == FormMode.Selected && !string.IsNullOrWhiteSpace(txtMaNV.Text))
+                {
+                    ChonNhanVienTrenLuoi(txtMaNV.Text.Trim());
+                }
+            }
+            else if (tabMainNhanSu.SelectedIndex == 1)
+            {
+                LoadDanhSachCongViecGrid();
+            }
+        }
+
+        private void ChonNhanVienTrenLuoi(string maNV)
+        {
+            if (string.IsNullOrEmpty(maNV) || dgvNhanVien.Rows.Count == 0)
+            {
+                return;
+            }
+
+            foreach (DataGridViewRow row in dgvNhanVien.Rows)
+            {
+                if (row.DataBoundItem is DataRowView drv && string.Equals(drv["ma_nhan_vien"]?.ToString(), maNV, StringComparison.OrdinalIgnoreCase))
+                {
+                    row.Selected = true;
+                    if (drv["ma_cong_viec"] != DBNull.Value)
+                    {
+                        dangTaiDuLieu = true;
+                        try
+                        {
+                            cboCongViec.SelectedValue = drv["ma_cong_viec"].ToString();
+                        }
+                        finally
+                        {
+                            dangTaiDuLieu = false;
+                        }
+                    }
+                    break;
+                }
+            }
         }
     }
 }

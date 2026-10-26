@@ -545,10 +545,14 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
                 DataTable dt0 = baoCaoBLL.BaoCaoNhanVienDoanhSo0(nam);
                 dgvNVDoanhSo0.DataSource = dt0;
                 UIHelper.XoaChonLuoi(dgvNVDoanhSo0);
+                int count0 = dt0 != null ? dt0.Rows.Count : 0;
+                grpNV0.Text = string.Format("Danh sách nhân viên chưa bán được đơn nào trong năm {0} ({1} nhân viên)", nam, count0);
 
                 DataTable dtThap = baoCaoBLL.BaoCaoTop10NhanVienDoanhSoThap(nam);
                 dgvNVDoanhSoThap.DataSource = dtThap;
                 UIHelper.XoaChonLuoi(dgvNVDoanhSoThap);
+                int countThap = dtThap != null ? dtThap.Rows.Count : 0;
+                grpNVThap.Text = string.Format("Top 10 nhân viên có doanh số bán hàng thấp nhất năm {0} ({1} nhân viên)", nam, countThap);
             }
             catch (Exception ex)
             {

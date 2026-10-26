@@ -29,6 +29,21 @@ namespace QuanLyBanBanGhe.GUI.Forms.TimKiem
             UIHelper.FormatCurrencyColumns(dgvKetQua, "colTongTien");
             UIHelper.GanXoaChonTuDong(dgvKetQua);
 
+            dtpTuNgay.ValueChanged += (s, ev) =>
+            {
+                if (dtpTuNgay.Value.Date > dtpDenNgay.Value.Date)
+                {
+                    dtpDenNgay.Value = dtpTuNgay.Value;
+                }
+            };
+            dtpDenNgay.ValueChanged += (s, ev) =>
+            {
+                if (dtpDenNgay.Value.Date < dtpTuNgay.Value.Date)
+                {
+                    dtpTuNgay.Value = dtpDenNgay.Value;
+                }
+            };
+
             LoadComboBoxes();
             LamMoiBoLoc();
             ThucHienTimKiem();

@@ -77,6 +77,12 @@ namespace QuanLyBanBanGhe.BLL
                 throw new InvalidOperationException(string.Format("Không tìm thấy sản phẩm '{0}' để xóa!", maHang));
             }
 
+            int tonKho = dal.LayTonKho(maHang);
+            if (tonKho > 0)
+            {
+                throw new InvalidOperationException(string.Format("Không thể xóa sản phẩm '{0}' vì hiện tại vẫn còn tồn kho {1} cái. Vui lòng thanh lý hoặc xuất hết hàng trước khi xóa!", maHang, tonKho));
+            }
+
             return dal.XoaMemHangHoa(maHang);
         }
 

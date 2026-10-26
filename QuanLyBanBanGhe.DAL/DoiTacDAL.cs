@@ -75,6 +75,16 @@ WHERE ma_khach = @ma_khach";
             return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
         }
 
+        public int DemPhieuBaoHanhChuaHoanTat(string maKhach)
+        {
+            string sql = "SELECT COUNT(1) FROM dbo.phieu_bao_hanh WHERE ma_khach = @ma_khach AND trang_thai_xoa = 0 AND trang_thai IN ('TiepNhan', 'DangXuLy', 'DaXong')";
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@ma_khach", maKhach)
+            };
+            return Convert.ToInt32(DatabaseHelper.ExecuteScalar(sql, parameters));
+        }
+
         public bool KhoiPhucKhachHang(string maKhach)
         {
             string sql = "UPDATE dbo.khach_hang SET trang_thai_xoa = 0 WHERE ma_khach = @ma_khach";

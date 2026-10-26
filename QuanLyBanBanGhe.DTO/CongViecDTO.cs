@@ -12,5 +12,13 @@ namespace QuanLyBanBanGhe.DTO
             MucLuong = 0;
             TrangThaiXoa = false;
         }
+
+        public CongViecDTO(string maCongViec, string tenCongViec, decimal mucLuong, bool trangThaiXoa = false)
+        {
+            MaCongViec = maCongViec;
+            TenCongViec = tenCongViec;
+            MucLuong = mucLuong;
+            TrangThaiXoa = trangThaiXoa;
+        }
     }
 }

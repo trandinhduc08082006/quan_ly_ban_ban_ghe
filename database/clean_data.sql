@@ -14,9 +14,9 @@ DELETE FROM dbo.hang_hoa;
 DELETE FROM dbo.khach_hang;
 DELETE FROM dbo.nha_cung_cap;
 
-DELETE FROM dbo.tai_khoan;
-DELETE FROM dbo.nhan_vien;
-DELETE FROM dbo.cong_viec;
+DELETE FROM dbo.tai_khoan WHERE ten_dang_nhap NOT IN ('admin_phu', 'admin');
+DELETE FROM dbo.nhan_vien WHERE ma_nhan_vien NOT IN ('NV0001', 'NV0002');
+DELETE FROM dbo.cong_viec WHERE ma_cong_viec NOT IN ('CV0001');
 
 DELETE FROM dbo.kich_thuoc;
 DELETE FROM dbo.loai;

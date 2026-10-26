@@ -25,9 +25,192 @@ namespace QuanLyBanBanGhe.BLL
             return dal.SinhMaNhanVienMoi();
         }
 
-        public DataTable LayDanhSachCongViec()
+        public DataTable LayDanhSachCongViec(bool chiLayDangHoatDong = true)
         {
-            return dal.LayDanhSachCongViec();
+            return dal.LayDanhSachCongViec(chiLayDangHoatDong);
+        }
+
+        public string SinhMaCongViecTuDong()
+        {
+            return dal.SinhMaCongViecTuDong();
+        }
+
+        public bool ThemCongViec(CongViecDTO cv)
+        {
+            return ThemCongViec(cv, "QuanLy");
+        }
+
+        public bool ThemCongViec(CongViecDTO cv, string quyenNguoiDung)
+        {
+            if (!string.IsNullOrEmpty(quyenNguoiDung) && !string.Equals(quyenNguoiDung, "QuanLy", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new UnauthorizedAccessException("Chỉ có tài khoản quyền Quản lý mới được phép thêm công việc!");
+            }
+
+            if (cv == null)
+            {
+                throw new ArgumentNullException("Dữ liệu công việc không được rỗng!");
+            }
+
+            if (string.IsNullOrWhiteSpace(cv.TenCongViec))
+            {
+                throw new ArgumentException("Tên công việc không được để trống!");
+            }
+
+            if (cv.MucLuong < 0)
+            {
+                throw new ArgumentException("Mức lương cơ bản không được âm!");
+            }
+
+            cv.TenCongViec = cv.TenCongViec.Trim();
+
+            if (dal.KiemTraTrungTenCongViec(cv.TenCongViec))
+            {
+                throw new InvalidOperationException(string.Format("Tên công việc '{0}' đã tồn tại trong hệ thống!", cv.TenCongViec));
+            }
+
+            if (string.IsNullOrWhiteSpace(cv.MaCongViec))
+            {
+                cv.MaCongViec = SinhMaCongViecTuDong();
+            }
+            else
+            {
+                cv.MaCongViec = cv.MaCongViec.Trim().ToUpper();
+                if (dal.KiemTraTonTaiCongViec(cv.MaCongViec))
+                {
+                    throw new InvalidOperationException(string.Format("Mã công việc '{0}' đã tồn tại trong hệ thống!", cv.MaCongViec));
+                }
+            }
+
+            return dal.ThemCongViec(cv);
+        }
+
+        public bool SuaCongViec(CongViecDTO cv)
+        {
+            return SuaCongViec(cv, "QuanLy");
+        }
+
+        public bool SuaCongViec(CongViecDTO cv, string quyenNguoiDung)
+        {
+            if (!string.IsNullOrEmpty(quyenNguoiDung) && !string.Equals(quyenNguoiDung, "QuanLy", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new UnauthorizedAccessException("Chỉ có tài khoản quyền Quản lý mới được phép sửa công việc!");
+            }
+
+            if (cv == null)
+            {
+                throw new ArgumentNullException("Dữ liệu công việc không được rỗng!");
+            }
+
+            if (string.IsNullOrWhiteSpace(cv.MaCongViec))
+            {
+                throw new ArgumentException("Mã công việc không được để trống!");
+            }
+
+            cv.MaCongViec = cv.MaCongViec.Trim().ToUpper();
+
+            if (!dal.KiemTraTonTaiCongViec(cv.MaCongViec))
+            {
+                throw new InvalidOperationException(string.Format("Không tìm thấy công việc '{0}' để cập nhật!", cv.MaCongViec));
+            }
+
+            if (string.IsNullOrWhiteSpace(cv.TenCongViec))
+            {
+                throw new ArgumentException("Tên công việc không được để trống!");
+            }
+
+            if (cv.MucLuong < 0)
+            {
+                throw new ArgumentException("Mức lương cơ bản không được âm!");
+            }
+
+            cv.TenCongViec = cv.TenCongViec.Trim();
+
+            if (dal.KiemTraTrungTenCongViec(cv.TenCongViec, cv.MaCongViec))
+            {
+                throw new InvalidOperationException(string.Format("Tên công việc '{0}' đã tồn tại trong hệ thống!", cv.TenCongViec));
+            }
+
+            return dal.SuaCongViec(cv);
+        }
+
+        public bool XoaMemCongViec(string maCongViec)
+        {
+            return XoaMemCongViec(maCongViec, "QuanLy");
+        }
+
+        public bool XoaMemCongViec(string maCongViec, string quyenNguoiDung)
+        {
+            if (!string.IsNullOrEmpty(quyenNguoiDung) && !string.Equals(quyenNguoiDung, "QuanLy", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new UnauthorizedAccessException("Chỉ có tài khoản quyền Quản lý mới được phép xóa công việc!");
+            }
+
+            if (string.IsNullOrWhiteSpace(maCongViec))
+            {
+                throw new ArgumentException("Mã công việc cần xóa không được để trống!");
+            }
+
+            maCongViec = maCongViec.Trim().ToUpper();
+
+            if (!dal.KiemTraTonTaiCongViec(maCongViec))
+            {
+                throw new InvalidOperationException(string.Format("Không tìm thấy công việc '{0}' để xóa!", maCongViec));
+            }
+
+            if (maCongViec == "CV0001")
+            {
+                throw new InvalidOperationException("Không thể xóa công việc mặc định của hệ thống (CV0001)!");
+            }
+
+            if (dal.KiemTraCongViecDangDuocSuDung(maCongViec))
+            {
+                throw new InvalidOperationException("Không thể xóa công việc này vì đang có nhân viên đảm nhận. Vui lòng chuyển công việc cho nhân viên trước!");
+            }
+
+            return dal.XoaMemCongViec(maCongViec);
+        }
+
+        public bool KhoiPhucCongViec(string maCongViec)
+        {
+            return KhoiPhucCongViec(maCongViec, "QuanLy");
+        }
+
+        public bool KhoiPhucCongViec(string maCongViec, string quyenNguoiDung)
+        {
+            if (!string.IsNullOrEmpty(quyenNguoiDung) && !string.Equals(quyenNguoiDung, "QuanLy", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new UnauthorizedAccessException("Chỉ có tài khoản quyền Quản lý mới được phép khôi phục công việc!");
+            }
+
+            if (string.IsNullOrWhiteSpace(maCongViec))
+            {
+                throw new ArgumentException("Mã công việc cần khôi phục không được để trống!");
+            }
+
+            maCongViec = maCongViec.Trim().ToUpper();
+
+            CongViecDTO cv = dal.LayCongViecTheoMa(maCongViec);
+            if (cv == null)
+            {
+                throw new InvalidOperationException("Không tìm thấy công việc cần khôi phục!");
+            }
+
+            if (dal.KiemTraTrungTenCongViec(cv.TenCongViec, maCongViec))
+            {
+                throw new InvalidOperationException(string.Format("Không thể khôi phục vì đã tồn tại công việc đang hoạt động có cùng tên '{0}'!", cv.TenCongViec));
+            }
+
+            return dal.KhoiPhucCongViec(maCongViec);
+        }
+
+        public bool KiemTraCongViecDangDuocSuDung(string maCongViec)
+        {
+            if (string.IsNullOrWhiteSpace(maCongViec))
+            {
+                return false;
+            }
+            return dal.KiemTraCongViecDangDuocSuDung(maCongViec.Trim());
         }
 
         public DataTable LayDanhSachNhanVien(bool chiLayDangHoatDong = true)
@@ -127,6 +310,19 @@ namespace QuanLyBanBanGhe.BLL
             if (coThongTinTaiKhoan)
             {
                 tk.TenDangNhap = tk.TenDangNhap.Trim();
+
+                if (string.Equals(tk.TenDangNhap, "admin", StringComparison.OrdinalIgnoreCase) || string.Equals(tk.TenDangNhap, "admin_phu", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!tk.TrangThaiHoatDong)
+                    {
+                        throw new InvalidOperationException("Không thể vô hiệu hóa 2 tài khoản Quản trị viên hệ thống (admin, admin_phu)!");
+                    }
+                    if (!string.Equals(tk.Quyen, "QuanLy", StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidOperationException("Không thể đổi quyền Quản lý của 2 tài khoản Quản trị viên hệ thống (admin, admin_phu)!");
+                    }
+                }
+
                 bool daCoTaiKhoan = dal.KiemTraNhanVienCoTaiKhoan(nv.MaNhanVien);
 
                 if (!daCoTaiKhoan)
@@ -216,7 +412,13 @@ namespace QuanLyBanBanGhe.BLL
 
             if (string.Equals(maNV, "NV0001", StringComparison.OrdinalIgnoreCase) || string.Equals(maNV, "NV0002", StringComparison.OrdinalIgnoreCase))
             {
-                throw new InvalidOperationException("Không thể xóa nhân viên Quản trị viên chính hệ thống (NV0001, NV0002)!");
+                throw new InvalidOperationException("Không thể xóa 2 tài khoản Quản trị viên hệ thống (admin, admin_phu)!");
+            }
+
+            string tenDangNhap = dal.LayTenDangNhapTheoMaNV(maNV);
+            if (string.Equals(tenDangNhap, "admin", StringComparison.OrdinalIgnoreCase) || string.Equals(tenDangNhap, "admin_phu", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Không thể xóa 2 tài khoản Quản trị viên hệ thống (admin, admin_phu)!");
             }
 
             if (!dal.KiemTraTonTaiNhanVien(maNV))
@@ -235,9 +437,20 @@ namespace QuanLyBanBanGhe.BLL
             }
 
             maNV = maNV.Trim();
-            if (!dal.KiemTraTonTaiNhanVien(maNV))
+            NhanVienDTO nv = dal.LayNhanVienTheoMa(maNV);
+            if (nv == null)
             {
                 throw new InvalidOperationException(string.Format("Không tìm thấy nhân viên '{0}' để khôi phục!", maNV));
+            }
+
+            if (!string.IsNullOrWhiteSpace(nv.MaCongViec))
+            {
+                CongViecDTO cv = dal.LayCongViecTheoMa(nv.MaCongViec);
+                if (cv == null || cv.TrangThaiXoa)
+                {
+                    string tenCV = cv != null ? cv.TenCongViec : "Không xác định";
+                    throw new InvalidOperationException(string.Format("Không thể khôi phục nhân viên '{0}' vì công việc '{1}' ({2}) đã bị xóa khỏi hệ thống. Vui lòng khôi phục công việc trước!", nv.TenNhanVien, tenCV, nv.MaCongViec));
+                }
             }
 
             return dal.KhoiPhucNhanVien(maNV);
@@ -293,7 +506,14 @@ namespace QuanLyBanBanGhe.BLL
                 throw new ArgumentException("Tên đăng nhập không được để trống!");
             }
 
-            return dal.DoiTrangThaiTaiKhoan(tenDangNhap.Trim(), hoatDong);
+            tenDangNhap = tenDangNhap.Trim();
+
+            if (!hoatDong && (string.Equals(tenDangNhap, "admin", StringComparison.OrdinalIgnoreCase) || string.Equals(tenDangNhap, "admin_phu", StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new InvalidOperationException("Không thể vô hiệu hóa 2 tài khoản Quản trị viên hệ thống (admin, admin_phu)!");
+            }
+
+            return dal.DoiTrangThaiTaiKhoan(tenDangNhap, hoatDong);
         }
 
         public TaiKhoanDTO DangNhap(string tenDangNhap, string matKhau)
@@ -418,6 +638,17 @@ namespace QuanLyBanBanGhe.BLL
             if (string.IsNullOrWhiteSpace(nv.MaCongViec))
             {
                 throw new ArgumentException("Vui lòng chọn công việc / chức vụ cho nhân viên!");
+            }
+
+            CongViecDTO cvPhanCong = dal.LayCongViecTheoMa(nv.MaCongViec.Trim());
+            if (cvPhanCong == null)
+            {
+                throw new ArgumentException(string.Format("Công việc có mã '{0}' không tồn tại trong hệ thống!", nv.MaCongViec));
+            }
+
+            if (cvPhanCong.TrangThaiXoa)
+            {
+                throw new InvalidOperationException(string.Format("Công việc '{0}' ({1}) hiện đang ở trạng thái đã xóa! Vui lòng chọn công việc khác.", cvPhanCong.TenCongViec, cvPhanCong.MaCongViec));
             }
 
             if (nv.NgaySinh.HasValue)

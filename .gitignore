@@ -1,11 +1,9 @@
-## Visual Studio files and directories
 .vs/
 *.user
 *.userosscache
 *.sln.docstates
 *.suo
 
-## Build results
 [Bb]in/
 [Oo]bj/
 [Dd]ebug/
@@ -16,23 +14,20 @@ x64/
 x86/
 build/
 bld/
+docs/
 
-## Logs
 *.log
 msbuild.log
 
-## NuGet Packages
 *.nupkg
 packages/
 !packages/repositories.config
 project.lock.json
 project.assets.json
 
-## Test results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
-## Windows / OS generated files
 Thumbs.db
 ehthumbs.db
 Desktop.ini
@@ -42,7 +37,6 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 
-## Database files (local mdf/ldf, not sql scripts)
 *.mdf
 *.ldf
 *.ndf

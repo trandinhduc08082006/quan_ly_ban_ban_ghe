@@ -5,14 +5,15 @@ SET NOCOUNT ON;
 
 BEGIN TRANSACTION;
 
+DELETE FROM dbo.phieu_bao_hanh;
 DELETE FROM dbo.chi_tiet_hoa_don_ban;
 DELETE FROM dbo.hoa_don_ban;
 DELETE FROM dbo.chi_tiet_hoa_don_nhap;
 DELETE FROM dbo.hoa_don_nhap;
 DELETE FROM dbo.hang_hoa;
-DELETE FROM dbo.tai_khoan;
-DELETE FROM dbo.nhan_vien;
-DELETE FROM dbo.cong_viec;
+DELETE FROM dbo.tai_khoan WHERE ten_dang_nhap NOT IN ('admin_phu', 'admin');
+DELETE FROM dbo.nhan_vien WHERE ma_nhan_vien NOT IN ('NV0001', 'NV0002');
+DELETE FROM dbo.cong_viec WHERE ma_cong_viec NOT IN ('CV0001');
 DELETE FROM dbo.khach_hang;
 DELETE FROM dbo.nha_cung_cap;
 DELETE FROM dbo.kich_thuoc;
@@ -126,13 +127,10 @@ INSERT INTO dbo.nha_san_xuat (ma_nha_san_xuat, ten_nha_san_xuat) VALUES
 ('CSX0008', N'Xưởng Kim khí Nội thất Hoàng Mai');
 
 INSERT INTO dbo.cong_viec (ma_cong_viec, ten_cong_viec, muc_luong, trang_thai_xoa) VALUES
-('CV0001', N'Quản lý cửa hàng', 18000000.00, 0),
 ('CV0002', N'Nhân viên bán hàng', 8500000.00, 0),
 ('CV0003', N'Nhân viên thủ kho', 9000000.00, 0);
 
 INSERT INTO dbo.nhan_vien (ma_nhan_vien, ten_nhan_vien, gioi_tinh, ngay_sinh, dien_thoai, dia_chi, trang_thai_xoa, ma_cong_viec) VALUES
-('NV0001', N'Văn Admin', N'Nam', '1988-03-12', '0912345678', N'Số 12 Chùa Láng, Đống Đa, Hà Nội', 0, 'CV0001'),
-('NV0002', N'Thị Admin', N'Nữ', '1990-07-25', '0987654321', N'Số 45 Cầu Giấy, Cầu Giấy, Hà Nội', 0, 'CV0001'),
 ('NV0003', N'Trần Đình Đức', N'Nam', '1995-10-24', '0901234567', N'Số 88 Giải Phóng, Hai Bà Trưng, Hà Nội', 0, 'CV0001'),
 ('NV0004', N'Lê Văn Cường', N'Nam', '1993-11-10', '0934567801', N'Số 15 Lê Văn Lương, Thanh Xuân, Hà Nội', 0, 'CV0002'),
 ('NV0005', N'Hoàng Thị Dung', N'Nữ', '1996-05-18', '0934567802', N'Số 28 Trần Duy Hưng, Cầu Giấy, Hà Nội', 0, 'CV0002'),
@@ -156,8 +154,6 @@ INSERT INTO dbo.nhan_vien (ma_nhan_vien, ten_nhan_vien, gioi_tinh, ngay_sinh, di
 ('NV0023', N'Võ Thành Đạt', N'Nam', '1995-01-25', '0945678910', N'Kho Tam Trinh, Hoàng Mai, Hà Nội', 0, 'CV0003');
 
 INSERT INTO dbo.tai_khoan (ten_dang_nhap, mat_khau, quyen, trang_thai_hoat_dong, ma_nhan_vien) VALUES
-('admin_phu', 'ad89b64d66caa8e30e5d5ce4a9763f4ecc205814c412175f3e2c50027471426d', N'QuanLy', 1, 'NV0001'),
-('admin', 'ad89b64d66caa8e30e5d5ce4a9763f4ecc205814c412175f3e2c50027471426d', N'QuanLy', 1, 'NV0002'),
 ('trandinhduc', 'eccae48759f425c5960030f0f4f360b6c6ea665bb65d926fb787e017bd625356', N'QuanLy', 1, 'NV0003'),
 ('levancuong', 'f919ff8548cc20b40141c28f9d7e70487d8a554442e5631c05e55ee57f50a503', N'BanHang', 1, 'NV0004'),
 ('hoangthidung', 'd291f07963c281b450e00adda14e0a4d87156666ec568b254f7d80d629fa2fb7', N'BanHang', 1, 'NV0005'),

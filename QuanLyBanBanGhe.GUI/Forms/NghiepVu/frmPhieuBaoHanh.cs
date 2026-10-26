@@ -656,6 +656,12 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             }
 
             ThietLapTrangThai(FormMode.Selected);
+            string trangThaiHienTai = cboTrangThai.SelectedValue?.ToString() ?? string.Empty;
+            if (string.Equals(trangThaiHienTai, "DaTra", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(trangThaiHienTai, "TuChoi", StringComparison.OrdinalIgnoreCase))
+            {
+                btnSua.Enabled = false;
+            }
         }
 
         private void dgvPhieuBaoHanh_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -720,6 +726,15 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 MessageBox.Show("Vui lòng chọn phiếu bảo hành cần sửa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
+
+            string trangThai = cboTrangThai.SelectedValue?.ToString() ?? string.Empty;
+            if (string.Equals(trangThai, "DaTra", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(trangThai, "TuChoi", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Phiếu bảo hành đã kết thúc chu trình (Đã trả khách hoặc Từ chối bảo hành), không thể chỉnh sửa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             ThietLapTrangThai(FormMode.Update);
             txtMoTaLoi.Focus();
         }
