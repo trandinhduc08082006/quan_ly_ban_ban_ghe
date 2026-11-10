@@ -117,7 +117,7 @@ VALUES (@so_hoa_don_nhap, @ma_hang, @so_luong, @don_gia, @giam_gia, @thanh_tien)
 UPDATE dbo.hang_hoa 
 SET so_luong = so_luong + @so_luong, 
     don_gia_nhap = @don_gia, 
-    don_gia_ban = ROUND((@don_gia * 1.10) / 10000.0, 0) * 10000
+    don_gia_ban = CEILING((@don_gia * 1.10) / 1000.0) * 1000
 WHERE ma_hang = @ma_hang";
 
                         foreach (ChiTietHDNhapDTO ct in chiTietList)
@@ -156,13 +156,6 @@ WHERE ma_hang = @ma_hang";
 
         public bool HuyHoaDonNhap(string soHDN)
         {
-            string sqlGetItems = "SELECT ma_hang, so_luong FROM dbo.chi_tiet_hoa_don_nhap WHERE so_hoa_don_nhap = @so_hdn";
-            SqlParameter[] pGet = new SqlParameter[]
-            {
-                new SqlParameter("@so_hdn", soHDN)
-            };
-            DataTable dtItems = DatabaseHelper.ExecuteQuery(sqlGetItems, pGet);
-
             using (SqlConnection conn = DatabaseHelper.GetConnection())
             {
                 conn.Open();
@@ -170,12 +163,23 @@ WHERE ma_hang = @ma_hang";
                 {
                     try
                     {
-                        string sqlUpdateHDN = "UPDATE dbo.hoa_don_nhap SET trang_thai_giao_dich = N'DaHuy' WHERE so_hoa_don_nhap = @so_hdn";
+                        string sqlUpdateHDN = "UPDATE dbo.hoa_don_nhap SET trang_thai_giao_dich = N'DaHuy' WHERE so_hoa_don_nhap = @so_hdn AND trang_thai_giao_dich = N'HoanThanh'";
                         SqlParameter[] pHDN = new SqlParameter[]
                         {
                             new SqlParameter("@so_hdn", soHDN)
                         };
-                        DatabaseHelper.ExecuteNonQuery(sqlUpdateHDN, pHDN, trans);
+                        int affected = DatabaseHelper.ExecuteNonQuery(sqlUpdateHDN, pHDN, trans);
+                        if (affected <= 0)
+                        {
+                            throw new InvalidOperationException("Hóa đơn không tồn tại hoặc đã được xử lý hủy trước đó!");
+                        }
+
+                        string sqlGetItems = "SELECT ma_hang, so_luong FROM dbo.chi_tiet_hoa_don_nhap WHERE so_hoa_don_nhap = @so_hdn";
+                        SqlParameter[] pGet = new SqlParameter[]
+                        {
+                            new SqlParameter("@so_hdn", soHDN)
+                        };
+                        DataTable dtItems = DatabaseHelper.ExecuteQuery(sqlGetItems, pGet, trans);
 
                         string sqlMinusStock = "UPDATE dbo.hang_hoa SET so_luong = so_luong - @so_luong WHERE ma_hang = @ma_hang";
                         string sqlGetLastPrice = @"
@@ -190,7 +194,7 @@ ORDER BY hdn.thoi_gian_nhap DESC";
                         string sqlRestorePrice = @"
 UPDATE dbo.hang_hoa 
 SET don_gia_nhap = @don_gia_nhap,
-    don_gia_ban = ROUND((@don_gia_nhap * 1.10) / 10000.0, 0) * 10000
+    don_gia_ban = CEILING((@don_gia_nhap * 1.10) / 1000.0) * 1000
 WHERE ma_hang = @ma_hang";
 
                         foreach (DataRow r in dtItems.Rows)

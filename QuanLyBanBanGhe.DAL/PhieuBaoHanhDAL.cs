@@ -32,9 +32,13 @@ SELECT
     hdb.thoi_gian_ban,
     hdb.trang_thai_giao_dich AS trang_thai_hoa_don_ban,
     hh.thoi_gian_bao_hanh,
-    DATEADD(MONTH, ISNULL(hh.thoi_gian_bao_hanh, 0), hdb.thoi_gian_ban) AS han_bao_hanh,
     CASE 
-        WHEN pbh.ngay_tiep_nhan <= DATEADD(MONTH, ISNULL(hh.thoi_gian_bao_hanh, 0), hdb.thoi_gian_ban) THEN 1 
+        WHEN ISNULL(hh.thoi_gian_bao_hanh, 0) <= 0 THEN NULL
+        ELSE DATEADD(MONTH, hh.thoi_gian_bao_hanh, hdb.thoi_gian_ban)
+    END AS han_bao_hanh,
+    CASE 
+        WHEN ISNULL(hh.thoi_gian_bao_hanh, 0) <= 0 THEN 0
+        WHEN pbh.ngay_tiep_nhan <= DATEADD(MONTH, hh.thoi_gian_bao_hanh, hdb.thoi_gian_ban) THEN 1 
         ELSE 0 
     END AS con_han_bao_hanh
 FROM dbo.phieu_bao_hanh pbh
@@ -76,9 +80,13 @@ SELECT
     hdb.thoi_gian_ban,
     hdb.trang_thai_giao_dich AS trang_thai_hoa_don_ban,
     hh.thoi_gian_bao_hanh,
-    DATEADD(MONTH, ISNULL(hh.thoi_gian_bao_hanh, 0), hdb.thoi_gian_ban) AS han_bao_hanh,
     CASE 
-        WHEN pbh.ngay_tiep_nhan <= DATEADD(MONTH, ISNULL(hh.thoi_gian_bao_hanh, 0), hdb.thoi_gian_ban) THEN 1 
+        WHEN ISNULL(hh.thoi_gian_bao_hanh, 0) <= 0 THEN NULL
+        ELSE DATEADD(MONTH, hh.thoi_gian_bao_hanh, hdb.thoi_gian_ban)
+    END AS han_bao_hanh,
+    CASE 
+        WHEN ISNULL(hh.thoi_gian_bao_hanh, 0) <= 0 THEN 0
+        WHEN pbh.ngay_tiep_nhan <= DATEADD(MONTH, hh.thoi_gian_bao_hanh, hdb.thoi_gian_ban) THEN 1 
         ELSE 0 
     END AS con_han_bao_hanh
 FROM dbo.phieu_bao_hanh pbh
@@ -105,9 +113,13 @@ SELECT
     kh.ten_khach,
     kh.dien_thoai AS dien_thoai_khach,
     hdb.thoi_gian_ban,
-    DATEADD(MONTH, ISNULL(hh.thoi_gian_bao_hanh, 0), hdb.thoi_gian_ban) AS han_bao_hanh,
     CASE 
-        WHEN SYSDATETIME() <= DATEADD(MONTH, ISNULL(hh.thoi_gian_bao_hanh, 0), hdb.thoi_gian_ban) THEN 1 
+        WHEN ISNULL(hh.thoi_gian_bao_hanh, 0) <= 0 THEN NULL
+        ELSE DATEADD(MONTH, hh.thoi_gian_bao_hanh, hdb.thoi_gian_ban)
+    END AS han_bao_hanh,
+    CASE 
+        WHEN ISNULL(hh.thoi_gian_bao_hanh, 0) <= 0 THEN 0
+        WHEN SYSDATETIME() <= DATEADD(MONTH, hh.thoi_gian_bao_hanh, hdb.thoi_gian_ban) THEN 1 
         ELSE 0 
     END AS con_han_bao_hanh
 FROM dbo.chi_tiet_hoa_don_ban ct
@@ -256,9 +268,13 @@ SELECT
     hdb.thoi_gian_ban,
     hdb.trang_thai_giao_dich AS trang_thai_hoa_don_ban,
     hh.thoi_gian_bao_hanh,
-    DATEADD(MONTH, ISNULL(hh.thoi_gian_bao_hanh, 0), hdb.thoi_gian_ban) AS han_bao_hanh,
     CASE 
-        WHEN pbh.ngay_tiep_nhan <= DATEADD(MONTH, ISNULL(hh.thoi_gian_bao_hanh, 0), hdb.thoi_gian_ban) THEN 1 
+        WHEN ISNULL(hh.thoi_gian_bao_hanh, 0) <= 0 THEN NULL
+        ELSE DATEADD(MONTH, hh.thoi_gian_bao_hanh, hdb.thoi_gian_ban)
+    END AS han_bao_hanh,
+    CASE 
+        WHEN ISNULL(hh.thoi_gian_bao_hanh, 0) <= 0 THEN 0
+        WHEN pbh.ngay_tiep_nhan <= DATEADD(MONTH, hh.thoi_gian_bao_hanh, hdb.thoi_gian_ban) THEN 1 
         ELSE 0 
     END AS con_han_bao_hanh
 FROM dbo.phieu_bao_hanh pbh

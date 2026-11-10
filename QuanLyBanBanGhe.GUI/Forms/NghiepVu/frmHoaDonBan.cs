@@ -626,14 +626,14 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
         private void txtTinhToanThanhTien_TextChanged(object sender, EventArgs e)
         {
-            decimal.TryParse(txtDonGiaBan.Text.Replace(",", "").Trim(), out decimal donGia);
+            decimal.TryParse(txtDonGiaBan.Text.Replace(".", "").Replace(",", "").Trim(), out decimal donGia);
             int.TryParse(txtSoLuong.Text.Trim(), out int soLuong);
-            decimal.TryParse(txtGiamGia.Text.Trim(), out decimal giamGia);
+            decimal.TryParse(txtGiamGia.Text.Replace(",", ".").Trim(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal giamGia);
 
             if (giamGia < 0) giamGia = 0;
             if (giamGia > 100) giamGia = 100;
 
-            decimal thanhTien = Math.Round(soLuong * donGia * (1 - giamGia / 100m), 0);
+            decimal thanhTien = Math.Ceiling((soLuong * donGia * (1 - giamGia / 100m)) / 1000m) * 1000m;
             txtThanhTien.Text = thanhTien.ToString("N0");
         }
 
@@ -653,8 +653,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 return;
             }
 
-            decimal.TryParse(txtDonGiaBan.Text.Replace(",", "").Trim(), out decimal donGia);
-            decimal.TryParse(txtGiamGia.Text.Trim(), out decimal giamGia);
+            decimal.TryParse(txtDonGiaBan.Text.Replace(".", "").Replace(",", "").Trim(), out decimal donGia);
+            decimal.TryParse(txtGiamGia.Text.Replace(",", ".").Trim(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal giamGia);
 
             if (giamGia < 0 || giamGia > 100)
             {
@@ -696,11 +696,11 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             {
                 timDong["so_luong"] = tongSoLuongYeuCau;
                 timDong["giam_gia"] = giamGia;
-                timDong["thanh_tien"] = Math.Round(tongSoLuongYeuCau * donGia * (1 - giamGia / 100m), 0);
+                timDong["thanh_tien"] = Math.Ceiling((tongSoLuongYeuCau * donGia * (1 - giamGia / 100m)) / 1000m) * 1000m;
             }
             else
             {
-                decimal thanhTien = Math.Round(soLuong * donGia * (1 - giamGia / 100m), 0);
+                decimal thanhTien = Math.Ceiling((soLuong * donGia * (1 - giamGia / 100m)) / 1000m) * 1000m;
                 dtChiTiet.Rows.Add(maHang, tenHang, soLuong, donGia, giamGia, thanhTien);
             }
 
@@ -782,21 +782,62 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             string maKhach = string.Empty;
             DataRow khachTonTai = null;
 
+            DataRow khachTheoTenVaSDT = null;
+            DataRow khachTheoSDT = null;
+            DataRow khachTheoTen = null;
+
             if (dtDanhSachKhachHang != null)
             {
                 foreach (DataRow r in dtDanhSachKhachHang.Rows)
                 {
+                    string name = r["ten_khach"]?.ToString() ?? string.Empty;
                     string phone = r["dien_thoai"]?.ToString() ?? string.Empty;
-                    if (string.Equals(phone, sdt, StringComparison.OrdinalIgnoreCase))
+
+                    bool khopTen = string.Equals(name.Trim(), tenKhach, StringComparison.OrdinalIgnoreCase);
+                    bool khopSDT = string.Equals(phone.Trim(), sdt, StringComparison.OrdinalIgnoreCase);
+
+                    if (khopTen && khopSDT)
                     {
-                        khachTonTai = r;
+                        khachTheoTenVaSDT = r;
                         break;
+                    }
+                    if (khopSDT && khachTheoSDT == null)
+                    {
+                        khachTheoSDT = r;
+                    }
+                    if (khopTen && khachTheoTen == null)
+                    {
+                        khachTheoTen = r;
                     }
                 }
             }
 
-            if (khachTonTai != null)
+            if (khachTheoTenVaSDT != null)
             {
+                khachTonTai = khachTheoTenVaSDT;
+                maKhach = khachTonTai["ma_khach"].ToString();
+            }
+            else if (khachTheoTen != null && string.IsNullOrEmpty(khachTheoTen["dien_thoai"]?.ToString()?.Trim()))
+            {
+                khachTonTai = khachTheoTen;
+                maKhach = khachTonTai["ma_khach"].ToString();
+                KhachHangDTO khUpdate = new KhachHangDTO
+                {
+                    MaKhach = maKhach,
+                    TenKhach = tenKhach,
+                    DienThoai = sdt,
+                    DiaChi = !string.IsNullOrWhiteSpace(diaChi) ? diaChi : khachTonTai["dia_chi"]?.ToString()
+                };
+                doiTacBLL.CapNhatKhachHang(khUpdate);
+            }
+            else if (khachTheoSDT != null)
+            {
+                khachTonTai = khachTheoSDT;
+                maKhach = khachTonTai["ma_khach"].ToString();
+            }
+            else if (khachTheoTen != null)
+            {
+                khachTonTai = khachTheoTen;
                 maKhach = khachTonTai["ma_khach"].ToString();
             }
             else

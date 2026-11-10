@@ -150,13 +150,6 @@ VALUES (@so_hoa_don_ban, @ma_hang, @so_luong, @don_gia, @giam_gia, @thanh_tien)"
 
         public bool HuyHoaDonBan(string soHDB)
         {
-            string sqlGetItems = "SELECT ma_hang, so_luong FROM dbo.chi_tiet_hoa_don_ban WHERE so_hoa_don_ban = @so_hdb";
-            SqlParameter[] pGet = new SqlParameter[]
-            {
-                new SqlParameter("@so_hdb", soHDB)
-            };
-            DataTable dtItems = DatabaseHelper.ExecuteQuery(sqlGetItems, pGet);
-
             using (SqlConnection conn = DatabaseHelper.GetConnection())
             {
                 conn.Open();
@@ -164,12 +157,23 @@ VALUES (@so_hoa_don_ban, @ma_hang, @so_luong, @don_gia, @giam_gia, @thanh_tien)"
                 {
                     try
                     {
-                        string sqlUpdateHDB = "UPDATE dbo.hoa_don_ban SET trang_thai_giao_dich = N'DaHuy' WHERE so_hoa_don_ban = @so_hdb";
+                        string sqlUpdateHDB = "UPDATE dbo.hoa_don_ban SET trang_thai_giao_dich = N'DaHuy' WHERE so_hoa_don_ban = @so_hdb AND trang_thai_giao_dich = N'HoanThanh'";
                         SqlParameter[] pHDB = new SqlParameter[]
                         {
                             new SqlParameter("@so_hdb", soHDB)
                         };
-                        DatabaseHelper.ExecuteNonQuery(sqlUpdateHDB, pHDB, trans);
+                        int affected = DatabaseHelper.ExecuteNonQuery(sqlUpdateHDB, pHDB, trans);
+                        if (affected <= 0)
+                        {
+                            throw new InvalidOperationException("Hóa đơn không tồn tại hoặc đã được xử lý hủy trước đó!");
+                        }
+
+                        string sqlGetItems = "SELECT ma_hang, so_luong FROM dbo.chi_tiet_hoa_don_ban WHERE so_hoa_don_ban = @so_hdb";
+                        SqlParameter[] pGet = new SqlParameter[]
+                        {
+                            new SqlParameter("@so_hdb", soHDB)
+                        };
+                        DataTable dtItems = DatabaseHelper.ExecuteQuery(sqlGetItems, pGet, trans);
 
                         string sqlRefundStock = "UPDATE dbo.hang_hoa SET so_luong = so_luong + @so_luong WHERE ma_hang = @ma_hang";
                         foreach (DataRow r in dtItems.Rows)

@@ -530,6 +530,15 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                         }
                     }
                 }
+                else
+                {
+                    lblTrangThaiHanBH.ForeColor = Color.DarkGray;
+                    lblTrangThaiHanBH.Text = "Không áp dụng bảo hành";
+                    if (currentMode == FormMode.Insert)
+                    {
+                        txtBienPhapXuLy.Text = "Sửa chữa dịch vụ tính phí";
+                    }
+                }
             }
         }
 
@@ -647,6 +656,11 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                             lblTrangThaiHanBH.ForeColor = Color.Red;
                             lblTrangThaiHanBH.Text = string.Format("✗ Hết hạn BH (hết ngày {0:dd/MM/yyyy})", hanBH);
                         }
+                    }
+                    else
+                    {
+                        lblTrangThaiHanBH.ForeColor = Color.DarkGray;
+                        lblTrangThaiHanBH.Text = "Không áp dụng bảo hành";
                     }
                 }
             }

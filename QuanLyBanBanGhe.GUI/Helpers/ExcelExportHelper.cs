@@ -117,6 +117,10 @@ namespace QuanLyBanBanGhe.GUI.Helpers
                     wb.SaveAs(sfd.FileName);
                     MessageBox.Show("Xuất file Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi xuất file Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 finally
                 {
                     if (ws != null)
@@ -211,8 +215,39 @@ namespace QuanLyBanBanGhe.GUI.Helpers
                     borderRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
                     ws.Columns.AutoFit();
 
+                    ws.Cells[row + 2, 5] = string.Format("Hà Nội, ngày {0} tháng {1} năm {2}", DateTime.Now.Day, DateTime.Now.Month, DateTime.Now.Year);
+                    ws.Cells[row + 2, 5].Font.Italic = true;
+
+                    ws.Cells[row + 3, 2] = "Khách hàng";
+                    ws.Cells[row + 3, 2].Font.Bold = true;
+                    ws.Cells[row + 3, 2].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
+                    ws.Cells[row + 3, 5] = "Người lập hóa đơn";
+                    ws.Cells[row + 3, 5].Font.Bold = true;
+                    ws.Cells[row + 3, 5].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
+                    ws.Cells[row + 4, 2] = "(Ký, ghi rõ họ tên)";
+                    ws.Cells[row + 4, 2].Font.Italic = true;
+                    ws.Cells[row + 4, 2].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
+                    ws.Cells[row + 4, 5] = "(Ký, ghi rõ họ tên)";
+                    ws.Cells[row + 4, 5].Font.Italic = true;
+                    ws.Cells[row + 4, 5].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
+                    ws.Cells[row + 7, 2] = tenKhach;
+                    ws.Cells[row + 7, 2].Font.Bold = true;
+                    ws.Cells[row + 7, 2].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
+                    ws.Cells[row + 7, 5] = tenNhanVien;
+                    ws.Cells[row + 7, 5].Font.Bold = true;
+                    ws.Cells[row + 7, 5].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
                     wb.SaveAs(sfd.FileName);
                     MessageBox.Show("Xuất hóa đơn bán ra file Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi in hóa đơn bán ra Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 finally
                 {
@@ -309,8 +344,39 @@ namespace QuanLyBanBanGhe.GUI.Helpers
                     borderRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
                     ws.Columns.AutoFit();
 
+                    ws.Cells[row + 2, 5] = string.Format("Hà Nội, ngày {0} tháng {1} năm {2}", DateTime.Now.Day, DateTime.Now.Month, DateTime.Now.Year);
+                    ws.Cells[row + 2, 5].Font.Italic = true;
+
+                    ws.Cells[row + 3, 2] = "Nhà cung cấp / Người giao";
+                    ws.Cells[row + 3, 2].Font.Bold = true;
+                    ws.Cells[row + 3, 2].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
+                    ws.Cells[row + 3, 5] = "Người nhận hàng";
+                    ws.Cells[row + 3, 5].Font.Bold = true;
+                    ws.Cells[row + 3, 5].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
+                    ws.Cells[row + 4, 2] = "(Ký, ghi rõ họ tên)";
+                    ws.Cells[row + 4, 2].Font.Italic = true;
+                    ws.Cells[row + 4, 2].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
+                    ws.Cells[row + 4, 5] = "(Ký, ghi rõ họ tên)";
+                    ws.Cells[row + 4, 5].Font.Italic = true;
+                    ws.Cells[row + 4, 5].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
+                    ws.Cells[row + 7, 2] = tenNCC;
+                    ws.Cells[row + 7, 2].Font.Bold = true;
+                    ws.Cells[row + 7, 2].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
+                    ws.Cells[row + 7, 5] = tenNhanVien;
+                    ws.Cells[row + 7, 5].Font.Bold = true;
+                    ws.Cells[row + 7, 5].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
                     wb.SaveAs(sfd.FileName);
                     MessageBox.Show("Xuất hóa đơn nhập ra file Excel thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi in hóa đơn nhập ra Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 finally
                 {
@@ -467,6 +533,10 @@ namespace QuanLyBanBanGhe.GUI.Helpers
                     ws.Columns.AutoFit();
                     wb.SaveAs(sfd.FileName);
                     MessageBox.Show("Xuất file Excel Báo cáo 4 thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi xuất Báo cáo 4 ra Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 finally
                 {

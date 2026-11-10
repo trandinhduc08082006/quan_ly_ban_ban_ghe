@@ -283,10 +283,10 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
         private void txtTinhToanThanhTien_TextChanged(object sender, EventArgs e)
         {
-            decimal.TryParse(txtDonGiaNhap.Text.Replace(",", "").Trim(), out decimal donGia);
+            decimal.TryParse(txtDonGiaNhap.Text.Replace(".", "").Replace(",", "").Trim(), out decimal donGia);
             int.TryParse(txtSoLuong.Text.Trim(), out int soLuong);
 
-            decimal thanhTien = soLuong * donGia;
+            decimal thanhTien = Math.Ceiling((soLuong * donGia) / 1000m) * 1000m;
             txtThanhTien.Text = thanhTien.ToString("N0");
         }
 
@@ -306,7 +306,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 return;
             }
 
-            if (!decimal.TryParse(txtDonGiaNhap.Text.Replace(",", "").Trim(), out decimal donGia) || donGia <= 0)
+            if (!decimal.TryParse(txtDonGiaNhap.Text.Replace(".", "").Replace(",", "").Trim(), out decimal donGia) || donGia <= 0)
             {
                 MessageBox.Show("Đơn giá nhập phải lớn hơn 0!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtDonGiaNhap.Focus();
@@ -332,11 +332,11 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 int soLuongMoi = soLuongCu + soLuong;
                 timDong["so_luong"] = soLuongMoi;
                 timDong["don_gia"] = donGia;
-                timDong["thanh_tien"] = soLuongMoi * donGia;
+                timDong["thanh_tien"] = Math.Ceiling((soLuongMoi * donGia) / 1000m) * 1000m;
             }
             else
             {
-                decimal thanhTien = soLuong * donGia;
+                decimal thanhTien = Math.Ceiling((soLuong * donGia) / 1000m) * 1000m;
                 dtChiTiet.Rows.Add(maHang, tenHang, soLuong, donGia, thanhTien);
             }
 

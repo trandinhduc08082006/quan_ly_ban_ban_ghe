@@ -204,13 +204,6 @@ namespace QuanLyBanBanGhe.GUI.Forms.TimKiem
 
         private void ApDungPhanQuyen()
         {
-            if (string.Equals(UserSession.Quyen, "BanHang", StringComparison.OrdinalIgnoreCase))
-            {
-                if (dgvKetQua.Columns.Contains("colDonGiaNhap"))
-                {
-                    dgvKetQua.Columns["colDonGiaNhap"].Visible = false;
-                }
-            }
         }
 
         private void btnTimKiem_Click(object sender, EventArgs e)

@@ -143,7 +143,7 @@ namespace QuanLyBanBanGhe.BLL
                     throw new ArgumentException("Tỷ lệ giảm giá phải nằm trong khoảng từ 0% đến 100%!");
                 }
 
-                ct.ThanhTien = Math.Round(ct.SoLuong * ct.DonGia * (1 - ct.GiamGia / 100m), 2);
+                ct.ThanhTien = Math.Ceiling((ct.SoLuong * ct.DonGia * (1 - ct.GiamGia / 100m)) / 1000m) * 1000m;
                 tongTien += ct.ThanhTien;
             }
 

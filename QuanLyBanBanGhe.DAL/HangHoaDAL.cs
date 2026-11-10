@@ -173,7 +173,7 @@ WHERE ma_hang = @ma_hang";
 
             if (giaNhapMoi > 0)
             {
-                decimal giaBanMoi = Math.Round((giaNhapMoi * 1.10m) / 10000m, MidpointRounding.AwayFromZero) * 10000m;
+                decimal giaBanMoi = Math.Ceiling((giaNhapMoi * 1.10m) / 1000m) * 1000m;
                 sql = @"
 UPDATE dbo.hang_hoa 
 SET so_luong = so_luong + @so_luong, 

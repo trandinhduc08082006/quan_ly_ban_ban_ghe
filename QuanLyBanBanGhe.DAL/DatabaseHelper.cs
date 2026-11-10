@@ -59,6 +59,24 @@ namespace QuanLyBanBanGhe.DAL
             return dt;
         }
 
+        public static DataTable ExecuteQuery(string sql, SqlParameter[] parameters, SqlTransaction trans)
+        {
+            if (trans != null)
+            {
+                DataTable dt = new DataTable();
+                using (SqlCommand cmd = new SqlCommand(sql, trans.Connection, trans))
+                {
+                    AttachParameters(cmd, parameters);
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        da.Fill(dt);
+                    }
+                }
+                return dt;
+            }
+            return ExecuteQuery(sql, parameters);
+        }
+
         public static int ExecuteNonQuery(string sql, SqlParameter[] parameters = null, SqlTransaction trans = null)
         {
             if (trans != null)

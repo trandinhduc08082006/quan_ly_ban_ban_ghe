@@ -45,7 +45,7 @@ namespace QuanLyBanBanGhe.BLL
                 throw new InvalidOperationException(string.Format("Mã sản phẩm '{0}' đã tồn tại trong hệ thống!", hh.MaHang));
             }
 
-            hh.DonGiaBan = Math.Round((hh.DonGiaNhap * 1.10m) / 10000m, MidpointRounding.AwayFromZero) * 10000m;
+            hh.DonGiaBan = Math.Ceiling((hh.DonGiaNhap * 1.10m) / 1000m) * 1000m;
 
             return dal.ThemHangHoa(hh);
         }
@@ -59,7 +59,7 @@ namespace QuanLyBanBanGhe.BLL
                 throw new InvalidOperationException(string.Format("Không tìm thấy sản phẩm '{0}' để cập nhật!", hh.MaHang));
             }
 
-            hh.DonGiaBan = Math.Round((hh.DonGiaNhap * 1.10m) / 10000m, MidpointRounding.AwayFromZero) * 10000m;
+            hh.DonGiaBan = Math.Ceiling((hh.DonGiaNhap * 1.10m) / 1000m) * 1000m;
 
             return dal.CapNhatHangHoa(hh);
         }

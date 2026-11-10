@@ -116,7 +116,10 @@ WHERE nv.trang_thai_xoa = 0
       OR cv.ten_cong_viec LIKE N'%Kinh doanh%'
       OR tk.quyen = N'BanHang'
   )
-  AND ISNULL(tk.quyen, N'BanHang') = N'BanHang'
+  AND ISNULL(tk.quyen, N'BanHang') NOT IN (N'QuanLy', N'ThuKho')
+  AND cv.ma_cong_viec NOT IN ('CV0001', 'CV0003')
+  AND cv.ten_cong_viec NOT LIKE N'%Quản lý%'
+  AND cv.ten_cong_viec NOT LIKE N'%Thủ kho%'
   AND nv.ma_nhan_vien NOT IN (
       SELECT DISTINCT hd.ma_nhan_vien 
       FROM dbo.hoa_don_ban hd 
@@ -154,7 +157,10 @@ WHERE YEAR(hd.thoi_gian_ban) = @nam
       OR cv.ten_cong_viec LIKE N'%Kinh doanh%'
       OR tk.quyen = N'BanHang'
   )
-  AND ISNULL(tk.quyen, N'BanHang') = N'BanHang'
+  AND ISNULL(tk.quyen, N'BanHang') NOT IN (N'QuanLy', N'ThuKho')
+  AND cv.ma_cong_viec NOT IN ('CV0001', 'CV0003')
+  AND cv.ten_cong_viec NOT LIKE N'%Quản lý%'
+  AND cv.ten_cong_viec NOT LIKE N'%Thủ kho%'
 GROUP BY nv.ma_nhan_vien, nv.ten_nhan_vien, cv.ten_cong_viec, nv.dien_thoai
 ORDER BY SUM(hd.tong_tien) ASC";
 

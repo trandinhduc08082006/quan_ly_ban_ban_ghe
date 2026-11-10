@@ -195,10 +195,10 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
 
         private void txtDonGiaNhap_TextChanged(object sender, EventArgs e)
         {
-            string raw = txtDonGiaNhap.Text.Trim().Replace(",", "");
+            string raw = txtDonGiaNhap.Text.Replace(".", "").Replace(",", "").Trim();
             if (decimal.TryParse(raw, out decimal giaNhap))
             {
-                decimal giaBan = Math.Round((giaNhap * 1.10m) / 10000m, MidpointRounding.AwayFromZero) * 10000m;
+                decimal giaBan = Math.Ceiling((giaNhap * 1.10m) / 1000m) * 1000m;
                 txtDonGiaBan.Text = giaBan.ToString("N0");
             }
             else
@@ -632,7 +632,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 return;
             }
 
-            string rawGiaNhap = txtDonGiaNhap.Text.Trim().Replace(",", "");
+            string rawGiaNhap = txtDonGiaNhap.Text.Replace(".", "").Replace(",", "").Trim();
             if (!decimal.TryParse(rawGiaNhap, out decimal giaNhap) || giaNhap < 0)
             {
                 MessageBox.Show("Đơn giá nhập phải là số hợp lệ và không được nhỏ hơn 0!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -790,7 +790,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 MaDacDiem = cboDacDiem.SelectedValue?.ToString(),
                 SoLuong = soLuong,
                 DonGiaNhap = giaNhap,
-                DonGiaBan = Math.Round((giaNhap * 1.10m) / 10000m, MidpointRounding.AwayFromZero) * 10000m,
+                DonGiaBan = Math.Ceiling((giaNhap * 1.10m) / 1000m) * 1000m,
                 ThoiGianBaoHanh = baoHanh,
                 Anh = string.IsNullOrWhiteSpace(tenFileAnhLuu) ? null : tenFileAnhLuu,
                 GhiChu = string.IsNullOrWhiteSpace(txtGhiChu.Text) ? null : txtGhiChu.Text.Trim(),

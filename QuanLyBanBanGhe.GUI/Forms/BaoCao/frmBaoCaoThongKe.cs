@@ -385,7 +385,14 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
         private void btnXuatExcel1_Click(object sender, EventArgs e)
         {
             if (!KiemTraNamHopLe(cboNam1, out int nam)) return;
-            ExcelExportHelper.ExportToExcel(dgvTop10, string.Format("Top 10 bàn ghế bán chạy năm {0}", nam));
+            try
+            {
+                ExcelExportHelper.ExportToExcel(dgvTop10, string.Format("Top 10 bàn ghế bán chạy năm {0}", nam));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi xuất Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void TaiBaoCao2()
@@ -458,7 +465,14 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
                 tieuDe = string.Format("Báo cáo nhập hàng năm {0}", nam);
             }
 
-            ExcelExportHelper.ExportToExcel(dgvNhapHang, tieuDe);
+            try
+            {
+                ExcelExportHelper.ExportToExcel(dgvNhapHang, tieuDe);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi xuất Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void TaiBaoCao3()
@@ -533,7 +547,14 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
                 tieuDe = string.Format("Báo cáo bán hàng năm {0}", nam);
             }
 
-            ExcelExportHelper.ExportToExcel(dgvBanHang, tieuDe);
+            try
+            {
+                ExcelExportHelper.ExportToExcel(dgvBanHang, tieuDe);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi xuất Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void TaiBaoCao4()
@@ -568,7 +589,14 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
         private void btnXuatExcel4_Click(object sender, EventArgs e)
         {
             if (!KiemTraNamHopLe(cboNam4, out int nam)) return;
-            ExcelExportHelper.ExportBaoCao4ToExcel(dgvNVDoanhSo0, dgvNVDoanhSoThap, nam);
+            try
+            {
+                ExcelExportHelper.ExportBaoCao4ToExcel(dgvNVDoanhSo0, dgvNVDoanhSoThap, nam);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi xuất Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
