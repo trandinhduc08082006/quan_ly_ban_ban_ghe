@@ -618,11 +618,6 @@
                 </TablixCell>
               </TablixCells>
             </TablixRow>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-              </TablixCells>
-            </TablixRow>
           </TablixRows>
         </TablixBody>
         <TablixColumnHierarchy>
