@@ -26,7 +26,6 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
             this.btnNavKhachHang = new System.Windows.Forms.Button();
             this.btnNavNhaCungCap = new System.Windows.Forms.Button();
             this.btnNavNhanVien = new System.Windows.Forms.Button();
-            this.btnNavTimKiemHangHoa = new System.Windows.Forms.Button();
             this.btnNavTimKiemHDBan = new System.Windows.Forms.Button();
             this.btnNavTimKiemHDNhap = new System.Windows.Forms.Button();
             this.btnNavBaoCao = new System.Windows.Forms.Button();
@@ -71,7 +70,6 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
             this.flpSidebarMenu.Controls.Add(this.btnNavKhachHang);
             this.flpSidebarMenu.Controls.Add(this.btnNavNhaCungCap);
             this.flpSidebarMenu.Controls.Add(this.btnNavNhanVien);
-            this.flpSidebarMenu.Controls.Add(this.btnNavTimKiemHangHoa);
             this.flpSidebarMenu.Controls.Add(this.btnNavTimKiemHDBan);
             this.flpSidebarMenu.Controls.Add(this.btnNavTimKiemHDNhap);
             this.flpSidebarMenu.Controls.Add(this.btnNavBaoCao);
@@ -196,20 +194,6 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
             this.btnNavNhanVien.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnNavNhanVien.UseVisualStyleBackColor = true;
             this.btnNavNhanVien.Click += new System.EventHandler(this.btnNavNhanVien_Click);
-
-            this.btnNavTimKiemHangHoa.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnNavTimKiemHangHoa.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
-            this.btnNavTimKiemHangHoa.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnNavTimKiemHangHoa.Location = new System.Drawing.Point(8, 318);
-            this.btnNavTimKiemHangHoa.Margin = new System.Windows.Forms.Padding(0, 0, 0, 6);
-            this.btnNavTimKiemHangHoa.Name = "btnNavTimKiemHangHoa";
-            this.btnNavTimKiemHangHoa.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
-            this.btnNavTimKiemHangHoa.Size = new System.Drawing.Size(200, 38);
-            this.btnNavTimKiemHangHoa.TabIndex = 7;
-            this.btnNavTimKiemHangHoa.Text = "Tìm kiếm hàng hóa";
-            this.btnNavTimKiemHangHoa.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnNavTimKiemHangHoa.UseVisualStyleBackColor = true;
-            this.btnNavTimKiemHangHoa.Click += new System.EventHandler(this.btnNavTimKiemHangHoa_Click);
 
             this.btnNavTimKiemHDBan.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnNavTimKiemHDBan.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
@@ -401,6 +385,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "QUẢN LÝ BÁN BÀN GHẾ";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmMain_FormClosed);
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.Shown += new System.EventHandler(this.frmMain_Shown);
@@ -428,7 +413,6 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
         private System.Windows.Forms.Button btnNavKhachHang;
         private System.Windows.Forms.Button btnNavNhaCungCap;
         private System.Windows.Forms.Button btnNavNhanVien;
-        private System.Windows.Forms.Button btnNavTimKiemHangHoa;
         private System.Windows.Forms.Button btnNavTimKiemHDBan;
         private System.Windows.Forms.Button btnNavTimKiemHDNhap;
         private System.Windows.Forms.Button btnNavBaoCao;

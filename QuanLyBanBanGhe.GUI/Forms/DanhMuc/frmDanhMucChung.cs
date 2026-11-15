@@ -34,6 +34,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
         private void frmDanhMucChung_Load(object sender, EventArgs e)
         {
             UIHelper.GanXoaChonTuDong(dgvDanhMuc);
+            dgvDanhMuc.KeyUp += dgvDanhMuc_KeyUp;
             txtMa.CharacterCasing = CharacterCasing.Upper;
             txtMa.KeyPress += (s, ev) => UIHelper.ChiChoPhepNhapMa(ev);
 
@@ -156,14 +157,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             cboLoai.SelectedIndex = -1;
         }
 
-        private void dgvDanhMuc_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void NapDuLieuTuDong(DataGridViewRow row)
         {
-            if (e.RowIndex < 0 || currentMode == FormMode.Insert || currentMode == FormMode.Update)
+            if (row == null || row.Index < 0 || currentMode == FormMode.Insert || currentMode == FormMode.Update)
             {
                 return;
             }
 
-            DataGridViewRow row = dgvDanhMuc.Rows[e.RowIndex];
             txtMa.Text = row.Cells["colMa"].Value != null ? row.Cells["colMa"].Value.ToString() : string.Empty;
             txtTen.Text = row.Cells["colTen"].Value != null ? row.Cells["colTen"].Value.ToString() : string.Empty;
 
@@ -174,6 +174,24 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             }
 
             ThietLapTrangThai(FormMode.Selected);
+        }
+
+        private void dgvDanhMuc_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || currentMode == FormMode.Insert || currentMode == FormMode.Update)
+            {
+                return;
+            }
+
+            NapDuLieuTuDong(dgvDanhMuc.Rows[e.RowIndex]);
+        }
+
+        private void dgvDanhMuc_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
+            {
+                NapDuLieuTuDong(dgvDanhMuc.CurrentRow);
+            }
         }
 
         private void btnThem_Click(object sender, EventArgs e)

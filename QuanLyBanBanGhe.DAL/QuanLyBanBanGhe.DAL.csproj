@@ -42,12 +42,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseDAL.cs" />
     <Compile Include="BaoCaoDAL.cs" />
     <Compile Include="DatabaseHelper.cs" />
     <Compile Include="DoiTacDAL.cs" />
     <Compile Include="HangHoaDAL.cs" />
     <Compile Include="HoaDonBanDAL.cs" />
     <Compile Include="HoaDonNhapDAL.cs" />
+    <Compile Include="Interfaces\IBaoCaoDAL.cs" />
+    <Compile Include="Interfaces\IBaoHanhDAL.cs" />
+    <Compile Include="Interfaces\IDoiTacDAL.cs" />
+    <Compile Include="Interfaces\IHangHoaDAL.cs" />
+    <Compile Include="Interfaces\IHoaDonBanDAL.cs" />
+    <Compile Include="Interfaces\IHoaDonNhapDAL.cs" />
+    <Compile Include="Interfaces\INhanSuDAL.cs" />
+    <Compile Include="Interfaces\IThuocTinhDAL.cs" />
     <Compile Include="NhanSuDAL.cs" />
     <Compile Include="PhieuBaoHanhDAL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

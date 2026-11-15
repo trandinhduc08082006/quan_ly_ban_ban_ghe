@@ -31,6 +31,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             this.btnXoa = new System.Windows.Forms.Button();
             this.btnLuu = new System.Windows.Forms.Button();
             this.btnBoQua = new System.Windows.Forms.Button();
+            this.btnTimKiem = new System.Windows.Forms.Button();
             this.grpDanhSach = new System.Windows.Forms.GroupBox();
             this.dgvKhachHang = new System.Windows.Forms.DataGridView();
             this.colMaKhach = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -125,6 +126,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             this.flpButtons.Controls.Add(this.btnXoa);
             this.flpButtons.Controls.Add(this.btnLuu);
             this.flpButtons.Controls.Add(this.btnBoQua);
+            this.flpButtons.Controls.Add(this.btnTimKiem);
             this.flpButtons.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpButtons.Location = new System.Drawing.Point(0, 0);
             this.flpButtons.Name = "flpButtons";
@@ -191,6 +193,18 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             this.btnBoQua.Text = "Bỏ qua";
             this.btnBoQua.UseVisualStyleBackColor = true;
             this.btnBoQua.Click += new System.EventHandler(this.btnBoQua_Click);
+
+            this.btnTimKiem.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnTimKiem.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.btnTimKiem.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTimKiem.Location = new System.Drawing.Point(525, 8);
+            this.btnTimKiem.Margin = new System.Windows.Forms.Padding(0, 0, 10, 0);
+            this.btnTimKiem.Name = "btnTimKiem";
+            this.btnTimKiem.Size = new System.Drawing.Size(95, 32);
+            this.btnTimKiem.TabIndex = 5;
+            this.btnTimKiem.Text = "Tìm kiếm";
+            this.btnTimKiem.UseVisualStyleBackColor = true;
+            this.btnTimKiem.Click += new System.EventHandler(this.btnTimKiem_Click);
 
             this.grpDanhSach.Controls.Add(this.dgvKhachHang);
             this.grpDanhSach.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -286,6 +300,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
         private System.Windows.Forms.Button btnXoa;
         private System.Windows.Forms.Button btnLuu;
         private System.Windows.Forms.Button btnBoQua;
+        private System.Windows.Forms.Button btnTimKiem;
         private System.Windows.Forms.GroupBox grpDanhSach;
         private System.Windows.Forms.DataGridView dgvKhachHang;
         private System.Windows.Forms.DataGridViewTextBoxColumn colMaKhach;

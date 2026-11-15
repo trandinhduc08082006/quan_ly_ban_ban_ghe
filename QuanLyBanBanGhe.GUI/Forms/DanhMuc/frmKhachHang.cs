@@ -11,6 +11,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
     {
         private readonly DoiTacBLL doiTacBLL;
         private FormMode currentMode;
+        private bool dangTaiDuLieu;
+        private bool daTimKiem;
         private Button btnKhoiPhuc;
         private ComboBox cboLocTrangThai;
         private Label lblLocTrangThai;
@@ -24,16 +26,51 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
         private void frmKhachHang_Load(object sender, EventArgs e)
         {
             UIHelper.GanXoaChonTuDong(dgvKhachHang);
+            dgvKhachHang.KeyUp += dgvKhachHang_KeyUp;
             txtMaKhach.CharacterCasing = CharacterCasing.Upper;
             txtMaKhach.KeyPress += (s, ev) => UIHelper.ChiChoPhepNhapMa(ev);
             txtDienThoai.KeyPress += (s, ev) => UIHelper.ChiChoPhepNhapSo(ev);
             txtDienThoai.MaxLength = 10;
 
+            DangKySuKienTimKiem();
             KhoiTaoBoLocTrangThai();
             LoadDanhSachKhachHang();
             XoaTrang();
             ThietLapTrangThai(FormMode.View);
             UIHelper.XoaChonLuoi(dgvKhachHang);
+        }
+
+        private void DangKySuKienTimKiem()
+        {
+            txtMaKhach.TextChanged += TieuChiTimKiem_TextChanged;
+            txtTenKhach.TextChanged += TieuChiTimKiem_TextChanged;
+            txtDienThoai.TextChanged += TieuChiTimKiem_TextChanged;
+            txtDiaChi.TextChanged += TieuChiTimKiem_TextChanged;
+        }
+
+        private void TieuChiTimKiem_TextChanged(object sender, EventArgs e)
+        {
+            if (dangTaiDuLieu || currentMode != FormMode.View)
+            {
+                return;
+            }
+
+            CapNhatTrangThaiNutBoQua();
+        }
+
+        private void CapNhatTrangThaiNutBoQua()
+        {
+            if (currentMode != FormMode.View)
+            {
+                return;
+            }
+
+            bool coTieuChi = !string.IsNullOrWhiteSpace(txtMaKhach.Text)
+                || !string.IsNullOrWhiteSpace(txtTenKhach.Text)
+                || !string.IsNullOrWhiteSpace(txtDienThoai.Text)
+                || !string.IsNullOrWhiteSpace(txtDiaChi.Text);
+
+            btnBoQua.Enabled = coTieuChi || daTimKiem;
         }
 
         private void KhoiTaoBoLocTrangThai()
@@ -99,6 +136,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
 
         private void cboLocTrangThai_SelectedIndexChanged(object sender, EventArgs e)
         {
+            daTimKiem = false;
             XoaTrang();
             ThietLapTrangThai(FormMode.View);
             LoadDanhSachKhachHang();
@@ -117,7 +155,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 btnSua.Visible = false;
                 btnXoa.Visible = false;
                 btnLuu.Visible = false;
-                btnBoQua.Visible = false;
+                btnBoQua.Visible = true;
+                btnBoQua.Enabled = (mode == FormMode.Selected);
                 if (btnKhoiPhuc != null)
                 {
                     btnKhoiPhuc.Visible = true;
@@ -138,9 +177,22 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 }
             }
 
+            if (btnTimKiem != null)
+            {
+                btnTimKiem.Visible = true;
+                btnTimKiem.Enabled = (mode != FormMode.Insert && mode != FormMode.Update);
+            }
+
             switch (mode)
             {
                 case FormMode.View:
+                    txtMaKhach.ReadOnly = false;
+                    txtTenKhach.ReadOnly = false;
+                    txtDienThoai.ReadOnly = false;
+                    txtDiaChi.ReadOnly = false;
+                    CapNhatTrangThaiNutBoQua();
+                    break;
+
                 case FormMode.Selected:
                     txtMaKhach.ReadOnly = true;
                     txtTenKhach.ReadOnly = true;
@@ -169,10 +221,41 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
 
         private void XoaTrang()
         {
-            txtMaKhach.Clear();
-            txtTenKhach.Clear();
-            txtDienThoai.Clear();
-            txtDiaChi.Clear();
+            dangTaiDuLieu = true;
+            try
+            {
+                txtMaKhach.Clear();
+                txtTenKhach.Clear();
+                txtDienThoai.Clear();
+                txtDiaChi.Clear();
+            }
+            finally
+            {
+                dangTaiDuLieu = false;
+            }
+        }
+
+        private void NapDuLieuTuDong(DataGridViewRow row)
+        {
+            if (row == null || row.Index < 0 || currentMode == FormMode.Insert || currentMode == FormMode.Update)
+            {
+                return;
+            }
+
+            dangTaiDuLieu = true;
+            try
+            {
+                txtMaKhach.Text = row.Cells["colMaKhach"].Value?.ToString() ?? string.Empty;
+                txtTenKhach.Text = row.Cells["colTenKhach"].Value?.ToString() ?? string.Empty;
+                txtDienThoai.Text = row.Cells["colDienThoai"].Value?.ToString() ?? string.Empty;
+                txtDiaChi.Text = row.Cells["colDiaChi"].Value?.ToString() ?? string.Empty;
+
+                ThietLapTrangThai(FormMode.Selected);
+            }
+            finally
+            {
+                dangTaiDuLieu = false;
+            }
         }
 
         private void dgvKhachHang_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -182,17 +265,20 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 return;
             }
 
-            DataGridViewRow row = dgvKhachHang.Rows[e.RowIndex];
-            txtMaKhach.Text = row.Cells["colMaKhach"].Value?.ToString() ?? string.Empty;
-            txtTenKhach.Text = row.Cells["colTenKhach"].Value?.ToString() ?? string.Empty;
-            txtDienThoai.Text = row.Cells["colDienThoai"].Value?.ToString() ?? string.Empty;
-            txtDiaChi.Text = row.Cells["colDiaChi"].Value?.ToString() ?? string.Empty;
+            NapDuLieuTuDong(dgvKhachHang.Rows[e.RowIndex]);
+        }
 
-            ThietLapTrangThai(FormMode.Selected);
+        private void dgvKhachHang_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
+            {
+                NapDuLieuTuDong(dgvKhachHang.CurrentRow);
+            }
         }
 
         private void btnThem_Click(object sender, EventArgs e)
         {
+            daTimKiem = false;
             ThietLapTrangThai(FormMode.Insert);
             UIHelper.XoaChonLuoi(dgvKhachHang);
             txtMaKhach.Text = doiTacBLL.SinhMaKhachHangMoi();
@@ -206,6 +292,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 MessageBox.Show("Vui lòng chọn khách hàng cần sửa từ danh sách!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+            daTimKiem = false;
             ThietLapTrangThai(FormMode.Update);
         }
 
@@ -232,6 +319,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             {
                 doiTacBLL.XoaMemKhachHang(txtMaKhach.Text.Trim());
                 MessageBox.Show("Xóa khách hàng thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                daTimKiem = false;
                 LoadDanhSachKhachHang();
                 XoaTrang();
                 ThietLapTrangThai(FormMode.View);
@@ -266,6 +354,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             {
                 doiTacBLL.KhoiPhucKhachHang(txtMaKhach.Text.Trim());
                 MessageBox.Show("Khôi phục khách hàng thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                daTimKiem = false;
                 LoadDanhSachKhachHang();
                 XoaTrang();
                 ThietLapTrangThai(FormMode.View);
@@ -301,6 +390,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                     MessageBox.Show("Cập nhật thông tin khách hàng thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
+                daTimKiem = false;
                 LoadDanhSachKhachHang();
                 XoaTrang();
                 ThietLapTrangThai(FormMode.View);
@@ -314,9 +404,34 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
 
         private void btnBoQua_Click(object sender, EventArgs e)
         {
+            daTimKiem = false;
             XoaTrang();
             ThietLapTrangThai(FormMode.View);
+            LoadDanhSachKhachHang();
             UIHelper.XoaChonLuoi(dgvKhachHang);
+        }
+
+        private void btnTimKiem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string maKhach = txtMaKhach.Text.Trim();
+                string tenKhach = txtTenKhach.Text.Trim();
+                string dienThoai = txtDienThoai.Text.Trim();
+                string diaChi = txtDiaChi.Text.Trim();
+                bool chiLayDangHoatDong = cboLocTrangThai == null || cboLocTrangThai.SelectedIndex != 1;
+
+                DataTable dt = doiTacBLL.TimKiemKhachHang(maKhach, tenKhach, dienThoai, diaChi, chiLayDangHoatDong);
+                dgvKhachHang.DataSource = dt;
+                UIHelper.XoaChonLuoi(dgvKhachHang);
+
+                daTimKiem = true;
+                ThietLapTrangThai(FormMode.View);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tìm kiếm khách hàng: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

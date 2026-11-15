@@ -2,19 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using QuanLyBanBanGhe.DAL;
+using QuanLyBanBanGhe.DAL.Interfaces;
 using QuanLyBanBanGhe.DTO;
 
 namespace QuanLyBanBanGhe.BLL
 {
     public class HoaDonNhapBLL
     {
-        private readonly HoaDonNhapDAL dal;
-        private readonly HangHoaDAL hangHoaDAL;
+        private readonly IHoaDonNhapDAL dal;
+        private readonly IHangHoaDAL hangHoaDAL;
 
-        public HoaDonNhapBLL()
+        public HoaDonNhapBLL() : this(new HoaDonNhapDAL(), new HangHoaDAL())
         {
-            dal = new HoaDonNhapDAL();
-            hangHoaDAL = new HangHoaDAL();
+        }
+
+        public HoaDonNhapBLL(IHoaDonNhapDAL dal, IHangHoaDAL hangHoaDAL)
+        {
+            this.dal = dal;
+            this.hangHoaDAL = hangHoaDAL;
         }
 
         public DataTable LayDanhSachHoaDonNhap()

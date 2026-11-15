@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
+using System.Text;
 using System.Windows.Forms;
+using Microsoft.Reporting.WinForms;
 using QuanLyBanBanGhe.BLL;
 using QuanLyBanBanGhe.DTO;
 using QuanLyBanBanGhe.GUI.Helpers;
@@ -16,8 +19,10 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
         private readonly NhanSuBLL nhanSuBLL;
 
         private DataTable dtChiTiet;
+        private DataTable dtDanhSachNhaCungCap;
         private bool dangTaoDon;
         private bool dangTaiDuLieu;
+        private bool dangXuLyNhaCungCap;
         private decimal tongTienHienTai;
 
         public frmHoaDonNhap()
@@ -39,6 +44,14 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             txtSoLuong.KeyPress += (s, ev) => UIHelper.ChiChoPhepNhapSo(ev);
             txtDonGiaNhap.KeyPress += (s, ev) => UIHelper.ChiChoPhepNhapSo(ev);
             dtpNgayNhap.ValueChanged += dtpNgayNhap_ValueChanged;
+
+            cboNhaCungCap.KeyPress += cboNhaCungCap_KeyPress;
+            cboNhaCungCap.TextChanged += cboNhaCungCap_TextChanged;
+
+            cboDienThoai.KeyPress += cboDienThoai_KeyPress;
+            cboDienThoai.TextChanged += cboDienThoai_TextChanged;
+            cboDienThoai.SelectedIndexChanged += cboDienThoai_SelectedIndexChanged;
+            cboDienThoai.MaxLength = 10;
 
             LoadDanhSachNhanVien();
             LoadDanhSachNhaCungCap();
@@ -79,16 +92,58 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             }
         }
 
+        private void NapDanhSachTatCaTenNhaCungCap()
+        {
+            cboNhaCungCap.Items.Clear();
+            if (dtDanhSachNhaCungCap != null)
+            {
+                List<string> dsTen = new List<string>();
+                foreach (DataRow r in dtDanhSachNhaCungCap.Rows)
+                {
+                    string ten = r["ten_nha_cung_cap"]?.ToString()?.Trim() ?? string.Empty;
+                    if (!string.IsNullOrEmpty(ten) && !dsTen.Contains(ten))
+                    {
+                        dsTen.Add(ten);
+                    }
+                }
+                dsTen.Sort(StringComparer.CurrentCulture);
+                foreach (string ten in dsTen)
+                {
+                    cboNhaCungCap.Items.Add(ten);
+                }
+            }
+        }
+
+        private void NapDanhSachTatCaSoDienThoaiNCC()
+        {
+            cboDienThoai.Items.Clear();
+            if (dtDanhSachNhaCungCap != null)
+            {
+                List<string> dsSDT = new List<string>();
+                foreach (DataRow r in dtDanhSachNhaCungCap.Rows)
+                {
+                    string sdt = r["dien_thoai"]?.ToString()?.Trim() ?? string.Empty;
+                    if (!string.IsNullOrEmpty(sdt) && !dsSDT.Contains(sdt))
+                    {
+                        dsSDT.Add(sdt);
+                    }
+                }
+                dsSDT.Sort();
+                foreach (string sdt in dsSDT)
+                {
+                    cboDienThoai.Items.Add(sdt);
+                }
+            }
+        }
+
         private void LoadDanhSachNhaCungCap()
         {
             dangTaiDuLieu = true;
             try
             {
-                DataTable dt = doiTacBLL.LayDanhSachNhaCungCap();
-                cboNhaCungCap.DataSource = dt;
-                cboNhaCungCap.DisplayMember = "ten_nha_cung_cap";
-                cboNhaCungCap.ValueMember = "ma_nha_cung_cap";
-                cboNhaCungCap.SelectedIndex = -1;
+                dtDanhSachNhaCungCap = doiTacBLL.LayDanhSachNhaCungCap();
+                NapDanhSachTatCaTenNhaCungCap();
+                NapDanhSachTatCaSoDienThoaiNCC();
             }
             catch (Exception ex)
             {
@@ -121,26 +176,244 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             }
         }
 
+        private static string RemoveDiacritics(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+            string normalizedString = text.Normalize(NormalizationForm.FormD);
+            StringBuilder stringBuilder = new StringBuilder();
+
+            foreach (char c in normalizedString)
+            {
+                UnicodeCategory unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC).Replace('đ', 'd').Replace('Đ', 'D');
+        }
+
+        private void cboNhaCungCap_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (char.IsControl(e.KeyChar)) return;
+            if (char.IsLetterOrDigit(e.KeyChar)) return;
+            if (" -().,/&'\"_#".IndexOf(e.KeyChar) >= 0) return;
+            e.Handled = true;
+        }
+
+        private void cboDienThoai_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar))
+            {
+                if (!char.IsDigit(e.KeyChar))
+                {
+                    e.Handled = true;
+                    return;
+                }
+
+                string currentText = cboDienThoai.Text;
+                int selLen = cboDienThoai.SelectionLength;
+                if (currentText.Length - selLen >= 10)
+                {
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void cboNhaCungCap_TextChanged(object sender, EventArgs e)
+        {
+            XuLyKhiChonHoacNhapNhaCungCap();
+        }
+
         private void cboNhaCungCap_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (dangTaiDuLieu)
+            XuLyKhiChonHoacNhapNhaCungCap();
+        }
+
+        private void XuLyKhiChonHoacNhapNhaCungCap()
+        {
+            if (dangTaiDuLieu || dangXuLyNhaCungCap || !dangTaoDon)
             {
                 return;
             }
-            CapNhatThongTinNhaCungCap();
+
+            dangXuLyNhaCungCap = true;
+            try
+            {
+                string text = cboNhaCungCap.Text.Trim();
+                if (string.IsNullOrEmpty(text))
+                {
+                    NapDanhSachTatCaSoDienThoaiNCC();
+                    txtDiaChi.Clear();
+                    txtDiaChi.ReadOnly = false;
+                    return;
+                }
+
+                if (dtDanhSachNhaCungCap == null) return;
+
+                string textNoDiacritics = RemoveDiacritics(text);
+                List<DataRow> khop = new List<DataRow>();
+                foreach (DataRow r in dtDanhSachNhaCungCap.Rows)
+                {
+                    string ten = r["ten_nha_cung_cap"]?.ToString()?.Trim() ?? string.Empty;
+                    if (string.Equals(ten, text, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(RemoveDiacritics(ten), textNoDiacritics, StringComparison.OrdinalIgnoreCase))
+                    {
+                        khop.Add(r);
+                    }
+                }
+
+                if (khop.Count > 0)
+                {
+                    cboDienThoai.Items.Clear();
+                    foreach (DataRow r in khop)
+                    {
+                        string sdtRow = r["dien_thoai"]?.ToString()?.Trim() ?? string.Empty;
+                        if (!string.IsNullOrEmpty(sdtRow) && !cboDienThoai.Items.Contains(sdtRow))
+                        {
+                            cboDienThoai.Items.Add(sdtRow);
+                        }
+                    }
+
+                    if (khop.Count == 1)
+                    {
+                        cboDienThoai.Text = khop[0]["dien_thoai"]?.ToString() ?? string.Empty;
+                        txtDiaChi.Text = khop[0]["dia_chi"]?.ToString() ?? string.Empty;
+                        txtDiaChi.ReadOnly = true;
+                    }
+                    else
+                    {
+                        string sdtHienTai = cboDienThoai.Text.Trim();
+                        DataRow nccKhopSDT = null;
+                        if (!string.IsNullOrEmpty(sdtHienTai))
+                        {
+                            nccKhopSDT = khop.Find(r => string.Equals(r["dien_thoai"]?.ToString()?.Trim(), sdtHienTai, StringComparison.OrdinalIgnoreCase));
+                        }
+
+                        if (nccKhopSDT != null)
+                        {
+                            txtDiaChi.Text = nccKhopSDT["dia_chi"]?.ToString() ?? string.Empty;
+                            txtDiaChi.ReadOnly = true;
+                        }
+                        else
+                        {
+                            cboDienThoai.SelectedIndex = -1;
+                            cboDienThoai.Text = string.Empty;
+                            txtDiaChi.Clear();
+                            txtDiaChi.ReadOnly = true;
+                        }
+                    }
+                }
+                else
+                {
+                    cboDienThoai.Items.Clear();
+                    string sdtHienTai = cboDienThoai.Text.Trim();
+                    if (sdtHienTai.Length != 10)
+                    {
+                        cboDienThoai.SelectedIndex = -1;
+                        cboDienThoai.Text = string.Empty;
+                    }
+                    if (txtDiaChi.ReadOnly)
+                    {
+                        txtDiaChi.Clear();
+                    }
+                    txtDiaChi.ReadOnly = false;
+                }
+            }
+            finally
+            {
+                dangXuLyNhaCungCap = false;
+            }
         }
 
-        private void CapNhatThongTinNhaCungCap()
+        private void cboDienThoai_TextChanged(object sender, EventArgs e)
         {
-            if (cboNhaCungCap.SelectedItem is DataRowView drv)
+            XuLyKhiChonHoacNhapDienThoai();
+        }
+
+        private void cboDienThoai_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            XuLyKhiChonHoacNhapDienThoai();
+        }
+
+        private void XuLyKhiChonHoacNhapDienThoai()
+        {
+            if (dangTaiDuLieu || dangXuLyNhaCungCap || !dangTaoDon)
             {
-                txtDienThoai.Text = drv["dien_thoai"]?.ToString() ?? string.Empty;
-                txtDiaChi.Text = drv["dia_chi"]?.ToString() ?? string.Empty;
+                return;
             }
-            else
+
+            string sdt = cboDienThoai.Text.Trim();
+            if (string.IsNullOrEmpty(sdt))
             {
-                txtDienThoai.Clear();
-                txtDiaChi.Clear();
+                dangXuLyNhaCungCap = true;
+                try
+                {
+                    NapDanhSachTatCaTenNhaCungCap();
+                    txtDiaChi.Clear();
+                    txtDiaChi.ReadOnly = false;
+                }
+                finally
+                {
+                    dangXuLyNhaCungCap = false;
+                }
+                return;
+            }
+
+            if (dtDanhSachNhaCungCap == null) return;
+
+            DataRow timThay = null;
+            foreach (DataRow r in dtDanhSachNhaCungCap.Rows)
+            {
+                string phone = r["dien_thoai"]?.ToString()?.Trim() ?? string.Empty;
+                if (string.Equals(phone, sdt, StringComparison.OrdinalIgnoreCase))
+                {
+                    timThay = r;
+                    break;
+                }
+            }
+
+            dangXuLyNhaCungCap = true;
+            try
+            {
+                if (timThay != null)
+                {
+                    string tenChuSDT = timThay["ten_nha_cung_cap"]?.ToString()?.Trim() ?? string.Empty;
+                    string tenHienTai = cboNhaCungCap.Text.Trim();
+
+                    bool laChonTuDanhSach = cboDienThoai.SelectedIndex >= 0;
+                    bool dangKhoaDiaChi = txtDiaChi.ReadOnly;
+
+                    if (laChonTuDanhSach || dangKhoaDiaChi || string.IsNullOrEmpty(tenHienTai) ||
+                        string.Equals(tenHienTai, tenChuSDT, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(RemoveDiacritics(tenHienTai), RemoveDiacritics(tenChuSDT), StringComparison.OrdinalIgnoreCase))
+                    {
+                        cboNhaCungCap.Text = tenChuSDT;
+                        txtDiaChi.Text = timThay["dia_chi"]?.ToString()?.Trim() ?? string.Empty;
+                        txtDiaChi.ReadOnly = true;
+                    }
+                    else
+                    {
+                        if (txtDiaChi.ReadOnly)
+                        {
+                            txtDiaChi.Clear();
+                        }
+                        txtDiaChi.ReadOnly = false;
+                    }
+                }
+                else
+                {
+                    if (txtDiaChi.ReadOnly)
+                    {
+                        txtDiaChi.Clear();
+                    }
+                    txtDiaChi.ReadOnly = false;
+                }
+            }
+            finally
+            {
+                dangXuLyNhaCungCap = false;
             }
         }
 
@@ -203,8 +476,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 dtpNgayNhap.CustomFormat = " ";
                 cboNhanVien.SelectedIndex = -1;
                 cboNhaCungCap.SelectedIndex = -1;
-                txtDienThoai.Clear();
+                cboNhaCungCap.Text = string.Empty;
+                NapDanhSachTatCaTenNhaCungCap();
+                cboDienThoai.SelectedIndex = -1;
+                cboDienThoai.Text = string.Empty;
+                NapDanhSachTatCaSoDienThoaiNCC();
                 txtDiaChi.Clear();
+                txtDiaChi.ReadOnly = true;
                 cboHangHoa.SelectedIndex = -1;
                 txtDonGiaNhap.Clear();
                 txtSoLuong.Clear();
@@ -228,11 +506,31 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             }
         }
 
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+            if (dangTaoDon && dtChiTiet != null && dtChiTiet.Rows.Count > 0)
+            {
+                DialogResult dr = MessageBox.Show(
+                    "Hóa đơn nhập đang tạo có sản phẩm trong giỏ hàng. Bạn có chắc chắn muốn rời đi và hủy dữ liệu đang nhập không?",
+                    "Xác nhận rời khỏi",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (dr == DialogResult.No)
+                {
+                    e.Cancel = true;
+                }
+            }
+        }
+
         private void DatTrangThaiNhapLieu(bool moKhoa)
         {
             dtpNgayNhap.Enabled = moKhoa;
-            cboNhanVien.Enabled = false;
+            cboNhanVien.Enabled = moKhoa && (cboNhanVien.SelectedValue == null || string.Equals(UserSession.Quyen, "QuanLy", StringComparison.OrdinalIgnoreCase));
             cboNhaCungCap.Enabled = moKhoa;
+            cboDienThoai.Enabled = moKhoa;
+            txtDiaChi.ReadOnly = !moKhoa;
             cboHangHoa.Enabled = moKhoa;
             txtDonGiaNhap.ReadOnly = !moKhoa;
             txtSoLuong.ReadOnly = !moKhoa;
@@ -253,13 +551,22 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             }
 
             DatTrangThaiNhapLieu(true);
+            if (cboNhanVien.SelectedValue == null || string.Equals(UserSession.Quyen, "QuanLy", StringComparison.OrdinalIgnoreCase))
+            {
+                cboNhanVien.Enabled = true;
+            }
 
             dangTaiDuLieu = true;
             try
             {
                 cboNhaCungCap.SelectedIndex = -1;
-                txtDienThoai.Clear();
+                cboNhaCungCap.Text = string.Empty;
+                NapDanhSachTatCaTenNhaCungCap();
+                cboDienThoai.SelectedIndex = -1;
+                cboDienThoai.Text = string.Empty;
+                NapDanhSachTatCaSoDienThoaiNCC();
                 txtDiaChi.Clear();
+                txtDiaChi.ReadOnly = false;
 
                 cboHangHoa.SelectedIndex = -1;
                 txtDonGiaNhap.Clear();
@@ -329,10 +636,29 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             if (timDong != null)
             {
                 int soLuongCu = Convert.ToInt32(timDong["so_luong"]);
-                int soLuongMoi = soLuongCu + soLuong;
-                timDong["so_luong"] = soLuongMoi;
-                timDong["don_gia"] = donGia;
-                timDong["thanh_tien"] = Math.Ceiling((soLuongMoi * donGia) / 1000m) * 1000m;
+                decimal donGiaCu = Convert.ToDecimal(timDong["don_gia"]);
+
+                if (donGiaCu == donGia)
+                {
+                    int soLuongMoi = soLuongCu + soLuong;
+                    timDong["so_luong"] = soLuongMoi;
+                    timDong["thanh_tien"] = Math.Ceiling((soLuongMoi * donGia) / 1000m) * 1000m;
+                }
+                else
+                {
+                    decimal donGiaBinhQuan = Math.Ceiling(((soLuongCu * donGiaCu + soLuong * donGia) / (soLuongCu + soLuong)) / 1000m) * 1000m;
+                    string thongBao = string.Format("Mặt hàng '{0}' đã có trong đơn với đơn giá nhập {1:N0} đ.\nBạn có muốn gộp với đơn giá bình quân mới là {2:N0} đ (tổng số lượng: {3}) không?", tenHang, donGiaCu, donGiaBinhQuan, soLuongCu + soLuong);
+                    DialogResult dr = MessageBox.Show(thongBao, "Xác nhận gộp mặt hàng", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (dr != DialogResult.Yes)
+                    {
+                        return;
+                    }
+
+                    int soLuongMoi = soLuongCu + soLuong;
+                    timDong["so_luong"] = soLuongMoi;
+                    timDong["don_gia"] = donGiaBinhQuan;
+                    timDong["thanh_tien"] = Math.Ceiling((soLuongMoi * donGiaBinhQuan) / 1000m) * 1000m;
+                }
             }
             else
             {
@@ -388,10 +714,26 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 return;
             }
 
-            if (cboNhaCungCap.SelectedValue == null)
+            string tenNCC = cboNhaCungCap.Text.Trim();
+            if (string.IsNullOrWhiteSpace(tenNCC))
             {
-                MessageBox.Show("Vui lòng chọn nhà cung cấp!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng nhập hoặc chọn nhà cung cấp!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cboNhaCungCap.Focus();
+                return;
+            }
+
+            string sdt = cboDienThoai.Text.Trim();
+            if (string.IsNullOrWhiteSpace(sdt))
+            {
+                MessageBox.Show("Vui lòng nhập số điện thoại nhà cung cấp!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cboDienThoai.Focus();
+                return;
+            }
+
+            if (sdt.Length != 10 || !sdt.StartsWith("0") || !long.TryParse(sdt, out _))
+            {
+                MessageBox.Show("Số điện thoại nhà cung cấp không hợp lệ! Bắt buộc phải gồm đúng 10 chữ số và bắt đầu bằng số 0 (ví dụ: 0912345678).", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cboDienThoai.Focus();
                 return;
             }
 
@@ -408,11 +750,89 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 return;
             }
 
+            string diaChi = txtDiaChi.Text.Trim();
+
+            string maNCC = string.Empty;
+            DataRow nccTheoSDT = null;
+
+            if (dtDanhSachNhaCungCap != null)
+            {
+                foreach (DataRow r in dtDanhSachNhaCungCap.Rows)
+                {
+                    string phone = r["dien_thoai"]?.ToString()?.Trim() ?? string.Empty;
+                    if (string.Equals(phone, sdt, StringComparison.OrdinalIgnoreCase))
+                    {
+                        nccTheoSDT = r;
+                        break;
+                    }
+                }
+            }
+
+            if (nccTheoSDT != null)
+            {
+                string tenCu = nccTheoSDT["ten_nha_cung_cap"]?.ToString()?.Trim() ?? string.Empty;
+                if (!string.Equals(tenNCC, tenCu, StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show(
+                        string.Format("Số điện thoại {0} đang thuộc về nhà cung cấp '{1}', không khớp với tên '{2}' đang nhập. Vui lòng kiểm tra lại số điện thoại hoặc chỉnh sửa thông tin cho đúng!", sdt, tenCu, tenNCC),
+                        "Cảnh báo sai thông tin",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    cboNhaCungCap.Focus();
+                    return;
+                }
+
+                maNCC = nccTheoSDT["ma_nha_cung_cap"].ToString();
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(diaChi))
+                {
+                    MessageBox.Show("Vui lòng nhập địa chỉ cho nhà cung cấp mới!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtDiaChi.ReadOnly = false;
+                    txtDiaChi.Focus();
+                    return;
+                }
+
+                string msg = string.Format("Nhà cung cấp '{0}' với số điện thoại '{1}' chưa có trong hệ thống. Bạn có muốn thêm mới nhà cung cấp này không?", tenNCC, sdt);
+                DialogResult dr = MessageBox.Show(msg, "Xác nhận thêm nhà cung cấp mới", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dr == DialogResult.Yes)
+                {
+                    try
+                    {
+                        maNCC = doiTacBLL.SinhMaNhaCungCapMoi();
+                        NhaCungCapDTO nccMoi = new NhaCungCapDTO
+                        {
+                            MaNhaCungCap = maNCC,
+                            TenNhaCungCap = tenNCC,
+                            DienThoai = sdt,
+                            DiaChi = diaChi
+                        };
+                        doiTacBLL.ThemNhaCungCap(nccMoi);
+
+                        LoadDanhSachNhaCungCap();
+                        cboNhaCungCap.Text = tenNCC;
+                        cboDienThoai.Text = sdt;
+                        txtDiaChi.Text = diaChi;
+                        txtDiaChi.ReadOnly = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Lỗi khi thêm mới nhà cung cấp: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
+
             HoaDonNhapDTO hdn = new HoaDonNhapDTO
             {
                 SoHoaDonNhap = txtMaHDN.Text.Trim(),
                 ThoiGianNhap = dtpNgayNhap.Value,
-                MaNhaCungCap = cboNhaCungCap.SelectedValue.ToString(),
+                MaNhaCungCap = maNCC,
                 MaNhanVien = cboNhanVien.SelectedValue.ToString(),
                 TongTien = tongTienHienTai,
                 TrangThaiGiaoDich = "HoanThanh"
@@ -448,6 +868,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 btnHuyHoaDon.Enabled = true;
 
                 LoadDanhSachHangHoa();
+                LoadDanhSachNhaCungCap();
 
                 MessageBox.Show("Lưu hóa đơn nhập hàng thành công! Tồn kho và đơn giá sản phẩm đã được tự động cập nhật.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -459,7 +880,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
         private void btnInHoaDon_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtMaHDN.Text) || dtChiTiet.Rows.Count == 0)
+            if (string.IsNullOrWhiteSpace(txtMaHDN.Text) || dtChiTiet == null || dtChiTiet.Rows.Count == 0)
             {
                 MessageBox.Show("Không có dữ liệu hóa đơn để in!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -467,19 +888,28 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
             try
             {
-                ExcelExportHelper.InHoaDonNhap(
-                    txtMaHDN.Text.Trim(),
-                    dtpNgayNhap.Value.ToString("dd/MM/yyyy HH:mm"),
-                    cboNhaCungCap.Text,
-                    txtDienThoai.Text,
-                    txtDiaChi.Text,
-                    cboNhanVien.Text,
-                    dgvChiTiet,
-                    tongTienHienTai);
+                List<ReportParameter> parameters = new List<ReportParameter>
+                {
+                    new ReportParameter("pSoHoaDon", txtMaHDN.Text.Trim()),
+                    new ReportParameter("pNgayNhap", dtpNgayNhap.Value.ToString("dd/MM/yyyy HH:mm")),
+                    new ReportParameter("pTenNhaCungCap", string.IsNullOrWhiteSpace(cboNhaCungCap.Text) ? "" : cboNhaCungCap.Text),
+                    new ReportParameter("pDienThoai", string.IsNullOrWhiteSpace(cboDienThoai.Text) ? "" : cboDienThoai.Text),
+                    new ReportParameter("pDiaChi", string.IsNullOrWhiteSpace(txtDiaChi.Text) ? "" : txtDiaChi.Text),
+                    new ReportParameter("pTenNhanVien", string.IsNullOrWhiteSpace(cboNhanVien.Text) ? "" : cboNhanVien.Text),
+                    new ReportParameter("pTongTien", tongTienHienTai.ToString("N0") + " đ"),
+                    new ReportParameter("pTongTienBangChu", UIHelper.DocSoThanhChu(tongTienHienTai))
+                };
+
+                RdlcReportHelper.HienThiBaoCao(
+                    "rptHoaDonNhap.rdlc",
+                    "DataSetChiTiet",
+                    dtChiTiet,
+                    parameters,
+                    "In Hóa Đơn Nhập Hàng - " + txtMaHDN.Text.Trim());
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi in hóa đơn nhập qua Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi hiển thị báo cáo hóa đơn: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -544,98 +974,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
             tongTienHienTai = tongTien;
             lblTongTienBangSo.Text = string.Format("Tổng tiền: {0:N0} VNĐ", tongTien);
-            lblTongTienBangChu.Text = string.Format("Bằng chữ: {0}", DocSoThanhChu(tongTien));
-        }
-
-        private string DocSoThanhChu(decimal tongTien)
-        {
-            if (tongTien <= 0)
-            {
-                return "Không đồng";
-            }
-
-            long so = (long)Math.Round(tongTien);
-            string[] chuSo = { "không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín" };
-            string[] donVi = { "", "nghìn", "triệu", "tỷ" };
-
-            string ketQua = "";
-            int cap = 0;
-
-            while (so > 0)
-            {
-                long baSo = so % 1000;
-                if (baSo > 0)
-                {
-                    string chuBaSo = DocNhomBaSo((int)baSo, chuSo);
-                    ketQua = chuBaSo + " " + donVi[cap] + " " + ketQua;
-                }
-                so /= 1000;
-                cap++;
-            }
-
-            ketQua = ketQua.Trim();
-            if (ketQua.Length > 0)
-            {
-                ketQua = char.ToUpper(ketQua[0]) + ketQua.Substring(1) + " đồng";
-            }
-
-            return ketQua;
-        }
-
-        private string DocNhomBaSo(int n, string[] chuSo)
-        {
-            int tram = n / 100;
-            int chuc = (n % 100) / 10;
-            int donVi = n % 10;
-            string res = "";
-
-            if (tram > 0)
-            {
-                res += chuSo[tram] + " trăm";
-                if (chuc == 0 && donVi > 0)
-                {
-                    res += " lẻ";
-                }
-            }
-
-            if (chuc > 1)
-            {
-                res += " " + chuSo[chuc] + " mươi";
-                if (donVi == 1)
-                {
-                    res += " mốt";
-                }
-                else if (donVi == 5)
-                {
-                    res += " lăm";
-                }
-                else if (donVi > 0)
-                {
-                    res += " " + chuSo[donVi];
-                }
-            }
-            else if (chuc == 1)
-            {
-                res += " mười";
-                if (donVi == 5)
-                {
-                    res += " lăm";
-                }
-                else if (donVi > 0)
-                {
-                    res += " " + chuSo[donVi];
-                }
-            }
-            else if (tram == 0 && donVi > 0)
-            {
-                res += chuSo[donVi];
-            }
-            else if (donVi > 0)
-            {
-                res += " " + chuSo[donVi];
-            }
-
-            return res.Trim();
+            lblTongTienBangChu.Text = string.Format("Bằng chữ: {0}", UIHelper.DocSoThanhChu(tongTien));
         }
     }
 }

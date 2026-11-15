@@ -1,84 +1,69 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using QuanLyBanBanGhe.DAL.Interfaces;
 using QuanLyBanBanGhe.DTO;
 
 namespace QuanLyBanBanGhe.DAL
 {
-    public class NhanSuDAL
+    public class NhanSuDAL : BaseDAL, INhanSuDAL
     {
         public DataTable LayDanhSachCongViec(bool chiLayDangHoatDong = true)
         {
-            string sql = @"
-SELECT ma_cong_viec, ten_cong_viec, muc_luong, trang_thai_xoa 
-FROM dbo.cong_viec 
-WHERE trang_thai_xoa = @trang_thai_xoa 
-ORDER BY ma_cong_viec ASC";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@trang_thai_xoa", chiLayDangHoatDong ? 0 : 1)
             };
-            return DatabaseHelper.ExecuteQuery(sql, parameters);
+            return DatabaseHelper.ExecuteReaderSP("sp_CongViec_LayDanhSach", parameters);
         }
 
         public bool ThemCongViec(CongViecDTO cv)
         {
-            string sql = @"
-INSERT INTO dbo.cong_viec (ma_cong_viec, ten_cong_viec, muc_luong, trang_thai_xoa) 
-VALUES (@ma_cong_viec, @ten_cong_viec, @muc_luong, 0)";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_cong_viec", cv.MaCongViec),
                 new SqlParameter("@ten_cong_viec", cv.TenCongViec),
                 new SqlParameter("@muc_luong", cv.MucLuong)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_CongViec_Them", parameters) > 0;
         }
 
         public bool SuaCongViec(CongViecDTO cv)
         {
-            string sql = @"
-UPDATE dbo.cong_viec 
-SET ten_cong_viec = @ten_cong_viec, 
-    muc_luong = @muc_luong 
-WHERE ma_cong_viec = @ma_cong_viec";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_cong_viec", cv.MaCongViec),
                 new SqlParameter("@ten_cong_viec", cv.TenCongViec),
                 new SqlParameter("@muc_luong", cv.MucLuong)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_CongViec_Sua", parameters) > 0;
         }
 
         public bool XoaMemCongViec(string maCongViec)
         {
-            string sql = "UPDATE dbo.cong_viec SET trang_thai_xoa = 1 WHERE ma_cong_viec = @ma_cong_viec";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_cong_viec", maCongViec)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_CongViec_XoaMem", parameters) > 0;
         }
 
         public bool KhoiPhucCongViec(string maCongViec)
         {
-            string sql = "UPDATE dbo.cong_viec SET trang_thai_xoa = 0 WHERE ma_cong_viec = @ma_cong_viec";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_cong_viec", maCongViec)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_CongViec_KhoiPhuc", parameters) > 0;
         }
 
         public CongViecDTO LayCongViecTheoMa(string maCongViec)
         {
-            string sql = "SELECT ma_cong_viec, ten_cong_viec, muc_luong, trang_thai_xoa FROM dbo.cong_viec WHERE ma_cong_viec = @ma_cong_viec";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_cong_viec", maCongViec)
             };
-            DataTable dt = DatabaseHelper.ExecuteQuery(sql, parameters);
+            DataTable dt = DatabaseHelper.ExecuteReaderSP("sp_CongViec_LayTheoMa", parameters);
             if (dt.Rows.Count > 0)
             {
                 DataRow r = dt.Rows[0];
@@ -95,42 +80,27 @@ WHERE ma_cong_viec = @ma_cong_viec";
 
         public bool KiemTraTonTaiCongViec(string maCongViec)
         {
-            string sql = "SELECT COUNT(1) FROM dbo.cong_viec WHERE ma_cong_viec = @ma_cong_viec";
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@ma_cong_viec", maCongViec)
-            };
-            int count = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sql, parameters));
-            return count > 0;
+            return base.KiemTraTonTai("cong_viec", "ma_cong_viec", maCongViec);
         }
 
         public bool KiemTraCongViecDangDuocSuDung(string maCongViec)
         {
-            string sql = "SELECT COUNT(1) FROM dbo.nhan_vien WHERE ma_cong_viec = @ma_cong_viec AND trang_thai_xoa = 0";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_cong_viec", maCongViec)
             };
-            int count = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sql, parameters));
+            int count = Convert.ToInt32(DatabaseHelper.ExecuteScalarSP("sp_CongViec_KiemTraDangSuDung", parameters));
             return count > 0;
         }
 
         public bool KiemTraTrungTenCongViec(string tenCongViec, string maCongViecLoaiTru = null)
         {
-            string sql = "SELECT COUNT(1) FROM dbo.cong_viec WHERE LOWER(ten_cong_viec) = LOWER(@ten_cong_viec) AND trang_thai_xoa = 0";
-            if (!string.IsNullOrEmpty(maCongViecLoaiTru))
+            SqlParameter[] parameters = new SqlParameter[]
             {
-                sql += " AND ma_cong_viec <> @ma_cong_viec";
-            }
-            System.Collections.Generic.List<SqlParameter> parameters = new System.Collections.Generic.List<SqlParameter>
-            {
-                new SqlParameter("@ten_cong_viec", tenCongViec.Trim())
+                new SqlParameter("@ten_cong_viec", tenCongViec.Trim()),
+                new SqlParameter("@ma_cong_viec", string.IsNullOrEmpty(maCongViecLoaiTru) ? (object)DBNull.Value : maCongViecLoaiTru.Trim())
             };
-            if (!string.IsNullOrEmpty(maCongViecLoaiTru))
-            {
-                parameters.Add(new SqlParameter("@ma_cong_viec", maCongViecLoaiTru.Trim()));
-            }
-            int count = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sql, parameters.ToArray()));
+            int count = Convert.ToInt32(DatabaseHelper.ExecuteScalarSP("sp_CongViec_KiemTraTrungTen", parameters));
             return count > 0;
         }
 
@@ -141,55 +111,25 @@ WHERE ma_cong_viec = @ma_cong_viec";
 
         public DataTable LayDanhSachNhanVien(bool chiLayDangHoatDong = true)
         {
-            string sql = @"
-SELECT 
-    nv.ma_nhan_vien, 
-    nv.ten_nhan_vien, 
-    nv.gioi_tinh, 
-    nv.ngay_sinh, 
-    nv.dien_thoai, 
-    nv.dia_chi, 
-    nv.trang_thai_xoa,
-    nv.ma_cong_viec, 
-    cv.ten_cong_viec, 
-    cv.muc_luong,
-    tk.ten_dang_nhap, 
-    tk.quyen, 
-    tk.trang_thai_hoat_dong
-FROM dbo.nhan_vien nv
-LEFT JOIN dbo.cong_viec cv ON nv.ma_cong_viec = cv.ma_cong_viec
-LEFT JOIN dbo.tai_khoan tk ON nv.ma_nhan_vien = tk.ma_nhan_vien
-WHERE nv.trang_thai_xoa = @trang_thai_xoa
-ORDER BY nv.ma_nhan_vien";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@trang_thai_xoa", chiLayDangHoatDong ? 0 : 1)
             };
-            return DatabaseHelper.ExecuteQuery(sql, parameters);
+            return DatabaseHelper.ExecuteReaderSP("sp_NhanVien_LayDanhSach", parameters);
         }
 
         public bool KiemTraTonTaiNhanVien(string maNV)
         {
-            string sql = "SELECT COUNT(1) FROM dbo.nhan_vien WHERE ma_nhan_vien = @ma_nhan_vien";
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@ma_nhan_vien", maNV)
-            };
-            int count = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sql, parameters));
-            return count > 0;
+            return base.KiemTraTonTai("nhan_vien", "ma_nhan_vien", maNV);
         }
 
         public NhanVienDTO LayNhanVienTheoMa(string maNV)
         {
-            string sql = @"
-SELECT ma_nhan_vien, ten_nhan_vien, gioi_tinh, ngay_sinh, dien_thoai, dia_chi, trang_thai_xoa, ma_cong_viec 
-FROM dbo.nhan_vien 
-WHERE ma_nhan_vien = @ma_nhan_vien";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_nhan_vien", maNV)
             };
-            DataTable dt = DatabaseHelper.ExecuteQuery(sql, parameters);
+            DataTable dt = DatabaseHelper.ExecuteReaderSP("sp_NhanVien_LayTheoMa", parameters);
             if (dt.Rows.Count > 0)
             {
                 DataRow r = dt.Rows[0];
@@ -210,9 +150,6 @@ WHERE ma_nhan_vien = @ma_nhan_vien";
 
         public bool ThemNhanVien(NhanVienDTO nv, SqlTransaction trans = null)
         {
-            string sql = @"
-INSERT INTO dbo.nhan_vien (ma_nhan_vien, ten_nhan_vien, gioi_tinh, ngay_sinh, dien_thoai, dia_chi, trang_thai_xoa, ma_cong_viec)
-VALUES (@ma_nhan_vien, @ten_nhan_vien, @gioi_tinh, @ngay_sinh, @dien_thoai, @dia_chi, 0, @ma_cong_viec)";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_nhan_vien", nv.MaNhanVien),
@@ -223,20 +160,11 @@ VALUES (@ma_nhan_vien, @ten_nhan_vien, @gioi_tinh, @ngay_sinh, @dien_thoai, @dia
                 new SqlParameter("@dia_chi", (object)nv.DiaChi ?? DBNull.Value),
                 new SqlParameter("@ma_cong_viec", (object)nv.MaCongViec ?? DBNull.Value)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters, trans) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_NhanVien_Them", parameters, trans) > 0;
         }
 
         public bool CapNhatNhanVien(NhanVienDTO nv, SqlTransaction trans = null)
         {
-            string sql = @"
-UPDATE dbo.nhan_vien 
-SET ten_nhan_vien = @ten_nhan_vien, 
-    gioi_tinh = @gioi_tinh, 
-    ngay_sinh = @ngay_sinh, 
-    dien_thoai = @dien_thoai, 
-    dia_chi = @dia_chi, 
-    ma_cong_viec = @ma_cong_viec 
-WHERE ma_nhan_vien = @ma_nhan_vien";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_nhan_vien", nv.MaNhanVien),
@@ -247,117 +175,53 @@ WHERE ma_nhan_vien = @ma_nhan_vien";
                 new SqlParameter("@dia_chi", (object)nv.DiaChi ?? DBNull.Value),
                 new SqlParameter("@ma_cong_viec", (object)nv.MaCongViec ?? DBNull.Value)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters, trans) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_NhanVien_CapNhat", parameters, trans) > 0;
         }
 
         public bool XoaMemNhanVien(string maNV)
         {
-            using (SqlConnection conn = DatabaseHelper.GetConnection())
+            SqlParameter[] parameters = new SqlParameter[]
             {
-                conn.Open();
-                using (SqlTransaction trans = conn.BeginTransaction())
-                {
-                    try
-                    {
-                        string sqlNV = "UPDATE dbo.nhan_vien SET trang_thai_xoa = 1 WHERE ma_nhan_vien = @ma_nhan_vien";
-                        SqlParameter[] pNV = new SqlParameter[]
-                        {
-                            new SqlParameter("@ma_nhan_vien", maNV)
-                        };
-                        DatabaseHelper.ExecuteNonQuery(sqlNV, pNV, trans);
-
-                        string sqlTK = "UPDATE dbo.tai_khoan SET trang_thai_hoat_dong = 0 WHERE ma_nhan_vien = @ma_nhan_vien";
-                        SqlParameter[] pTK = new SqlParameter[]
-                        {
-                            new SqlParameter("@ma_nhan_vien", maNV)
-                        };
-                        DatabaseHelper.ExecuteNonQuery(sqlTK, pTK, trans);
-
-                        trans.Commit();
-                        return true;
-                    }
-                    catch
-                    {
-                        trans.Rollback();
-                        throw;
-                    }
-                }
-            }
+                new SqlParameter("@ma_nhan_vien", maNV)
+            };
+            return DatabaseHelper.ExecuteNonQuerySP("sp_NhanVien_XoaMem", parameters) > 0;
         }
 
         public bool KhoiPhucNhanVien(string maNV)
         {
-            using (SqlConnection conn = DatabaseHelper.GetConnection())
+            SqlParameter[] parameters = new SqlParameter[]
             {
-                conn.Open();
-                using (SqlTransaction trans = conn.BeginTransaction())
-                {
-                    try
-                    {
-                        string sqlNV = "UPDATE dbo.nhan_vien SET trang_thai_xoa = 0 WHERE ma_nhan_vien = @ma_nhan_vien";
-                        SqlParameter[] pNV = new SqlParameter[]
-                        {
-                            new SqlParameter("@ma_nhan_vien", maNV)
-                        };
-                        DatabaseHelper.ExecuteNonQuery(sqlNV, pNV, trans);
-
-                        string sqlTK = "UPDATE dbo.tai_khoan SET trang_thai_hoat_dong = 1 WHERE ma_nhan_vien = @ma_nhan_vien";
-                        SqlParameter[] pTK = new SqlParameter[]
-                        {
-                            new SqlParameter("@ma_nhan_vien", maNV)
-                        };
-                        DatabaseHelper.ExecuteNonQuery(sqlTK, pTK, trans);
-
-                        trans.Commit();
-                        return true;
-                    }
-                    catch
-                    {
-                        trans.Rollback();
-                        throw;
-                    }
-                }
-            }
+                new SqlParameter("@ma_nhan_vien", maNV)
+            };
+            return DatabaseHelper.ExecuteNonQuerySP("sp_NhanVien_KhoiPhuc", parameters) > 0;
         }
 
         public bool KiemTraTonTaiTaiKhoan(string tenDangNhap)
         {
-            string sql = "SELECT COUNT(1) FROM dbo.tai_khoan WHERE ten_dang_nhap = @ten_dang_nhap";
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@ten_dang_nhap", tenDangNhap)
-            };
-            int count = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sql, parameters));
-            return count > 0;
+            return base.KiemTraTonTai("tai_khoan", "ten_dang_nhap", tenDangNhap);
         }
 
         public bool KiemTraNhanVienCoTaiKhoan(string maNV)
         {
-            string sql = "SELECT COUNT(1) FROM dbo.tai_khoan WHERE ma_nhan_vien = @ma_nhan_vien";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_nhan_vien", maNV)
             };
-            int count = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sql, parameters));
-            return count > 0;
+            return Convert.ToInt32(DatabaseHelper.ExecuteScalarSP("sp_NhanVien_KiemTraCoTaiKhoan", parameters)) > 0;
         }
 
         public string LayTenDangNhapTheoMaNV(string maNV)
         {
-            string sql = "SELECT ten_dang_nhap FROM dbo.tai_khoan WHERE ma_nhan_vien = @ma_nhan_vien";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_nhan_vien", maNV)
             };
-            object result = DatabaseHelper.ExecuteScalar(sql, parameters);
-            return result != null ? result.ToString() : string.Empty;
+            object result = DatabaseHelper.ExecuteScalarSP("sp_NhanVien_LayTenDangNhap", parameters);
+            return result != null ? result.ToString().Trim() : string.Empty;
         }
 
         public bool ThemTaiKhoan(TaiKhoanDTO tk, SqlTransaction trans = null)
         {
-            string sql = @"
-INSERT INTO dbo.tai_khoan (ten_dang_nhap, mat_khau, quyen, trang_thai_hoat_dong, ma_nhan_vien)
-VALUES (@ten_dang_nhap, @mat_khau, @quyen, @trang_thai_hoat_dong, @ma_nhan_vien)";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ten_dang_nhap", tk.TenDangNhap),
@@ -366,71 +230,131 @@ VALUES (@ten_dang_nhap, @mat_khau, @quyen, @trang_thai_hoat_dong, @ma_nhan_vien)
                 new SqlParameter("@trang_thai_hoat_dong", tk.TrangThaiHoatDong),
                 new SqlParameter("@ma_nhan_vien", tk.MaNhanVien)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters, trans) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_TaiKhoan_Them", parameters, trans) > 0;
         }
 
         public bool CapNhatQuyenVaTrangThaiTaiKhoan(string tenDangNhap, string quyen, bool hoatDong, SqlTransaction trans = null)
         {
-            string sql = @"
-UPDATE dbo.tai_khoan 
-SET quyen = @quyen, 
-    trang_thai_hoat_dong = @trang_thai_hoat_dong 
-WHERE ten_dang_nhap = @ten_dang_nhap";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ten_dang_nhap", tenDangNhap),
                 new SqlParameter("@quyen", quyen),
                 new SqlParameter("@trang_thai_hoat_dong", hoatDong)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters, trans) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_TaiKhoan_CapNhatQuyenVaTrangThai", parameters, trans) > 0;
         }
 
         public bool DoiTrangThaiTaiKhoan(string tenDangNhap, bool hoatDong)
         {
-            string sql = "UPDATE dbo.tai_khoan SET trang_thai_hoat_dong = @trang_thai_hoat_dong WHERE ten_dang_nhap = @ten_dang_nhap";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ten_dang_nhap", tenDangNhap),
                 new SqlParameter("@trang_thai_hoat_dong", hoatDong)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_TaiKhoan_DoiTrangThai", parameters) > 0;
         }
 
-        public bool ResetMatKhau(string tenDangNhap, string matKhauBam)
+        public bool ResetMatKhau(string tenDangNhap, string matKhauBam, SqlTransaction trans = null)
         {
-            string sql = "UPDATE dbo.tai_khoan SET mat_khau = @mat_khau WHERE ten_dang_nhap = @ten_dang_nhap";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ten_dang_nhap", tenDangNhap),
                 new SqlParameter("@mat_khau", matKhauBam)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_TaiKhoan_ResetMatKhau", parameters, trans) > 0;
         }
 
         public DataTable LayThongTinDangNhap(string tenDangNhap)
         {
-            string sql = @"
-SELECT 
-    tk.ten_dang_nhap,
-    tk.mat_khau,
-    tk.quyen,
-    tk.trang_thai_hoat_dong,
-    tk.ma_nhan_vien,
-    nv.ten_nhan_vien,
-    nv.trang_thai_xoa
-FROM dbo.tai_khoan tk
-INNER JOIN dbo.nhan_vien nv ON tk.ma_nhan_vien = nv.ma_nhan_vien
-WHERE tk.ten_dang_nhap = @ten_dang_nhap";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ten_dang_nhap", tenDangNhap)
             };
-            return DatabaseHelper.ExecuteQuery(sql, parameters);
+            return DatabaseHelper.ExecuteReaderSP("sp_TaiKhoan_LayThongTinDangNhap", parameters);
         }
 
         public string SinhMaNhanVienMoi()
         {
             return DatabaseHelper.SinhMaTuDong("dbo.nhan_vien", "ma_nhan_vien", "NV");
+        }
+
+        public bool ThemNhanVien(NhanVienDTO nv)
+        {
+            return ThemNhanVien(nv, null);
+        }
+
+        public bool SuaNhanVien(NhanVienDTO nv)
+        {
+            return CapNhatNhanVien(nv, null);
+        }
+
+        public string SinhMaCongViecMoi()
+        {
+            return SinhMaCongViecTuDong();
+        }
+
+        public TaiKhoanDTO DangNhap(string tenDangNhap, string matKhauPlain)
+        {
+            DataTable dt = LayThongTinDangNhap(tenDangNhap);
+            if (dt.Rows.Count == 0)
+            {
+                return null;
+            }
+            DataRow row = dt.Rows[0];
+            string matKhauBamCSDL = row["mat_khau"]?.ToString() ?? string.Empty;
+            string matKhauBamNhap = string.Empty;
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                byte[] bytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(matKhauPlain ?? string.Empty));
+                var sb = new System.Text.StringBuilder();
+                foreach (byte b in bytes)
+                {
+                    sb.Append(b.ToString("x2"));
+                }
+                matKhauBamNhap = sb.ToString();
+            }
+            if (!string.Equals(matKhauBamCSDL, matKhauBamNhap, StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+            return new TaiKhoanDTO
+            {
+                TenDangNhap = row["ten_dang_nhap"]?.ToString(),
+                Quyen = row["quyen"]?.ToString(),
+                MaNhanVien = row["ma_nhan_vien"]?.ToString(),
+                TenNhanVien = row["ten_nhan_vien"]?.ToString(),
+                TrangThaiHoatDong = Convert.ToBoolean(row["trang_thai_hoat_dong"])
+            };
+        }
+
+        public bool DoiMatKhau(string tenDangNhap, string matKhauCu, string matKhauMoi)
+        {
+            DataTable dt = LayThongTinDangNhap(tenDangNhap);
+            if (dt.Rows.Count == 0)
+            {
+                return false;
+            }
+            string matKhauBamCSDL = dt.Rows[0]["mat_khau"]?.ToString() ?? string.Empty;
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                byte[] bytesCu = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(matKhauCu ?? string.Empty));
+                var sbCu = new System.Text.StringBuilder();
+                foreach (byte b in bytesCu)
+                {
+                    sbCu.Append(b.ToString("x2"));
+                }
+                if (!string.Equals(matKhauBamCSDL, sbCu.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+                byte[] bytesMoi = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(matKhauMoi ?? string.Empty));
+                var sbMoi = new System.Text.StringBuilder();
+                foreach (byte b in bytesMoi)
+                {
+                    sbMoi.Append(b.ToString("x2"));
+                }
+                return ResetMatKhau(tenDangNhap, sbMoi.ToString());
+            }
         }
     }
 }

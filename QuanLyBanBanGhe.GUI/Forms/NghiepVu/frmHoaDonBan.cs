@@ -4,6 +4,7 @@ using System.Data;
 using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
+using Microsoft.Reporting.WinForms;
 using QuanLyBanBanGhe.BLL;
 using QuanLyBanBanGhe.DTO;
 using QuanLyBanBanGhe.GUI.Helpers;
@@ -46,8 +47,6 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
             cboKhachHang.KeyPress += cboKhachHang_KeyPress;
             cboKhachHang.TextChanged += cboKhachHang_TextChanged;
-            cboKhachHang.SelectedIndexChanged += cboKhachHang_SelectedIndexChanged;
-            cboKhachHang.Leave += cboKhachHang_Leave;
 
             cboDienThoai.KeyPress += cboDienThoai_KeyPress;
             cboDienThoai.TextChanged += cboDienThoai_TextChanged;
@@ -94,32 +93,58 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             }
         }
 
+        private void NapDanhSachTatCaTenKhachHang()
+        {
+            cboKhachHang.Items.Clear();
+            if (dtDanhSachKhachHang != null)
+            {
+                List<string> dsTen = new List<string>();
+                foreach (DataRow r in dtDanhSachKhachHang.Rows)
+                {
+                    string ten = r["ten_khach"]?.ToString()?.Trim() ?? string.Empty;
+                    if (!string.IsNullOrEmpty(ten) && !dsTen.Contains(ten))
+                    {
+                        dsTen.Add(ten);
+                    }
+                }
+                dsTen.Sort(StringComparer.CurrentCulture);
+                foreach (string ten in dsTen)
+                {
+                    cboKhachHang.Items.Add(ten);
+                }
+            }
+        }
+
+        private void NapDanhSachTatCaSoDienThoai()
+        {
+            cboDienThoai.Items.Clear();
+            if (dtDanhSachKhachHang != null)
+            {
+                List<string> dsSDT = new List<string>();
+                foreach (DataRow r in dtDanhSachKhachHang.Rows)
+                {
+                    string sdt = r["dien_thoai"]?.ToString()?.Trim() ?? string.Empty;
+                    if (!string.IsNullOrEmpty(sdt) && !dsSDT.Contains(sdt))
+                    {
+                        dsSDT.Add(sdt);
+                    }
+                }
+                dsSDT.Sort();
+                foreach (string sdt in dsSDT)
+                {
+                    cboDienThoai.Items.Add(sdt);
+                }
+            }
+        }
+
         private void LoadDanhSachKhachHang()
         {
             dangTaiDuLieu = true;
             try
             {
                 dtDanhSachKhachHang = doiTacBLL.LayDanhSachKhachHang();
-
-                cboKhachHang.Items.Clear();
-                foreach (DataRow r in dtDanhSachKhachHang.Rows)
-                {
-                    string ten = r["ten_khach"]?.ToString() ?? string.Empty;
-                    if (!string.IsNullOrEmpty(ten) && !cboKhachHang.Items.Contains(ten))
-                    {
-                        cboKhachHang.Items.Add(ten);
-                    }
-                }
-
-                cboDienThoai.Items.Clear();
-                foreach (DataRow r in dtDanhSachKhachHang.Rows)
-                {
-                    string sdt = r["dien_thoai"]?.ToString() ?? string.Empty;
-                    if (!string.IsNullOrEmpty(sdt) && !cboDienThoai.Items.Contains(sdt))
-                    {
-                        cboDienThoai.Items.Add(sdt);
-                    }
-                }
+                NapDanhSachTatCaTenKhachHang();
+                NapDanhSachTatCaSoDienThoai();
             }
             catch (Exception ex)
             {
@@ -170,43 +195,6 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC).Replace('đ', 'd').Replace('Đ', 'D');
         }
 
-        private static string GetAcronym(string fullName, bool removeDiacritics)
-        {
-            if (string.IsNullOrWhiteSpace(fullName)) return string.Empty;
-            string name = removeDiacritics ? RemoveDiacritics(fullName) : fullName;
-            string[] parts = name.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-            StringBuilder sb = new StringBuilder();
-            foreach (var part in parts)
-            {
-                if (part.Length > 0 && char.IsLetter(part[0]))
-                {
-                    sb.Append(part[0]);
-                }
-            }
-            return sb.ToString().ToLower();
-        }
-
-        private bool KhopTenKhachHang(string tenKhach, string keyword)
-        {
-            if (string.IsNullOrWhiteSpace(keyword)) return true;
-            if (string.IsNullOrWhiteSpace(tenKhach)) return false;
-            keyword = keyword.Trim();
-
-            if (tenKhach.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0) return true;
-
-            string tenKhongDau = RemoveDiacritics(tenKhach);
-            string kwKhongDau = RemoveDiacritics(keyword);
-            if (tenKhongDau.IndexOf(kwKhongDau, StringComparison.OrdinalIgnoreCase) >= 0) return true;
-
-            string acroCoDau = GetAcronym(tenKhach, false);
-            if (acroCoDau.Equals(keyword.ToLower())) return true;
-
-            string acroKhongDau = GetAcronym(tenKhach, true);
-            if (acroKhongDau.Equals(kwKhongDau.ToLower())) return true;
-
-            return false;
-        }
-
         private void cboKhachHang_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (char.IsControl(e.KeyChar)) return;
@@ -236,6 +224,16 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
         private void cboKhachHang_TextChanged(object sender, EventArgs e)
         {
+            XuLyKhiChonHoacNhapKhachHang();
+        }
+
+        private void cboKhachHang_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            XuLyKhiChonHoacNhapKhachHang();
+        }
+
+        private void XuLyKhiChonHoacNhapKhachHang()
+        {
             if (dangTaiDuLieu || dangXuLyKhachHang || !dangTaoDon)
             {
                 return;
@@ -247,8 +245,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 string text = cboKhachHang.Text.Trim();
                 if (string.IsNullOrEmpty(text))
                 {
-                    cboDienThoai.Items.Clear();
-                    cboDienThoai.Text = string.Empty;
+                    NapDanhSachTatCaSoDienThoai();
                     txtDiaChi.Clear();
                     txtDiaChi.ReadOnly = false;
                     return;
@@ -256,11 +253,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
                 if (dtDanhSachKhachHang == null) return;
 
+                string textNoDiacritics = RemoveDiacritics(text);
                 List<DataRow> khop = new List<DataRow>();
                 foreach (DataRow r in dtDanhSachKhachHang.Rows)
                 {
-                    string ten = r["ten_khach"]?.ToString() ?? string.Empty;
-                    if (KhopTenKhachHang(ten, text))
+                    string ten = r["ten_khach"]?.ToString()?.Trim() ?? string.Empty;
+                    if (string.Equals(ten, text, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(RemoveDiacritics(ten), textNoDiacritics, StringComparison.OrdinalIgnoreCase))
                     {
                         khop.Add(r);
                     }
@@ -271,29 +270,37 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                     cboDienThoai.Items.Clear();
                     foreach (DataRow r in khop)
                     {
-                        string sdt = r["dien_thoai"]?.ToString() ?? string.Empty;
-                        if (!string.IsNullOrEmpty(sdt) && !cboDienThoai.Items.Contains(sdt))
+                        string sdtRow = r["dien_thoai"]?.ToString()?.Trim() ?? string.Empty;
+                        if (!string.IsNullOrEmpty(sdtRow) && !cboDienThoai.Items.Contains(sdtRow))
                         {
-                            cboDienThoai.Items.Add(sdt);
+                            cboDienThoai.Items.Add(sdtRow);
                         }
                     }
 
                     if (khop.Count == 1)
                     {
-                        cboDienThoai.Text = khop[0]["dien_thoai"]?.ToString() ?? string.Empty;
-                        txtDiaChi.Text = khop[0]["dia_chi"]?.ToString() ?? string.Empty;
+                        cboDienThoai.Text = khop[0]["dien_thoai"]?.ToString()?.Trim() ?? string.Empty;
+                        txtDiaChi.Text = khop[0]["dia_chi"]?.ToString()?.Trim() ?? string.Empty;
                         txtDiaChi.ReadOnly = true;
                     }
                     else
                     {
-                        DataRow chinhXac = khop.Find(r => string.Equals(r["ten_khach"]?.ToString(), text, StringComparison.OrdinalIgnoreCase));
-                        if (chinhXac != null)
+                        string sdtHienTai = cboDienThoai.Text.Trim();
+                        DataRow khachKhopSDT = null;
+                        if (!string.IsNullOrEmpty(sdtHienTai))
                         {
-                            txtDiaChi.Text = chinhXac["dia_chi"]?.ToString() ?? string.Empty;
+                            khachKhopSDT = khop.Find(r => string.Equals(r["dien_thoai"]?.ToString()?.Trim(), sdtHienTai, StringComparison.OrdinalIgnoreCase));
+                        }
+
+                        if (khachKhopSDT != null)
+                        {
+                            txtDiaChi.Text = khachKhopSDT["dia_chi"]?.ToString()?.Trim() ?? string.Empty;
                             txtDiaChi.ReadOnly = true;
                         }
                         else
                         {
+                            cboDienThoai.SelectedIndex = -1;
+                            cboDienThoai.Text = string.Empty;
                             txtDiaChi.Clear();
                             txtDiaChi.ReadOnly = true;
                         }
@@ -302,94 +309,17 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 else
                 {
                     cboDienThoai.Items.Clear();
-                    txtDiaChi.ReadOnly = false;
-                }
-            }
-            finally
-            {
-                dangXuLyKhachHang = false;
-            }
-        }
-
-        private void cboKhachHang_Leave(object sender, EventArgs e)
-        {
-            if (dangTaiDuLieu || !dangTaoDon || dtDanhSachKhachHang == null) return;
-            string text = cboKhachHang.Text.Trim();
-            if (string.IsNullOrEmpty(text)) return;
-
-            List<DataRow> khop = new List<DataRow>();
-            foreach (DataRow r in dtDanhSachKhachHang.Rows)
-            {
-                string ten = r["ten_khach"]?.ToString() ?? string.Empty;
-                if (KhopTenKhachHang(ten, text))
-                {
-                    khop.Add(r);
-                }
-            }
-
-            if (khop.Count == 1)
-            {
-                dangXuLyKhachHang = true;
-                try
-                {
-                    cboKhachHang.Text = khop[0]["ten_khach"]?.ToString() ?? string.Empty;
-                    cboDienThoai.Text = khop[0]["dien_thoai"]?.ToString() ?? string.Empty;
-                    txtDiaChi.Text = khop[0]["dia_chi"]?.ToString() ?? string.Empty;
-                    txtDiaChi.ReadOnly = true;
-                }
-                finally
-                {
-                    dangXuLyKhachHang = false;
-                }
-            }
-        }
-
-        private void cboKhachHang_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (dangTaiDuLieu || dangXuLyKhachHang || !dangTaoDon)
-            {
-                return;
-            }
-
-            string selectedName = cboKhachHang.Text.Trim();
-            if (string.IsNullOrEmpty(selectedName)) return;
-
-            if (dtDanhSachKhachHang == null) return;
-
-            List<DataRow> dsCungTen = new List<DataRow>();
-            foreach (DataRow r in dtDanhSachKhachHang.Rows)
-            {
-                string ten = r["ten_khach"]?.ToString() ?? string.Empty;
-                if (string.Equals(ten, selectedName, StringComparison.OrdinalIgnoreCase))
-                {
-                    dsCungTen.Add(r);
-                }
-            }
-
-            dangXuLyKhachHang = true;
-            try
-            {
-                cboDienThoai.Items.Clear();
-                foreach (DataRow r in dsCungTen)
-                {
-                    string sdt = r["dien_thoai"]?.ToString() ?? string.Empty;
-                    if (!string.IsNullOrEmpty(sdt) && !cboDienThoai.Items.Contains(sdt))
+                    string sdtHienTai = cboDienThoai.Text.Trim();
+                    if (sdtHienTai.Length != 10)
                     {
-                        cboDienThoai.Items.Add(sdt);
+                        cboDienThoai.SelectedIndex = -1;
+                        cboDienThoai.Text = string.Empty;
                     }
-                }
-
-                if (dsCungTen.Count == 1)
-                {
-                    cboDienThoai.Text = dsCungTen[0]["dien_thoai"]?.ToString() ?? string.Empty;
-                    txtDiaChi.Text = dsCungTen[0]["dia_chi"]?.ToString() ?? string.Empty;
-                    txtDiaChi.ReadOnly = true;
-                }
-                else if (dsCungTen.Count > 1)
-                {
-                    cboDienThoai.SelectedIndex = 0;
-                    txtDiaChi.Text = dsCungTen[0]["dia_chi"]?.ToString() ?? string.Empty;
-                    txtDiaChi.ReadOnly = true;
+                    if (txtDiaChi.ReadOnly)
+                    {
+                        txtDiaChi.Clear();
+                    }
+                    txtDiaChi.ReadOnly = false;
                 }
             }
             finally
@@ -400,29 +330,35 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
         private void cboDienThoai_TextChanged(object sender, EventArgs e)
         {
-            if (dangTaiDuLieu || dangXuLyKhachHang || !dangTaoDon)
-            {
-                return;
-            }
-
             XuLyKhiChonHoacNhapDienThoai();
         }
 
         private void cboDienThoai_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (dangTaiDuLieu || dangXuLyKhachHang || !dangTaoDon)
-            {
-                return;
-            }
-
             XuLyKhiChonHoacNhapDienThoai();
         }
 
         private void XuLyKhiChonHoacNhapDienThoai()
         {
+            if (dangTaiDuLieu || dangXuLyKhachHang || !dangTaoDon)
+            {
+                return;
+            }
+
             string sdt = cboDienThoai.Text.Trim();
             if (string.IsNullOrEmpty(sdt))
             {
+                dangXuLyKhachHang = true;
+                try
+                {
+                    NapDanhSachTatCaTenKhachHang();
+                    txtDiaChi.Clear();
+                    txtDiaChi.ReadOnly = false;
+                }
+                finally
+                {
+                    dangXuLyKhachHang = false;
+                }
                 return;
             }
 
@@ -431,7 +367,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             DataRow timThay = null;
             foreach (DataRow r in dtDanhSachKhachHang.Rows)
             {
-                string phone = r["dien_thoai"]?.ToString() ?? string.Empty;
+                string phone = r["dien_thoai"]?.ToString()?.Trim() ?? string.Empty;
                 if (string.Equals(phone, sdt, StringComparison.OrdinalIgnoreCase))
                 {
                     timThay = r;
@@ -444,12 +380,35 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             {
                 if (timThay != null)
                 {
-                    cboKhachHang.Text = timThay["ten_khach"]?.ToString() ?? string.Empty;
-                    txtDiaChi.Text = timThay["dia_chi"]?.ToString() ?? string.Empty;
-                    txtDiaChi.ReadOnly = true;
+                    string tenChuSDT = timThay["ten_khach"]?.ToString()?.Trim() ?? string.Empty;
+                    string tenHienTai = cboKhachHang.Text.Trim();
+
+                    bool laChonTuDanhSach = cboDienThoai.SelectedIndex >= 0;
+                    bool dangKhoaDiaChi = txtDiaChi.ReadOnly;
+
+                    if (laChonTuDanhSach || dangKhoaDiaChi || string.IsNullOrEmpty(tenHienTai) ||
+                        string.Equals(tenHienTai, tenChuSDT, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(RemoveDiacritics(tenHienTai), RemoveDiacritics(tenChuSDT), StringComparison.OrdinalIgnoreCase))
+                    {
+                        cboKhachHang.Text = tenChuSDT;
+                        txtDiaChi.Text = timThay["dia_chi"]?.ToString()?.Trim() ?? string.Empty;
+                        txtDiaChi.ReadOnly = true;
+                    }
+                    else
+                    {
+                        if (txtDiaChi.ReadOnly)
+                        {
+                            txtDiaChi.Clear();
+                        }
+                        txtDiaChi.ReadOnly = false;
+                    }
                 }
                 else
                 {
+                    if (txtDiaChi.ReadOnly)
+                    {
+                        txtDiaChi.Clear();
+                    }
                     txtDiaChi.ReadOnly = false;
                 }
             }
@@ -535,8 +494,10 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 cboNhanVien.SelectedIndex = -1;
                 cboKhachHang.SelectedIndex = -1;
                 cboKhachHang.Text = string.Empty;
-                cboDienThoai.Items.Clear();
+                NapDanhSachTatCaTenKhachHang();
+                cboDienThoai.SelectedIndex = -1;
                 cboDienThoai.Text = string.Empty;
+                NapDanhSachTatCaSoDienThoai();
                 txtDiaChi.Clear();
                 txtDiaChi.ReadOnly = true;
                 cboHangHoa.SelectedIndex = -1;
@@ -564,10 +525,28 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             }
         }
 
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+            if (dangTaoDon && dtChiTiet != null && dtChiTiet.Rows.Count > 0)
+            {
+                DialogResult dr = MessageBox.Show(
+                    "Hóa đơn đang tạo có sản phẩm trong giỏ hàng. Bạn có chắc chắn muốn rời đi và hủy dữ liệu đang nhập không?",
+                    "Xác nhận rời khỏi",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (dr == DialogResult.No)
+                {
+                    e.Cancel = true;
+                }
+            }
+        }
+
         private void DatTrangThaiNhapLieu(bool moKhoa)
         {
             dtpNgayBan.Enabled = moKhoa;
-            cboNhanVien.Enabled = false;
+            cboNhanVien.Enabled = moKhoa && (cboNhanVien.SelectedValue == null || string.Equals(UserSession.Quyen, "QuanLy", StringComparison.OrdinalIgnoreCase));
             cboKhachHang.Enabled = moKhoa;
             cboDienThoai.Enabled = moKhoa;
             txtDiaChi.ReadOnly = !moKhoa;
@@ -591,14 +570,20 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             }
 
             DatTrangThaiNhapLieu(true);
+            if (cboNhanVien.SelectedValue == null || string.Equals(UserSession.Quyen, "QuanLy", StringComparison.OrdinalIgnoreCase))
+            {
+                cboNhanVien.Enabled = true;
+            }
 
             dangTaiDuLieu = true;
             try
             {
                 cboKhachHang.SelectedIndex = -1;
                 cboKhachHang.Text = string.Empty;
-                cboDienThoai.Items.Clear();
+                NapDanhSachTatCaTenKhachHang();
+                cboDienThoai.SelectedIndex = -1;
                 cboDienThoai.Text = string.Empty;
+                NapDanhSachTatCaSoDienThoai();
                 txtDiaChi.Clear();
                 txtDiaChi.ReadOnly = false;
 
@@ -656,6 +641,12 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             decimal.TryParse(txtDonGiaBan.Text.Replace(".", "").Replace(",", "").Trim(), out decimal donGia);
             decimal.TryParse(txtGiamGia.Text.Replace(",", ".").Trim(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal giamGia);
 
+            if (donGia <= 0)
+            {
+                MessageBox.Show("Đơn giá bán phải lớn hơn 0!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (giamGia < 0 || giamGia > 100)
             {
                 MessageBox.Show("Giảm giá phải nằm trong khoảng từ 0% đến 100%!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -694,9 +685,17 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
             if (timDong != null)
             {
+                decimal giamGiaCu = Convert.ToDecimal(timDong["giam_gia"]);
+                if (giamGiaCu != giamGia)
+                {
+                    string thongBao = string.Format("Mặt hàng này đã có trong đơn với mức giảm giá {0:0.##}%. Vui lòng điều chỉnh trực tiếp trên lưới hoặc áp dụng cùng mức giảm giá!", giamGiaCu);
+                    MessageBox.Show(thongBao, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                decimal donGiaHienTai = Convert.ToDecimal(timDong["don_gia"]);
                 timDong["so_luong"] = tongSoLuongYeuCau;
-                timDong["giam_gia"] = giamGia;
-                timDong["thanh_tien"] = Math.Ceiling((tongSoLuongYeuCau * donGia * (1 - giamGia / 100m)) / 1000m) * 1000m;
+                timDong["thanh_tien"] = Math.Ceiling((tongSoLuongYeuCau * donGiaHienTai * (1 - giamGia / 100m)) / 1000m) * 1000m;
             }
             else
             {
@@ -777,68 +776,52 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 return;
             }
 
+            if (cboNhanVien.SelectedValue == null)
+            {
+                MessageBox.Show("Vui lòng chọn nhân viên lập hóa đơn!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cboNhanVien.Focus();
+                return;
+            }
+
+            if (dtChiTiet.Rows.Count == 0)
+            {
+                MessageBox.Show("Hóa đơn phải có ít nhất 1 mặt hàng bán!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             string diaChi = txtDiaChi.Text.Trim();
 
             string maKhach = string.Empty;
-            DataRow khachTonTai = null;
-
-            DataRow khachTheoTenVaSDT = null;
             DataRow khachTheoSDT = null;
-            DataRow khachTheoTen = null;
 
             if (dtDanhSachKhachHang != null)
             {
                 foreach (DataRow r in dtDanhSachKhachHang.Rows)
                 {
-                    string name = r["ten_khach"]?.ToString() ?? string.Empty;
                     string phone = r["dien_thoai"]?.ToString() ?? string.Empty;
-
-                    bool khopTen = string.Equals(name.Trim(), tenKhach, StringComparison.OrdinalIgnoreCase);
-                    bool khopSDT = string.Equals(phone.Trim(), sdt, StringComparison.OrdinalIgnoreCase);
-
-                    if (khopTen && khopSDT)
-                    {
-                        khachTheoTenVaSDT = r;
-                        break;
-                    }
-                    if (khopSDT && khachTheoSDT == null)
+                    if (string.Equals(phone.Trim(), sdt, StringComparison.OrdinalIgnoreCase))
                     {
                         khachTheoSDT = r;
-                    }
-                    if (khopTen && khachTheoTen == null)
-                    {
-                        khachTheoTen = r;
+                        break;
                     }
                 }
             }
 
-            if (khachTheoTenVaSDT != null)
+            if (khachTheoSDT != null)
             {
-                khachTonTai = khachTheoTenVaSDT;
-                maKhach = khachTonTai["ma_khach"].ToString();
-            }
-            else if (khachTheoTen != null && string.IsNullOrEmpty(khachTheoTen["dien_thoai"]?.ToString()?.Trim()))
-            {
-                khachTonTai = khachTheoTen;
-                maKhach = khachTonTai["ma_khach"].ToString();
-                KhachHangDTO khUpdate = new KhachHangDTO
+                string tenCu = khachTheoSDT["ten_khach"]?.ToString()?.Trim() ?? string.Empty;
+                if (!string.Equals(tenKhach, tenCu, StringComparison.OrdinalIgnoreCase))
                 {
-                    MaKhach = maKhach,
-                    TenKhach = tenKhach,
-                    DienThoai = sdt,
-                    DiaChi = !string.IsNullOrWhiteSpace(diaChi) ? diaChi : khachTonTai["dia_chi"]?.ToString()
-                };
-                doiTacBLL.CapNhatKhachHang(khUpdate);
-            }
-            else if (khachTheoSDT != null)
-            {
-                khachTonTai = khachTheoSDT;
-                maKhach = khachTonTai["ma_khach"].ToString();
-            }
-            else if (khachTheoTen != null)
-            {
-                khachTonTai = khachTheoTen;
-                maKhach = khachTonTai["ma_khach"].ToString();
+                    MessageBox.Show(
+                        string.Format("Số điện thoại {0} đang thuộc về khách hàng '{1}', không khớp với tên '{2}' đang nhập. Vui lòng kiểm tra lại số điện thoại hoặc chỉnh sửa thông tin cho đúng!", sdt, tenCu, tenKhach),
+                        "Cảnh báo sai thông tin",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    cboKhachHang.Focus();
+                    return;
+                }
+
+                maKhach = khachTheoSDT["ma_khach"].ToString();
             }
             else
             {
@@ -850,7 +833,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                     return;
                 }
 
-                string msg = string.Format("Khách hàng chưa có trong dữ liệu.\nXác nhận thêm mới khách hàng {0} - {1}?", tenKhach, sdt);
+                string msg = string.Format("Khách hàng '{0}' với số điện thoại '{1}' chưa có trong hệ thống. Bạn có muốn thêm mới khách hàng này không?", tenKhach, sdt);
                 DialogResult dr = MessageBox.Show(msg, "Xác nhận thêm khách hàng mới", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (dr == DialogResult.Yes)
                 {
@@ -869,6 +852,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                         LoadDanhSachKhachHang();
                         cboKhachHang.Text = tenKhach;
                         cboDienThoai.Text = sdt;
+                        txtDiaChi.Text = diaChi;
+                        txtDiaChi.ReadOnly = true;
                     }
                     catch (Exception ex)
                     {
@@ -880,19 +865,6 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 {
                     return;
                 }
-            }
-
-            if (cboNhanVien.SelectedValue == null)
-            {
-                MessageBox.Show("Vui lòng chọn nhân viên lập hóa đơn!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                cboNhanVien.Focus();
-                return;
-            }
-
-            if (dtChiTiet.Rows.Count == 0)
-            {
-                MessageBox.Show("Hóa đơn phải có ít nhất 1 mặt hàng bán!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
             }
 
             HoaDonBanDTO hdb = new HoaDonBanDTO
@@ -935,6 +907,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 btnHuyHoaDon.Enabled = true;
 
                 LoadDanhSachHangHoa();
+                LoadDanhSachKhachHang();
 
                 MessageBox.Show("Lưu hóa đơn bán hàng thành công! Đã cập nhật tồn kho tự động.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -946,7 +919,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
         private void btnInHoaDon_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtMaHDB.Text) || dtChiTiet.Rows.Count == 0)
+            if (string.IsNullOrWhiteSpace(txtMaHDB.Text) || dtChiTiet == null || dtChiTiet.Rows.Count == 0)
             {
                 MessageBox.Show("Không có dữ liệu hóa đơn để in!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -954,19 +927,28 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
             try
             {
-                ExcelExportHelper.InHoaDonBan(
-                    txtMaHDB.Text.Trim(),
-                    dtpNgayBan.Value.ToString("dd/MM/yyyy HH:mm"),
-                    cboKhachHang.Text,
-                    cboDienThoai.Text,
-                    txtDiaChi.Text,
-                    cboNhanVien.Text,
-                    dgvChiTiet,
-                    tongTienHienTai);
+                List<ReportParameter> parameters = new List<ReportParameter>
+                {
+                    new ReportParameter("pSoHoaDon", txtMaHDB.Text.Trim()),
+                    new ReportParameter("pNgayBan", dtpNgayBan.Value.ToString("dd/MM/yyyy HH:mm")),
+                    new ReportParameter("pTenKhachHang", string.IsNullOrWhiteSpace(cboKhachHang.Text) ? "" : cboKhachHang.Text),
+                    new ReportParameter("pDienThoai", string.IsNullOrWhiteSpace(cboDienThoai.Text) ? "" : cboDienThoai.Text),
+                    new ReportParameter("pDiaChi", string.IsNullOrWhiteSpace(txtDiaChi.Text) ? "" : txtDiaChi.Text),
+                    new ReportParameter("pTenNhanVien", string.IsNullOrWhiteSpace(cboNhanVien.Text) ? "" : cboNhanVien.Text),
+                    new ReportParameter("pTongTien", tongTienHienTai.ToString("N0") + " đ"),
+                    new ReportParameter("pTongTienBangChu", UIHelper.DocSoThanhChu(tongTienHienTai))
+                };
+
+                RdlcReportHelper.HienThiBaoCao(
+                    "rptHoaDonBan.rdlc",
+                    "DataSetChiTiet",
+                    dtChiTiet,
+                    parameters,
+                    "In Hóa Đơn Bán Hàng - " + txtMaHDB.Text.Trim());
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi in hóa đơn bán qua Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi hiển thị báo cáo hóa đơn: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -1009,6 +991,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 hoaDonBanBLL.HuyHoaDonBan(txtMaHDB.Text.Trim());
                 ThietLapTrangThaiBanDau();
                 LoadDanhSachHangHoa();
+                LoadDanhSachKhachHang();
 
                 MessageBox.Show("Hủy hóa đơn bán thành công! Hàng hóa đã được hoàn trả lại kho đầy đủ.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -1031,98 +1014,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
             tongTienHienTai = tongTien;
             lblTongTienBangSo.Text = string.Format("Tổng tiền: {0:N0} VNĐ", tongTien);
-            lblTongTienBangChu.Text = string.Format("Bằng chữ: {0}", DocSoThanhChu(tongTien));
-        }
-
-        private string DocSoThanhChu(decimal tongTien)
-        {
-            if (tongTien <= 0)
-            {
-                return "Không đồng";
-            }
-
-            long so = (long)Math.Round(tongTien);
-            string[] chuSo = { "không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín" };
-            string[] donVi = { "", "nghìn", "triệu", "tỷ" };
-
-            string ketQua = "";
-            int cap = 0;
-
-            while (so > 0)
-            {
-                long baSo = so % 1000;
-                if (baSo > 0)
-                {
-                    string chuBaSo = DocNhomBaSo((int)baSo, chuSo);
-                    ketQua = chuBaSo + " " + donVi[cap] + " " + ketQua;
-                }
-                so /= 1000;
-                cap++;
-            }
-
-            ketQua = ketQua.Trim();
-            if (ketQua.Length > 0)
-            {
-                ketQua = char.ToUpper(ketQua[0]) + ketQua.Substring(1) + " đồng";
-            }
-
-            return ketQua;
-        }
-
-        private string DocNhomBaSo(int n, string[] chuSo)
-        {
-            int tram = n / 100;
-            int chuc = (n % 100) / 10;
-            int donVi = n % 10;
-            string res = "";
-
-            if (tram > 0)
-            {
-                res += chuSo[tram] + " trăm";
-                if (chuc == 0 && donVi > 0)
-                {
-                    res += " lẻ";
-                }
-            }
-
-            if (chuc > 1)
-            {
-                res += " " + chuSo[chuc] + " mươi";
-                if (donVi == 1)
-                {
-                    res += " mốt";
-                }
-                else if (donVi == 5)
-                {
-                    res += " lăm";
-                }
-                else if (donVi > 0)
-                {
-                    res += " " + chuSo[donVi];
-                }
-            }
-            else if (chuc == 1)
-            {
-                res += " mười";
-                if (donVi == 5)
-                {
-                    res += " lăm";
-                }
-                else if (donVi > 0)
-                {
-                    res += " " + chuSo[donVi];
-                }
-            }
-            else if (tram == 0 && donVi > 0)
-            {
-                res += chuSo[donVi];
-            }
-            else if (donVi > 0)
-            {
-                res += " " + chuSo[donVi];
-            }
-
-            return res.Trim();
+            lblTongTienBangChu.Text = string.Format("Bằng chữ: {0}", UIHelper.DocSoThanhChu(tongTien));
         }
     }
 }

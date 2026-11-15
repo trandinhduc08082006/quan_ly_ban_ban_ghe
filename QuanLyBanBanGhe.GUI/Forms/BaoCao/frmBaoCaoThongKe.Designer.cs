@@ -21,7 +21,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             this.lblNam1 = new System.Windows.Forms.Label();
             this.cboNam1 = new System.Windows.Forms.ComboBox();
             this.btnBaoCao1 = new System.Windows.Forms.Button();
-            this.btnXuatExcel1 = new System.Windows.Forms.Button();
+            this.btnInBaoCao1 = new System.Windows.Forms.Button();
             this.dgvTop10 = new System.Windows.Forms.DataGridView();
             this.colMaHang1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colTenHang1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -38,7 +38,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             this.lblNam2 = new System.Windows.Forms.Label();
             this.cboNam2 = new System.Windows.Forms.ComboBox();
             this.btnBaoCao2 = new System.Windows.Forms.Button();
-            this.btnXuatExcel2 = new System.Windows.Forms.Button();
+            this.btnInBaoCao2 = new System.Windows.Forms.Button();
             this.dgvNhapHang = new System.Windows.Forms.DataGridView();
             this.colSoHDN2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colThoiGianNhap2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -58,7 +58,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             this.lblNam3 = new System.Windows.Forms.Label();
             this.cboNam3 = new System.Windows.Forms.ComboBox();
             this.btnBaoCao3 = new System.Windows.Forms.Button();
-            this.btnXuatExcel3 = new System.Windows.Forms.Button();
+            this.btnInBaoCao3 = new System.Windows.Forms.Button();
             this.dgvBanHang = new System.Windows.Forms.DataGridView();
             this.colSoHDB3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colThoiGianBan3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -73,7 +73,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             this.lblNam4 = new System.Windows.Forms.Label();
             this.cboNam4 = new System.Windows.Forms.ComboBox();
             this.btnBaoCao4 = new System.Windows.Forms.Button();
-            this.btnXuatExcel4 = new System.Windows.Forms.Button();
+            this.btnInBaoCao4 = new System.Windows.Forms.Button();
             this.splNhanVien = new System.Windows.Forms.SplitContainer();
             this.grpNV0 = new System.Windows.Forms.GroupBox();
             this.dgvNVDoanhSo0 = new System.Windows.Forms.DataGridView();
@@ -140,7 +140,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             this.pnlTop1.Controls.Add(this.lblNam1);
             this.pnlTop1.Controls.Add(this.cboNam1);
             this.pnlTop1.Controls.Add(this.btnBaoCao1);
-            this.pnlTop1.Controls.Add(this.btnXuatExcel1);
+            this.pnlTop1.Controls.Add(this.btnInBaoCao1);
             this.pnlTop1.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlTop1.Location = new System.Drawing.Point(10, 10);
             this.pnlTop1.Name = "pnlTop1";
@@ -172,15 +172,15 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             this.btnBaoCao1.UseVisualStyleBackColor = true;
             this.btnBaoCao1.Click += new System.EventHandler(this.btnBaoCao1_Click);
 
-            this.btnXuatExcel1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnXuatExcel1.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
-            this.btnXuatExcel1.Location = new System.Drawing.Point(375, 9);
-            this.btnXuatExcel1.Name = "btnXuatExcel1";
-            this.btnXuatExcel1.Size = new System.Drawing.Size(120, 30);
-            this.btnXuatExcel1.TabIndex = 3;
-            this.btnXuatExcel1.Text = "Xuất Excel";
-            this.btnXuatExcel1.UseVisualStyleBackColor = true;
-            this.btnXuatExcel1.Click += new System.EventHandler(this.btnXuatExcel1_Click);
+            this.btnInBaoCao1.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnInBaoCao1.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.btnInBaoCao1.Location = new System.Drawing.Point(375, 9);
+            this.btnInBaoCao1.Name = "btnInBaoCao1";
+            this.btnInBaoCao1.Size = new System.Drawing.Size(140, 30);
+            this.btnInBaoCao1.TabIndex = 3;
+            this.btnInBaoCao1.Text = "In Báo Cáo";
+            this.btnInBaoCao1.UseVisualStyleBackColor = true;
+            this.btnInBaoCao1.Click += new System.EventHandler(this.btnInBaoCao1_Click);
 
             this.dgvTop10.AllowUserToAddRows = false;
             this.dgvTop10.AllowUserToDeleteRows = false;
@@ -245,7 +245,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             this.pnlTop2.Controls.Add(this.lblNam2);
             this.pnlTop2.Controls.Add(this.cboNam2);
             this.pnlTop2.Controls.Add(this.btnBaoCao2);
-            this.pnlTop2.Controls.Add(this.btnXuatExcel2);
+            this.pnlTop2.Controls.Add(this.btnInBaoCao2);
             this.pnlTop2.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlTop2.Location = new System.Drawing.Point(10, 10);
             this.pnlTop2.Name = "pnlTop2";
@@ -261,13 +261,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
 
             this.cboNhanVien2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboNhanVien2.FormattingEnabled = true;
-            this.cboNhanVien2.Location = new System.Drawing.Point(80, 12);
+            this.cboNhanVien2.Location = new System.Drawing.Point(75, 12);
             this.cboNhanVien2.Name = "cboNhanVien2";
-            this.cboNhanVien2.Size = new System.Drawing.Size(155, 25);
+            this.cboNhanVien2.Size = new System.Drawing.Size(145, 25);
             this.cboNhanVien2.TabIndex = 1;
 
             this.lblThang2.AutoSize = true;
-            this.lblThang2.Location = new System.Drawing.Point(245, 15);
+            this.lblThang2.Location = new System.Drawing.Point(228, 15);
             this.lblThang2.Name = "lblThang2";
             this.lblThang2.Size = new System.Drawing.Size(48, 17);
             this.lblThang2.TabIndex = 2;
@@ -275,13 +275,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
 
             this.cboThang2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboThang2.FormattingEnabled = true;
-            this.cboThang2.Location = new System.Drawing.Point(298, 12);
+            this.cboThang2.Location = new System.Drawing.Point(275, 12);
             this.cboThang2.Name = "cboThang2";
-            this.cboThang2.Size = new System.Drawing.Size(130, 25);
+            this.cboThang2.Size = new System.Drawing.Size(105, 25);
             this.cboThang2.TabIndex = 3;
 
             this.lblQuy2.AutoSize = true;
-            this.lblQuy2.Location = new System.Drawing.Point(438, 15);
+            this.lblQuy2.Location = new System.Drawing.Point(390, 15);
             this.lblQuy2.Name = "lblQuy2";
             this.lblQuy2.Size = new System.Drawing.Size(34, 17);
             this.lblQuy2.TabIndex = 4;
@@ -289,13 +289,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
 
             this.cboQuy2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboQuy2.FormattingEnabled = true;
-            this.cboQuy2.Location = new System.Drawing.Point(477, 12);
+            this.cboQuy2.Location = new System.Drawing.Point(426, 12);
             this.cboQuy2.Name = "cboQuy2";
-            this.cboQuy2.Size = new System.Drawing.Size(130, 25);
+            this.cboQuy2.Size = new System.Drawing.Size(105, 25);
             this.cboQuy2.TabIndex = 5;
 
             this.lblNam2.AutoSize = true;
-            this.lblNam2.Location = new System.Drawing.Point(617, 15);
+            this.lblNam2.Location = new System.Drawing.Point(541, 15);
             this.lblNam2.Name = "lblNam2";
             this.lblNam2.Size = new System.Drawing.Size(39, 17);
             this.lblNam2.TabIndex = 6;
@@ -303,31 +303,31 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
 
             this.cboNam2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown;
             this.cboNam2.FormattingEnabled = true;
-            this.cboNam2.Location = new System.Drawing.Point(661, 12);
+            this.cboNam2.Location = new System.Drawing.Point(582, 12);
             this.cboNam2.MaxLength = 4;
             this.cboNam2.Name = "cboNam2";
-            this.cboNam2.Size = new System.Drawing.Size(85, 25);
+            this.cboNam2.Size = new System.Drawing.Size(80, 25);
             this.cboNam2.TabIndex = 7;
 
             this.btnBaoCao2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBaoCao2.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
-            this.btnBaoCao2.Location = new System.Drawing.Point(758, 9);
+            this.btnBaoCao2.Location = new System.Drawing.Point(672, 9);
             this.btnBaoCao2.Name = "btnBaoCao2";
-            this.btnBaoCao2.Size = new System.Drawing.Size(105, 30);
+            this.btnBaoCao2.Size = new System.Drawing.Size(100, 30);
             this.btnBaoCao2.TabIndex = 8;
             this.btnBaoCao2.Text = "Thống kê";
             this.btnBaoCao2.UseVisualStyleBackColor = true;
             this.btnBaoCao2.Click += new System.EventHandler(this.btnBaoCao2_Click);
 
-            this.btnXuatExcel2.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnXuatExcel2.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
-            this.btnXuatExcel2.Location = new System.Drawing.Point(873, 9);
-            this.btnXuatExcel2.Name = "btnXuatExcel2";
-            this.btnXuatExcel2.Size = new System.Drawing.Size(105, 30);
-            this.btnXuatExcel2.TabIndex = 9;
-            this.btnXuatExcel2.Text = "Xuất Excel";
-            this.btnXuatExcel2.UseVisualStyleBackColor = true;
-            this.btnXuatExcel2.Click += new System.EventHandler(this.btnXuatExcel2_Click);
+            this.btnInBaoCao2.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnInBaoCao2.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.btnInBaoCao2.Location = new System.Drawing.Point(782, 9);
+            this.btnInBaoCao2.Name = "btnInBaoCao2";
+            this.btnInBaoCao2.Size = new System.Drawing.Size(140, 30);
+            this.btnInBaoCao2.TabIndex = 9;
+            this.btnInBaoCao2.Text = "In Báo Cáo";
+            this.btnInBaoCao2.UseVisualStyleBackColor = true;
+            this.btnInBaoCao2.Click += new System.EventHandler(this.btnInBaoCao2_Click);
 
             this.dgvNhapHang.AllowUserToAddRows = false;
             this.dgvNhapHang.AllowUserToDeleteRows = false;
@@ -415,7 +415,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             this.pnlTop3.Controls.Add(this.lblNam3);
             this.pnlTop3.Controls.Add(this.cboNam3);
             this.pnlTop3.Controls.Add(this.btnBaoCao3);
-            this.pnlTop3.Controls.Add(this.btnXuatExcel3);
+            this.pnlTop3.Controls.Add(this.btnInBaoCao3);
             this.pnlTop3.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlTop3.Location = new System.Drawing.Point(10, 10);
             this.pnlTop3.Name = "pnlTop3";
@@ -431,13 +431,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
 
             this.cboNhanVien3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboNhanVien3.FormattingEnabled = true;
-            this.cboNhanVien3.Location = new System.Drawing.Point(80, 12);
+            this.cboNhanVien3.Location = new System.Drawing.Point(75, 12);
             this.cboNhanVien3.Name = "cboNhanVien3";
-            this.cboNhanVien3.Size = new System.Drawing.Size(155, 25);
+            this.cboNhanVien3.Size = new System.Drawing.Size(145, 25);
             this.cboNhanVien3.TabIndex = 1;
 
             this.lblThang3.AutoSize = true;
-            this.lblThang3.Location = new System.Drawing.Point(245, 15);
+            this.lblThang3.Location = new System.Drawing.Point(228, 15);
             this.lblThang3.Name = "lblThang3";
             this.lblThang3.Size = new System.Drawing.Size(48, 17);
             this.lblThang3.TabIndex = 2;
@@ -445,13 +445,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
 
             this.cboThang3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboThang3.FormattingEnabled = true;
-            this.cboThang3.Location = new System.Drawing.Point(298, 12);
+            this.cboThang3.Location = new System.Drawing.Point(275, 12);
             this.cboThang3.Name = "cboThang3";
-            this.cboThang3.Size = new System.Drawing.Size(130, 25);
+            this.cboThang3.Size = new System.Drawing.Size(105, 25);
             this.cboThang3.TabIndex = 3;
 
             this.lblQuy3.AutoSize = true;
-            this.lblQuy3.Location = new System.Drawing.Point(438, 15);
+            this.lblQuy3.Location = new System.Drawing.Point(390, 15);
             this.lblQuy3.Name = "lblQuy3";
             this.lblQuy3.Size = new System.Drawing.Size(34, 17);
             this.lblQuy3.TabIndex = 4;
@@ -459,13 +459,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
 
             this.cboQuy3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboQuy3.FormattingEnabled = true;
-            this.cboQuy3.Location = new System.Drawing.Point(477, 12);
+            this.cboQuy3.Location = new System.Drawing.Point(426, 12);
             this.cboQuy3.Name = "cboQuy3";
-            this.cboQuy3.Size = new System.Drawing.Size(130, 25);
+            this.cboQuy3.Size = new System.Drawing.Size(105, 25);
             this.cboQuy3.TabIndex = 5;
 
             this.lblNam3.AutoSize = true;
-            this.lblNam3.Location = new System.Drawing.Point(617, 15);
+            this.lblNam3.Location = new System.Drawing.Point(541, 15);
             this.lblNam3.Name = "lblNam3";
             this.lblNam3.Size = new System.Drawing.Size(39, 17);
             this.lblNam3.TabIndex = 6;
@@ -473,31 +473,31 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
 
             this.cboNam3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown;
             this.cboNam3.FormattingEnabled = true;
-            this.cboNam3.Location = new System.Drawing.Point(661, 12);
+            this.cboNam3.Location = new System.Drawing.Point(582, 12);
             this.cboNam3.MaxLength = 4;
             this.cboNam3.Name = "cboNam3";
-            this.cboNam3.Size = new System.Drawing.Size(85, 25);
+            this.cboNam3.Size = new System.Drawing.Size(80, 25);
             this.cboNam3.TabIndex = 7;
 
             this.btnBaoCao3.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBaoCao3.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
-            this.btnBaoCao3.Location = new System.Drawing.Point(758, 9);
+            this.btnBaoCao3.Location = new System.Drawing.Point(672, 9);
             this.btnBaoCao3.Name = "btnBaoCao3";
-            this.btnBaoCao3.Size = new System.Drawing.Size(105, 30);
+            this.btnBaoCao3.Size = new System.Drawing.Size(100, 30);
             this.btnBaoCao3.TabIndex = 8;
             this.btnBaoCao3.Text = "Thống kê";
             this.btnBaoCao3.UseVisualStyleBackColor = true;
             this.btnBaoCao3.Click += new System.EventHandler(this.btnBaoCao3_Click);
 
-            this.btnXuatExcel3.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnXuatExcel3.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
-            this.btnXuatExcel3.Location = new System.Drawing.Point(873, 9);
-            this.btnXuatExcel3.Name = "btnXuatExcel3";
-            this.btnXuatExcel3.Size = new System.Drawing.Size(105, 30);
-            this.btnXuatExcel3.TabIndex = 9;
-            this.btnXuatExcel3.Text = "Xuất Excel";
-            this.btnXuatExcel3.UseVisualStyleBackColor = true;
-            this.btnXuatExcel3.Click += new System.EventHandler(this.btnXuatExcel3_Click);
+            this.btnInBaoCao3.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnInBaoCao3.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.btnInBaoCao3.Location = new System.Drawing.Point(782, 9);
+            this.btnInBaoCao3.Name = "btnInBaoCao3";
+            this.btnInBaoCao3.Size = new System.Drawing.Size(140, 30);
+            this.btnInBaoCao3.TabIndex = 9;
+            this.btnInBaoCao3.Text = "In Báo Cáo";
+            this.btnInBaoCao3.UseVisualStyleBackColor = true;
+            this.btnInBaoCao3.Click += new System.EventHandler(this.btnInBaoCao3_Click);
 
             this.dgvBanHang.AllowUserToAddRows = false;
             this.dgvBanHang.AllowUserToDeleteRows = false;
@@ -587,7 +587,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             this.pnlTop4.Controls.Add(this.lblNam4);
             this.pnlTop4.Controls.Add(this.cboNam4);
             this.pnlTop4.Controls.Add(this.btnBaoCao4);
-            this.pnlTop4.Controls.Add(this.btnXuatExcel4);
+            this.pnlTop4.Controls.Add(this.btnInBaoCao4);
             this.pnlTop4.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlTop4.Location = new System.Drawing.Point(10, 10);
             this.pnlTop4.Name = "pnlTop4";
@@ -619,15 +619,15 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             this.btnBaoCao4.UseVisualStyleBackColor = true;
             this.btnBaoCao4.Click += new System.EventHandler(this.btnBaoCao4_Click);
 
-            this.btnXuatExcel4.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnXuatExcel4.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
-            this.btnXuatExcel4.Location = new System.Drawing.Point(375, 9);
-            this.btnXuatExcel4.Name = "btnXuatExcel4";
-            this.btnXuatExcel4.Size = new System.Drawing.Size(120, 30);
-            this.btnXuatExcel4.TabIndex = 3;
-            this.btnXuatExcel4.Text = "Xuất Excel";
-            this.btnXuatExcel4.UseVisualStyleBackColor = true;
-            this.btnXuatExcel4.Click += new System.EventHandler(this.btnXuatExcel4_Click);
+            this.btnInBaoCao4.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnInBaoCao4.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.btnInBaoCao4.Location = new System.Drawing.Point(375, 9);
+            this.btnInBaoCao4.Name = "btnInBaoCao4";
+            this.btnInBaoCao4.Size = new System.Drawing.Size(140, 30);
+            this.btnInBaoCao4.TabIndex = 3;
+            this.btnInBaoCao4.Text = "In Báo Cáo";
+            this.btnInBaoCao4.UseVisualStyleBackColor = true;
+            this.btnInBaoCao4.Click += new System.EventHandler(this.btnInBaoCao4_Click);
 
             this.splNhanVien.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splNhanVien.Location = new System.Drawing.Point(10, 60);
@@ -780,7 +780,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(1100, 680);
+            this.ClientSize = new System.Drawing.Size(1180, 680);
             this.Controls.Add(this.tabBaoCao);
             this.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -825,7 +825,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
         private System.Windows.Forms.Label lblNam1;
         private System.Windows.Forms.ComboBox cboNam1;
         private System.Windows.Forms.Button btnBaoCao1;
-        private System.Windows.Forms.Button btnXuatExcel1;
+        private System.Windows.Forms.Button btnInBaoCao1;
         private System.Windows.Forms.DataGridView dgvTop10;
         private System.Windows.Forms.DataGridViewTextBoxColumn colMaHang1;
         private System.Windows.Forms.DataGridViewTextBoxColumn colTenHang1;
@@ -843,7 +843,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
         private System.Windows.Forms.Label lblNam2;
         private System.Windows.Forms.ComboBox cboNam2;
         private System.Windows.Forms.Button btnBaoCao2;
-        private System.Windows.Forms.Button btnXuatExcel2;
+        private System.Windows.Forms.Button btnInBaoCao2;
         private System.Windows.Forms.DataGridView dgvNhapHang;
         private System.Windows.Forms.DataGridViewTextBoxColumn colSoHDN2;
         private System.Windows.Forms.DataGridViewTextBoxColumn colThoiGianNhap2;
@@ -864,7 +864,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
         private System.Windows.Forms.Label lblNam3;
         private System.Windows.Forms.ComboBox cboNam3;
         private System.Windows.Forms.Button btnBaoCao3;
-        private System.Windows.Forms.Button btnXuatExcel3;
+        private System.Windows.Forms.Button btnInBaoCao3;
         private System.Windows.Forms.DataGridView dgvBanHang;
         private System.Windows.Forms.DataGridViewTextBoxColumn colSoHDB3;
         private System.Windows.Forms.DataGridViewTextBoxColumn colThoiGianBan3;
@@ -880,7 +880,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
         private System.Windows.Forms.Label lblNam4;
         private System.Windows.Forms.ComboBox cboNam4;
         private System.Windows.Forms.Button btnBaoCao4;
-        private System.Windows.Forms.Button btnXuatExcel4;
+        private System.Windows.Forms.Button btnInBaoCao4;
         private System.Windows.Forms.SplitContainer splNhanVien;
         private System.Windows.Forms.GroupBox grpNV0;
         private System.Windows.Forms.DataGridView dgvNVDoanhSo0;

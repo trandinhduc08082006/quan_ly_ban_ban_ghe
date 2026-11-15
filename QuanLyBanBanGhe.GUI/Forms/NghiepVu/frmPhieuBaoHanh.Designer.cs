@@ -118,7 +118,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.grpThongTin.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grpThongTin.Location = new System.Drawing.Point(10, 10);
             this.grpThongTin.Name = "grpThongTin";
-            this.grpThongTin.Size = new System.Drawing.Size(1064, 230);
+            this.grpThongTin.Size = new System.Drawing.Size(1160, 230);
             this.grpThongTin.TabIndex = 0;
             this.grpThongTin.TabStop = false;
             this.grpThongTin.Text = "Thông tin phiếu bảo hành";
@@ -133,6 +133,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.txtTimNhanh.Size = new System.Drawing.Size(250, 24);
             this.txtTimNhanh.TabIndex = 1;
             this.txtTimNhanh.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtTimNhanh_KeyDown);
+            this.txtTimNhanh.Enter += new System.EventHandler(this.txtTimNhanh_Enter);
+            this.txtTimNhanh.Leave += new System.EventHandler(this.txtTimNhanh_Leave);
             this.btnTimNhanh.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnTimNhanh.Location = new System.Drawing.Point(360, 21);
             this.btnTimNhanh.Name = "btnTimNhanh";
@@ -352,7 +354,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.pnlThaoTac.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlThaoTac.Location = new System.Drawing.Point(10, 240);
             this.pnlThaoTac.Name = "pnlThaoTac";
-            this.pnlThaoTac.Size = new System.Drawing.Size(1064, 48);
+            this.pnlThaoTac.Size = new System.Drawing.Size(1160, 48);
             this.pnlThaoTac.TabIndex = 1;
             this.flpNut.Controls.Add(this.btnThem);
             this.flpNut.Controls.Add(this.btnSua);
@@ -363,7 +365,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.flpNut.Location = new System.Drawing.Point(0, 0);
             this.flpNut.Name = "flpNut";
             this.flpNut.Padding = new System.Windows.Forms.Padding(0, 8, 0, 8);
-            this.flpNut.Size = new System.Drawing.Size(714, 48);
+            this.flpNut.Size = new System.Drawing.Size(575, 48);
             this.flpNut.TabIndex = 0;
             this.flpNut.WrapContents = false;
             this.btnThem.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -421,13 +423,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.pnlTimKiem.Controls.Add(this.txtTimKiem);
             this.pnlTimKiem.Controls.Add(this.lblTimKiem);
             this.pnlTimKiem.Dock = System.Windows.Forms.DockStyle.Right;
-            this.pnlTimKiem.Location = new System.Drawing.Point(714, 0);
+            this.pnlTimKiem.Location = new System.Drawing.Point(575, 0);
             this.pnlTimKiem.Name = "pnlTimKiem";
-            this.pnlTimKiem.Size = new System.Drawing.Size(350, 48);
+            this.pnlTimKiem.Size = new System.Drawing.Size(585, 48);
             this.pnlTimKiem.TabIndex = 1;
             this.btnLamMoi.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnLamMoi.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnLamMoi.Location = new System.Drawing.Point(278, 8);
+            this.btnLamMoi.Location = new System.Drawing.Point(509, 8);
             this.btnLamMoi.Name = "btnLamMoi";
             this.btnLamMoi.Size = new System.Drawing.Size(68, 32);
             this.btnLamMoi.TabIndex = 3;
@@ -436,7 +438,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.btnLamMoi.Click += new System.EventHandler(this.btnLamMoi_Click);
             this.btnTimKiem.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnTimKiem.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnTimKiem.Location = new System.Drawing.Point(208, 8);
+            this.btnTimKiem.Location = new System.Drawing.Point(438, 8);
             this.btnTimKiem.Name = "btnTimKiem";
             this.btnTimKiem.Size = new System.Drawing.Size(65, 32);
             this.btnTimKiem.TabIndex = 2;
@@ -446,9 +448,11 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.txtTimKiem.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtTimKiem.Location = new System.Drawing.Point(72, 12);
             this.txtTimKiem.Name = "txtTimKiem";
-            this.txtTimKiem.Size = new System.Drawing.Size(130, 24);
+            this.txtTimKiem.Size = new System.Drawing.Size(360, 24);
             this.txtTimKiem.TabIndex = 1;
             this.txtTimKiem.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtTimKiem_KeyDown);
+            this.txtTimKiem.Enter += new System.EventHandler(this.txtTimKiem_Enter);
+            this.txtTimKiem.Leave += new System.EventHandler(this.txtTimKiem_Leave);
             this.lblTimKiem.AutoSize = true;
             this.lblTimKiem.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTimKiem.Location = new System.Drawing.Point(6, 15);
@@ -462,7 +466,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.grpDanhSach.Location = new System.Drawing.Point(10, 288);
             this.grpDanhSach.Name = "grpDanhSach";
             this.grpDanhSach.Padding = new System.Windows.Forms.Padding(10);
-            this.grpDanhSach.Size = new System.Drawing.Size(1064, 382);
+            this.grpDanhSach.Size = new System.Drawing.Size(1160, 382);
             this.grpDanhSach.TabIndex = 2;
             this.grpDanhSach.TabStop = false;
             this.grpDanhSach.Text = "Danh sách phiếu bảo hành";
@@ -569,7 +573,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.colHanBaoHanh.Width = 95;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1084, 680);
+            this.ClientSize = new System.Drawing.Size(1180, 680);
             this.Controls.Add(this.grpDanhSach);
             this.Controls.Add(this.pnlThaoTac);
             this.Controls.Add(this.grpThongTin);

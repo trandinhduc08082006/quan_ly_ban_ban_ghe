@@ -1,11 +1,12 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using QuanLyBanBanGhe.DAL.Interfaces;
 using QuanLyBanBanGhe.DTO;
 
 namespace QuanLyBanBanGhe.DAL
 {
-    public class ThuocTinhDAL
+    public class ThuocTinhDAL : BaseDAL, IThuocTinhDAL
     {
         private string GetMaColumn(string tenBang)
         {
@@ -48,157 +49,90 @@ namespace QuanLyBanBanGhe.DAL
             return DatabaseHelper.SinhMaTuDong("dbo." + tenBang, maCol, prefix);
         }
 
-        private string GetTenColumn(string tenBang)
-        {
-            switch (tenBang)
-            {
-                case "loai": return "ten_loai";
-                case "kich_thuoc": return "ten_kich_thuoc";
-                case "hinh_dang": return "ten_hinh_dang";
-                case "chat_lieu": return "ten_chat_lieu";
-                case "nuoc_san_xuat": return "ten_nuoc_san_xuat";
-                case "mau_sac": return "ten_mau";
-                case "nha_san_xuat": return "ten_nha_san_xuat";
-                case "cong_dung": return "ten_cong_dung";
-                case "dac_diem": return "ten_dac_diem";
-                default: throw new ArgumentException("Bảng danh mục không hợp lệ: " + tenBang);
-            }
-        }
-
         public DataTable LayDanhSach(string tenBang)
         {
-            string maCol = GetMaColumn(tenBang);
-            string tenCol = GetTenColumn(tenBang);
-
-            if (tenBang == "kich_thuoc")
+            SqlParameter[] parameters = new SqlParameter[]
             {
-                string sql = "SELECT kt.ma_kich_thuoc AS Ma, kt.ten_kich_thuoc AS Ten, kt.ma_loai AS MaLoai FROM dbo.kich_thuoc kt ORDER BY kt.ma_kich_thuoc";
-                return DatabaseHelper.ExecuteQuery(sql);
-            }
-            else
-            {
-                string sql = string.Format("SELECT {0} AS Ma, {1} AS Ten, NULL AS MaLoai FROM dbo.{2} ORDER BY {0}", maCol, tenCol, tenBang);
-                return DatabaseHelper.ExecuteQuery(sql);
-            }
+                new SqlParameter("@ten_bang", tenBang)
+            };
+            return DatabaseHelper.ExecuteReaderSP("sp_ThuocTinh_LayDanhSach", parameters);
         }
 
         public bool KiemTraTonTai(string tenBang, string ma)
         {
             string maCol = GetMaColumn(tenBang);
-            string sql = string.Format("SELECT COUNT(1) FROM dbo.{0} WHERE {1} = @ma", tenBang, maCol);
+            return base.KiemTraTonTai(tenBang, maCol, ma);
+        }
+
+        public bool KiemTraTrungTen(string tenBang, string ten, string maBoQua = null, string maLoai = null)
+        {
             SqlParameter[] parameters = new SqlParameter[]
             {
-                new SqlParameter("@ma", ma)
+                new SqlParameter("@ten_bang", tenBang),
+                new SqlParameter("@ten", ten),
+                new SqlParameter("@ma_bo_qua", (object)maBoQua ?? DBNull.Value),
+                new SqlParameter("@ma_loai", (object)maLoai ?? DBNull.Value)
             };
-            int count = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sql, parameters));
-            return count > 0;
+            return Convert.ToInt32(DatabaseHelper.ExecuteScalarSP("sp_ThuocTinh_KiemTraTrungTen", parameters)) > 0;
         }
 
         public bool KiemTraRangBuocKhoaNgoai(string tenBang, string ma)
         {
-            string maCol = GetMaColumn(tenBang);
-
-            if (tenBang == "loai")
+            SqlParameter[] parameters = new SqlParameter[]
             {
-                string sqlKichThuoc = "SELECT COUNT(1) FROM dbo.kich_thuoc WHERE ma_loai = @ma";
-                SqlParameter[] pKT = new SqlParameter[] { new SqlParameter("@ma", ma) };
-                int countKT = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sqlKichThuoc, pKT));
-                if (countKT > 0)
-                {
-                    return true;
-                }
-            }
-
-            string sqlHangHoa = string.Format("SELECT COUNT(1) FROM dbo.hang_hoa WHERE {0} = @ma", maCol);
-            SqlParameter[] pHangHoa = new SqlParameter[] { new SqlParameter("@ma", ma) };
-            int countHangHoa = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sqlHangHoa, pHangHoa));
-            return countHangHoa > 0;
+                new SqlParameter("@ten_bang", tenBang),
+                new SqlParameter("@ma", ma)
+            };
+            return Convert.ToInt32(DatabaseHelper.ExecuteScalarSP("sp_ThuocTinh_KiemTraRangBuocKhoaNgoai", parameters)) > 0;
         }
 
         public bool Them(string tenBang, ThuocTinhDTO item)
         {
-            string maCol = GetMaColumn(tenBang);
-            string tenCol = GetTenColumn(tenBang);
-
-            if (tenBang == "kich_thuoc")
+            SqlParameter[] parameters = new SqlParameter[]
             {
-                string sql = string.Format("INSERT INTO dbo.kich_thuoc ({0}, {1}, ma_loai) VALUES (@ma, @ten, @ma_loai)", maCol, tenCol);
-                SqlParameter[] parameters = new SqlParameter[]
-                {
-                    new SqlParameter("@ma", item.Ma),
-                    new SqlParameter("@ten", item.Ten),
-                    new SqlParameter("@ma_loai", (object)item.MaLoai ?? DBNull.Value)
-                };
-                return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
-            }
-            else
-            {
-                string sql = string.Format("INSERT INTO dbo.{0} ({1}, {2}) VALUES (@ma, @ten)", tenBang, maCol, tenCol);
-                SqlParameter[] parameters = new SqlParameter[]
-                {
-                    new SqlParameter("@ma", item.Ma),
-                    new SqlParameter("@ten", item.Ten)
-                };
-                return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
-            }
+                new SqlParameter("@ten_bang", tenBang),
+                new SqlParameter("@ma", item.Ma),
+                new SqlParameter("@ten", item.Ten),
+                new SqlParameter("@ma_loai", (object)item.MaLoai ?? DBNull.Value)
+            };
+            return DatabaseHelper.ExecuteNonQuerySP("sp_ThuocTinh_Them", parameters) > 0;
         }
 
         public bool Sua(string tenBang, ThuocTinhDTO item)
         {
-            string maCol = GetMaColumn(tenBang);
-            string tenCol = GetTenColumn(tenBang);
-
-            if (tenBang == "kich_thuoc")
+            SqlParameter[] parameters = new SqlParameter[]
             {
-                string sql = string.Format("UPDATE dbo.kich_thuoc SET {0} = @ten, ma_loai = @ma_loai WHERE {1} = @ma", tenCol, maCol);
-                SqlParameter[] parameters = new SqlParameter[]
-                {
-                    new SqlParameter("@ma", item.Ma),
-                    new SqlParameter("@ten", item.Ten),
-                    new SqlParameter("@ma_loai", (object)item.MaLoai ?? DBNull.Value)
-                };
-                return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
-            }
-            else
-            {
-                string sql = string.Format("UPDATE dbo.{0} SET {1} = @ten WHERE {2} = @ma", tenBang, tenCol, maCol);
-                SqlParameter[] parameters = new SqlParameter[]
-                {
-                    new SqlParameter("@ma", item.Ma),
-                    new SqlParameter("@ten", item.Ten)
-                };
-                return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
-            }
+                new SqlParameter("@ten_bang", tenBang),
+                new SqlParameter("@ma", item.Ma),
+                new SqlParameter("@ten", item.Ten),
+                new SqlParameter("@ma_loai", (object)item.MaLoai ?? DBNull.Value)
+            };
+            return DatabaseHelper.ExecuteNonQuerySP("sp_ThuocTinh_Sua", parameters) > 0;
         }
 
         public bool Xoa(string tenBang, string ma)
         {
-            if (tenBang == "loai")
-            {
-                string sqlKichThuoc = "SELECT COUNT(1) FROM dbo.kich_thuoc WHERE ma_loai = @ma";
-                SqlParameter[] pKT = new SqlParameter[] { new SqlParameter("@ma", ma) };
-                int countKT = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sqlKichThuoc, pKT));
-                if (countKT > 0)
-                {
-                    throw new InvalidOperationException("Không thể xóa loại bàn ghế này vì đang được sử dụng trong danh mục kích thước!");
-                }
-            }
-
-            string maCol = GetMaColumn(tenBang);
-            string sqlHangHoa = string.Format("SELECT COUNT(1) FROM dbo.hang_hoa WHERE {0} = @ma", maCol);
-            SqlParameter[] pHangHoa = new SqlParameter[] { new SqlParameter("@ma", ma) };
-            int countHangHoa = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sqlHangHoa, pHangHoa));
-            if (countHangHoa > 0)
-            {
-                throw new InvalidOperationException("Không thể xóa thuộc tính này vì đang được gắn với sản phẩm bàn ghế trong kho!");
-            }
-
-            string sql = string.Format("DELETE FROM dbo.{0} WHERE {1} = @ma", tenBang, maCol);
             SqlParameter[] parameters = new SqlParameter[]
             {
+                new SqlParameter("@ten_bang", tenBang),
                 new SqlParameter("@ma", ma)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_ThuocTinh_Xoa", parameters) > 0;
+        }
+
+        public bool ThemThuocTinh(string tenBang, string ma, string ten, string maLoai = null)
+        {
+            return Them(tenBang, new ThuocTinhDTO { Ma = ma, Ten = ten, MaLoai = maLoai });
+        }
+
+        public bool SuaThuocTinh(string tenBang, string ma, string ten, string maLoai = null)
+        {
+            return Sua(tenBang, new ThuocTinhDTO { Ma = ma, Ten = ten, MaLoai = maLoai });
+        }
+
+        public bool XoaThuocTinh(string tenBang, string ma)
+        {
+            return Xoa(tenBang, ma);
         }
     }
 }

@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.Reporting.WinForms;
 using QuanLyBanBanGhe.BLL;
 using QuanLyBanBanGhe.GUI.Helpers;
 
@@ -21,6 +23,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.TimKiem
         public frmChiTietHDBanModal(string soHDB)
         {
             InitializeComponent();
+            CancelButton = btnDong;
             this.soHDB = soHDB;
             hoaDonBanBLL = new HoaDonBanBLL();
         }
@@ -82,12 +85,14 @@ namespace QuanLyBanBanGhe.GUI.Forms.TimKiem
                         txtTrangThai.Text = "ĐÃ HỦY";
                         txtTrangThai.ForeColor = Color.Red;
                         btnHuyHoaDon.Enabled = false;
+                        btnInHoaDon.Enabled = false;
                     }
                     else
                     {
                         txtTrangThai.Text = "HOÀN THÀNH";
                         txtTrangThai.ForeColor = Color.Green;
                         btnHuyHoaDon.Enabled = true;
+                        btnInHoaDon.Enabled = true;
                     }
 
                     bool coQuyen = string.Equals(UserSession.Quyen, "QuanLy", StringComparison.OrdinalIgnoreCase)
@@ -117,22 +122,43 @@ namespace QuanLyBanBanGhe.GUI.Forms.TimKiem
 
         private void btnInHoaDon_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(soHDB))
+            {
+                MessageBox.Show("Không có dữ liệu hóa đơn để in!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DataTable dt = dgvChiTiet.DataSource as DataTable;
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                MessageBox.Show("Không có dữ liệu chi tiết hóa đơn để in!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             try
             {
-                ExcelExportHelper.InHoaDonBan(
-                    soHDB,
-                    ngayBan,
-                    tenKhach,
-                    dienThoai,
-                    diaChi,
-                    tenNhanVien,
-                    dgvChiTiet,
-                    tongTien
-                );
+                List<ReportParameter> parameters = new List<ReportParameter>
+                {
+                    new ReportParameter("pSoHoaDon", soHDB),
+                    new ReportParameter("pNgayBan", ngayBan),
+                    new ReportParameter("pTenKhachHang", tenKhach),
+                    new ReportParameter("pDienThoai", dienThoai),
+                    new ReportParameter("pDiaChi", diaChi),
+                    new ReportParameter("pTenNhanVien", tenNhanVien),
+                    new ReportParameter("pTongTien", tongTien.ToString("N0") + " đ"),
+                    new ReportParameter("pTongTienBangChu", UIHelper.DocSoThanhChu(tongTien))
+                };
+
+                RdlcReportHelper.HienThiBaoCao(
+                    "rptHoaDonBan.rdlc",
+                    "DataSetChiTiet",
+                    dt,
+                    parameters,
+                    "In Hóa Đơn Bán Hàng - " + soHDB);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi in hóa đơn bán: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi hiển thị báo cáo hóa đơn: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -155,6 +181,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.TimKiem
                 txtTrangThai.Text = "ĐÃ HỦY";
                 txtTrangThai.ForeColor = Color.Red;
                 btnHuyHoaDon.Enabled = false;
+                btnInHoaDon.Enabled = false;
                 DialogResult = DialogResult.OK;
                 MessageBox.Show("Hủy hóa đơn bán thành công! Hàng hóa đã được hoàn trả lại kho đầy đủ.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }

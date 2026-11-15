@@ -1,16 +1,21 @@
 using System;
 using System.Data;
 using QuanLyBanBanGhe.DAL;
+using QuanLyBanBanGhe.DAL.Interfaces;
 
 namespace QuanLyBanBanGhe.BLL
 {
     public class BaoCaoBLL
     {
-        private readonly BaoCaoDAL dal;
+        private readonly IBaoCaoDAL dal;
 
-        public BaoCaoBLL()
+        public BaoCaoBLL() : this(new BaoCaoDAL())
         {
-            dal = new BaoCaoDAL();
+        }
+
+        public BaoCaoBLL(IBaoCaoDAL dal)
+        {
+            this.dal = dal;
         }
 
         public DataTable BaoCaoTop10BanChay(int nam)

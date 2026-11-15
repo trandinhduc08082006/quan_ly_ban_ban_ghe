@@ -10,6 +10,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 {
     public partial class frmPhieuBaoHanh : Form
     {
+        private const string PlaceholderTimNhanh = "Số HDB - Tên khách - SĐT";
+        private const string PlaceholderTimKiem = "Mã phiếu BH - Số HDB - Tên khách - SĐT - Tên hàng hóa";
         private readonly PhieuBaoHanhBLL bll;
         private FormMode currentMode;
         private Button btnKhoiPhuc;
@@ -24,12 +26,15 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
         {
             InitializeComponent();
             bll = new PhieuBaoHanhBLL();
+            HienThiGoiYTimNhanh();
+            HienThiGoiYTimKiem();
         }
 
         private void frmPhieuBaoHanh_Load(object sender, EventArgs e)
         {
             dgvPhieuBaoHanh.AutoGenerateColumns = false;
             dgvPhieuBaoHanh.CellFormatting += dgvPhieuBaoHanh_CellFormatting;
+            dgvPhieuBaoHanh.KeyUp += dgvPhieuBaoHanh_KeyUp;
             UIHelper.GanXoaChonTuDong(dgvPhieuBaoHanh);
             UIHelper.FormatDateTimeColumns(dgvPhieuBaoHanh, "colNgayTiepNhan");
             UIHelper.FormatDateColumns(dgvPhieuBaoHanh, "colNgayHenTra", "colNgayTraThucTe", "colHanBaoHanh");
@@ -65,12 +70,15 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             };
 
             KhoiTaoComboBoxTrangThai();
+            cboTrangThai.SelectedIndexChanged += cboTrangThai_SelectedIndexChanged;
             KhoiTaoBoLocTrangThai();
             LoadDanhSachHoaDon();
             LoadDanhSach();
             XoaTrang();
             ThietLapTrangThai(FormMode.View);
             UIHelper.XoaChonLuoi(dgvPhieuBaoHanh);
+            HienThiGoiYTimKiem();
+            ActiveControl = null;
         }
 
         private void KhoiTaoComboBoxTrangThai()
@@ -88,6 +96,56 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             cboTrangThai.DataSource = dtTrangThai;
             cboTrangThai.DisplayMember = "HienThi";
             cboTrangThai.ValueMember = "GiaTri";
+        }
+
+        private void NapTrangThaiTheoStateMachine(string trangThaiHienTai)
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("GiaTri", typeof(string));
+            dt.Columns.Add("HienThi", typeof(string));
+
+            switch (trangThaiHienTai)
+            {
+                case "TiepNhan":
+                    dt.Rows.Add("TiepNhan", "Tiếp nhận");
+                    dt.Rows.Add("DangXuLy", "Đang xử lý");
+                    dt.Rows.Add("DaXong", "Đã sửa xong");
+                    dt.Rows.Add("TuChoi", "Từ chối bảo hành");
+                    break;
+                case "DangXuLy":
+                    dt.Rows.Add("DangXuLy", "Đang xử lý");
+                    dt.Rows.Add("DaXong", "Đã sửa xong");
+                    dt.Rows.Add("TuChoi", "Từ chối bảo hành");
+                    break;
+                case "DaXong":
+                    dt.Rows.Add("DaXong", "Đã sửa xong");
+                    dt.Rows.Add("DaTra", "Đã trả khách");
+                    break;
+                default:
+                    dt.Rows.Add("TiepNhan", "Tiếp nhận");
+                    dt.Rows.Add("DangXuLy", "Đang xử lý");
+                    dt.Rows.Add("DaXong", "Đã sửa xong");
+                    dt.Rows.Add("DaTra", "Đã trả khách");
+                    dt.Rows.Add("TuChoi", "Từ chối bảo hành");
+                    break;
+            }
+
+            cboTrangThai.DataSource = dt;
+            cboTrangThai.DisplayMember = "HienThi";
+            cboTrangThai.ValueMember = "GiaTri";
+            cboTrangThai.SelectedValue = trangThaiHienTai;
+        }
+
+        private void cboTrangThai_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (dangXuLyChon) return;
+            string val = cboTrangThai.SelectedValue?.ToString();
+            if (string.Equals(val, "DaTra", StringComparison.OrdinalIgnoreCase))
+            {
+                chkCoNgayTra.Checked = true;
+                dtpNgayTraThucTe.CustomFormat = "dd/MM/yyyy";
+                dtpNgayTraThucTe.Value = DateTime.Today;
+            }
         }
 
         private void KhoiTaoBoLocTrangThai()
@@ -110,8 +168,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             {
                 Name = "lblLocTrangThai",
                 Text = "Xem:",
-                Size = new Size(40, 32),
-                Margin = new Padding(6, 0, 4, 0),
+                Size = new Size(36, 32),
+                Margin = new Padding(4, 0, 2, 0),
                 TextAlign = ContentAlignment.MiddleRight,
                 Font = new Font("Segoe UI", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0),
                 Visible = true
@@ -121,8 +179,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             {
                 Name = "cboLocTrangThai",
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Size = new Size(120, 25),
-                Margin = new Padding(0, 4, 6, 0),
+                Size = new Size(116, 25),
+                Margin = new Padding(0, 4, 4, 0),
                 Font = new Font("Segoe UI", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0),
                 Visible = true
             };
@@ -192,6 +250,11 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 return;
             }
 
+            if (!txtTimNhanh.Focused)
+            {
+                HienThiGoiYTimNhanh();
+            }
+
             if (cboKhachHang.SelectedIndex == -1 || cboKhachHang.SelectedValue == null)
             {
                 maKhachHienTai = string.Empty;
@@ -238,6 +301,11 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             if (dangXuLyChon)
             {
                 return;
+            }
+
+            if (!txtTimNhanh.Focused)
+            {
+                HienThiGoiYTimNhanh();
             }
 
             if (cboSoHDB.SelectedIndex == -1 || cboSoHDB.SelectedValue == null)
@@ -294,6 +362,29 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             }
         }
 
+        private void HienThiGoiYTimNhanh()
+        {
+            txtTimNhanh.Text = PlaceholderTimNhanh;
+            txtTimNhanh.ForeColor = Color.Gray;
+        }
+
+        private void txtTimNhanh_Enter(object sender, EventArgs e)
+        {
+            if (txtTimNhanh.Text == PlaceholderTimNhanh)
+            {
+                txtTimNhanh.Text = string.Empty;
+                txtTimNhanh.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtTimNhanh_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtTimNhanh.Text))
+            {
+                HienThiGoiYTimNhanh();
+            }
+        }
+
         private void txtTimNhanh_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -311,7 +402,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
         private void ThucHienTimNhanh()
         {
-            string tuKhoa = txtTimNhanh.Text.Trim();
+            string tuKhoa = (txtTimNhanh.Text == PlaceholderTimNhanh) ? string.Empty : txtTimNhanh.Text.Trim();
             if (dtTatCaHoaDon == null || dtTatCaHoaDon.Rows.Count == 0)
             {
                 LoadDanhSachHoaDon();
@@ -330,6 +421,10 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 cboSoHDB.SelectedIndex = -1;
                 cboHangHoa.DataSource = null;
                 lblTrangThaiHanBH.Text = string.Empty;
+                if (!txtTimNhanh.Focused)
+                {
+                    HienThiGoiYTimNhanh();
+                }
                 return;
             }
 
@@ -468,7 +563,9 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             try
             {
                 txtMaPhieu.Clear();
-                txtTimNhanh.Clear();
+                HienThiGoiYTimNhanh();
+                NapDanhSachKhachHang(dtTatCaHoaDon);
+                NapDanhSachHoaDon(dtTatCaHoaDon);
                 cboKhachHang.SelectedIndex = -1;
                 cboSoHDB.SelectedIndex = -1;
                 cboHangHoa.DataSource = null;
@@ -482,6 +579,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 chkCoNgayTra.Checked = false;
                 dtpNgayTraThucTe.CustomFormat = " ";
                 dtpNgayTraThucTe.Enabled = false;
+                KhoiTaoComboBoxTrangThai();
                 cboTrangThai.SelectedIndex = -1;
                 txtChiPhi.Clear();
                 txtMoTaLoi.Clear();
@@ -570,22 +668,22 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             }
         }
 
-        private void dgvPhieuBaoHanh_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void NapDuLieuTuDong(DataGridViewRow row)
         {
-            if (e.RowIndex < 0 || e.RowIndex >= dgvPhieuBaoHanh.Rows.Count)
+            if (row == null || row.Index < 0 || currentMode == FormMode.Insert || currentMode == FormMode.Update)
             {
                 return;
             }
 
-            DataGridViewRow row = dgvPhieuBaoHanh.Rows[e.RowIndex];
             txtMaPhieu.Text = row.Cells["colMaPhieu"].Value != null ? row.Cells["colMaPhieu"].Value.ToString() : string.Empty;
-            txtTimNhanh.Clear();
+            HienThiGoiYTimNhanh();
 
             string soHDB = row.Cells["colSoHDB"].Value != null ? row.Cells["colSoHDB"].Value.ToString() : string.Empty;
 
             dangXuLyChon = true;
             try
             {
+                KhoiTaoComboBoxTrangThai();
                 NapDanhSachKhachHang(dtTatCaHoaDon);
                 NapDanhSachHoaDon(dtTatCaHoaDon);
                 cboSoHDB.SelectedValue = soHDB;
@@ -678,6 +776,24 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             }
         }
 
+        private void dgvPhieuBaoHanh_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= dgvPhieuBaoHanh.Rows.Count || currentMode == FormMode.Insert || currentMode == FormMode.Update)
+            {
+                return;
+            }
+
+            NapDuLieuTuDong(dgvPhieuBaoHanh.Rows[e.RowIndex]);
+        }
+
+        private void dgvPhieuBaoHanh_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
+            {
+                NapDuLieuTuDong(dgvPhieuBaoHanh.CurrentRow);
+            }
+        }
+
         private void dgvPhieuBaoHanh_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.RowIndex < 0 || e.ColumnIndex < 0)
@@ -730,7 +846,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             cboTrangThai.SelectedValue = "TiepNhan";
             txtChiPhi.Text = "0";
             ThietLapTrangThai(FormMode.Insert);
-            txtTimNhanh.Focus();
+            ActiveControl = null;
         }
 
         private void btnSua_Click(object sender, EventArgs e)
@@ -749,7 +865,9 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
                 return;
             }
 
+            NapTrangThaiTheoStateMachine(trangThai);
             ThietLapTrangThai(FormMode.Update);
+            HienThiGoiYTimNhanh();
             txtMoTaLoi.Focus();
         }
 
@@ -876,6 +994,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
         private void btnBoQua_Click(object sender, EventArgs e)
         {
+            HienThiGoiYTimKiem();
+            LoadDanhSach();
             XoaTrang();
             ThietLapTrangThai(FormMode.View);
             UIHelper.XoaChonLuoi(dgvPhieuBaoHanh);
@@ -912,10 +1032,34 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
         private void cboLocTrangThai_SelectedIndexChanged(object sender, EventArgs e)
         {
+            HienThiGoiYTimKiem();
             LoadDanhSach();
             XoaTrang();
             ThietLapTrangThai(FormMode.View);
             UIHelper.XoaChonLuoi(dgvPhieuBaoHanh);
+        }
+
+        private void HienThiGoiYTimKiem()
+        {
+            txtTimKiem.Text = PlaceholderTimKiem;
+            txtTimKiem.ForeColor = Color.Gray;
+        }
+
+        private void txtTimKiem_Enter(object sender, EventArgs e)
+        {
+            if (txtTimKiem.Text == PlaceholderTimKiem)
+            {
+                txtTimKiem.Text = string.Empty;
+                txtTimKiem.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtTimKiem_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtTimKiem.Text))
+            {
+                HienThiGoiYTimKiem();
+            }
         }
 
         private void btnTimKiem_Click(object sender, EventArgs e)
@@ -935,7 +1079,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
         private void ThucHienTimKiem()
         {
-            string tuKhoa = txtTimKiem.Text.Trim();
+            string tuKhoa = (txtTimKiem.Text == PlaceholderTimKiem) ? string.Empty : txtTimKiem.Text.Trim();
             bool xemDaXoa = cboLocTrangThai != null && cboLocTrangThai.SelectedIndex == 1;
             DataTable dt = bll.TimKiem(tuKhoa, string.Empty, xemDaXoa);
             dgvPhieuBaoHanh.DataSource = dt;
@@ -946,7 +1090,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
-            txtTimKiem.Clear();
+            HienThiGoiYTimKiem();
             LoadDanhSachHoaDon();
             LoadDanhSach();
             XoaTrang();

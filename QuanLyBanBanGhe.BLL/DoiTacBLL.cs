@@ -2,20 +2,25 @@ using System;
 using System.Data;
 using System.Text.RegularExpressions;
 using QuanLyBanBanGhe.DAL;
+using QuanLyBanBanGhe.DAL.Interfaces;
 using QuanLyBanBanGhe.DTO;
 
 namespace QuanLyBanBanGhe.BLL
 {
     public class DoiTacBLL
     {
-        private readonly DoiTacDAL dal;
+        private readonly IDoiTacDAL dal;
         private static readonly Regex DienThoaiRegex = new Regex(@"^0\d{9}$");
         private static readonly Regex MaKhachRegex = new Regex(@"^KH\d{4}$");
         private static readonly Regex MaNccRegex = new Regex(@"^NCC\d{4}$");
 
-        public DoiTacBLL()
+        public DoiTacBLL() : this(new DoiTacDAL())
         {
-            dal = new DoiTacDAL();
+        }
+
+        public DoiTacBLL(IDoiTacDAL dal)
+        {
+            this.dal = dal;
         }
 
         public string SinhMaKhachHangMoi()
@@ -33,6 +38,16 @@ namespace QuanLyBanBanGhe.BLL
             return dal.LayDanhSachKhachHang(chiLayDangHoatDong);
         }
 
+        public DataTable TimKiemKhachHang(string maKhach, string tenKhach, string dienThoai, string diaChi, bool chiLayDangHoatDong = true)
+        {
+            return dal.TimKiemKhachHang(maKhach, tenKhach, dienThoai, diaChi, chiLayDangHoatDong);
+        }
+
+        public DataTable TimKiemNhaCungCap(string maNCC, string tenNCC, string dienThoai, string diaChi, bool chiLayDangHoatDong = true)
+        {
+            return dal.TimKiemNhaCungCap(maNCC, tenNCC, dienThoai, diaChi, chiLayDangHoatDong);
+        }
+
         public bool ThemKhachHang(KhachHangDTO kh)
         {
             KiemTraHopLeKhachHang(kh);
@@ -40,6 +55,11 @@ namespace QuanLyBanBanGhe.BLL
             if (dal.KiemTraTonTaiKhachHang(kh.MaKhach))
             {
                 throw new InvalidOperationException(string.Format("Mã khách hàng '{0}' đã tồn tại trong hệ thống!", kh.MaKhach));
+            }
+
+            if (dal.KiemTraTrungSoDienThoaiKhachHang(kh.DienThoai))
+            {
+                throw new InvalidOperationException(string.Format("Số điện thoại '{0}' đã tồn tại trong hệ thống!", kh.DienThoai));
             }
 
             return dal.ThemKhachHang(kh);
@@ -52,6 +72,11 @@ namespace QuanLyBanBanGhe.BLL
             if (!dal.KiemTraTonTaiKhachHang(kh.MaKhach))
             {
                 throw new InvalidOperationException(string.Format("Không tìm thấy khách hàng '{0}' để cập nhật!", kh.MaKhach));
+            }
+
+            if (dal.KiemTraTrungSoDienThoaiKhachHang(kh.DienThoai, kh.MaKhach))
+            {
+                throw new InvalidOperationException(string.Format("Số điện thoại '{0}' đã được sử dụng bởi một khách hàng khác!", kh.DienThoai));
             }
 
             return dal.CapNhatKhachHang(kh);
@@ -92,6 +117,12 @@ namespace QuanLyBanBanGhe.BLL
             if (!dal.KiemTraTonTaiKhachHang(maKhach))
             {
                 throw new InvalidOperationException(string.Format("Không tìm thấy khách hàng '{0}' để khôi phục!", maKhach));
+            }
+
+            string sdt = dal.LaySoDienThoaiKhachHang(maKhach);
+            if (!string.IsNullOrEmpty(sdt) && dal.KiemTraTrungSoDienThoaiKhachHang(sdt, maKhach))
+            {
+                throw new InvalidOperationException(string.Format("Không thể khôi phục khách hàng '{0}' vì số điện thoại '{1}' đang được sử dụng bởi khách hàng khác đang hoạt động!", maKhach, sdt));
             }
 
             return dal.KhoiPhucKhachHang(maKhach);

@@ -1,18 +1,24 @@
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using QuanLyBanBanGhe.DAL;
+using QuanLyBanBanGhe.DAL.Interfaces;
 using QuanLyBanBanGhe.DTO;
 
 namespace QuanLyBanBanGhe.BLL
 {
     public class ThuocTinhBLL
     {
-        private readonly ThuocTinhDAL dal;
+        private readonly IThuocTinhDAL dal;
 
-        public ThuocTinhBLL()
+        public ThuocTinhBLL() : this(new ThuocTinhDAL())
         {
-            dal = new ThuocTinhDAL();
+        }
+
+        public ThuocTinhBLL(IThuocTinhDAL dal)
+        {
+            this.dal = dal;
         }
 
         public string SinhMaThuocTinhMoi(string tenBang)
@@ -42,6 +48,11 @@ namespace QuanLyBanBanGhe.BLL
                 throw new InvalidOperationException(string.Format("Mã '{0}' đã tồn tại trong danh mục!", item.Ma));
             }
 
+            if (dal.KiemTraTrungTen(tenBang, item.Ten, null, item.MaLoai))
+            {
+                throw new InvalidOperationException(string.Format("Tên thuộc tính '{0}' đã tồn tại trong danh mục!", item.Ten));
+            }
+
             return dal.Them(tenBang, item);
         }
 
@@ -52,6 +63,11 @@ namespace QuanLyBanBanGhe.BLL
             if (!dal.KiemTraTonTai(tenBang, item.Ma))
             {
                 throw new InvalidOperationException(string.Format("Không tìm thấy mã '{0}' để cập nhật!", item.Ma));
+            }
+
+            if (dal.KiemTraTrungTen(tenBang, item.Ten, item.Ma, item.MaLoai))
+            {
+                throw new InvalidOperationException(string.Format("Tên thuộc tính '{0}' đã tồn tại trong danh mục!", item.Ten));
             }
 
             return dal.Sua(tenBang, item);
@@ -70,7 +86,23 @@ namespace QuanLyBanBanGhe.BLL
                 throw new InvalidOperationException(string.Format("Không tìm thấy mã '{0}' để xóa!", ma));
             }
 
-            return dal.Xoa(tenBang, ma);
+            if (dal.KiemTraRangBuocKhoaNgoai(tenBang, ma))
+            {
+                if (tenBang == "loai")
+                {
+                    throw new InvalidOperationException("Không thể xóa loại bàn ghế này vì đang được sử dụng trong danh mục kích thước hoặc sản phẩm bàn ghế trong kho!");
+                }
+                throw new InvalidOperationException("Không thể xóa thuộc tính này vì đang được gắn với sản phẩm bàn ghế trong kho!");
+            }
+
+            try
+            {
+                return dal.Xoa(tenBang, ma);
+            }
+            catch (SqlException ex) when (ex.Number == 547)
+            {
+                throw new InvalidOperationException("Không thể xóa thuộc tính này vì đang có dữ liệu hàng hóa liên kết trong hệ thống!");
+            }
         }
 
         private void KiemTraHopLe(string tenBang, ThuocTinhDTO item)

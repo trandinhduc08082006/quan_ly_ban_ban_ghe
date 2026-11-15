@@ -1,15 +1,8 @@
 namespace QuanLyBanBanGhe.DTO
 {
-    public class ChiTietHDBanDTO
+    public class ChiTietHDBanDTO : ChiTietHoaDonBaseDTO
     {
         public string SoHoaDonBan { get; set; }
-        public string MaHang { get; set; }
-        public int SoLuong { get; set; }
-        public decimal DonGia { get; set; }
-        public decimal GiamGia { get; set; }
-        public decimal ThanhTien { get; set; }
-
-        public string TenHangHoa { get; set; }
 
         public string SoHDB
         {

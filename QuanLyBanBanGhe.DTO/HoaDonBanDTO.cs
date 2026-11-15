@@ -1,21 +1,24 @@
 using System;
+using System.Collections.Generic;
 
 namespace QuanLyBanBanGhe.DTO
 {
-    public class HoaDonBanDTO
+    public class HoaDonBanDTO : HoaDonBaseDTO
     {
-        public string SoHoaDonBan { get; set; }
-        public DateTime ThoiGianBan { get; set; }
-        public decimal TongTien { get; set; }
-        public string TrangThaiGiaoDich { get; set; }
-        public string MaNhanVien { get; set; }
-        public string MaKhach { get; set; }
-        public string GhiChu { get; set; }
+        public string SoHoaDonBan
+        {
+            get => SoHoaDon;
+            set => SoHoaDon = value;
+        }
 
-        public string TenNhanVien { get; set; }
+        public DateTime ThoiGianBan
+        {
+            get => ThoiGianGiaoDich;
+            set => ThoiGianGiaoDich = value;
+        }
+
+        public string MaKhach { get; set; }
         public string TenKhach { get; set; }
-        public string DienThoai { get; set; }
-        public string DiaChi { get; set; }
 
         public string SoHDB
         {
@@ -28,6 +31,8 @@ namespace QuanLyBanBanGhe.DTO
             get => TenKhach;
             set => TenKhach = value;
         }
+
+        public List<ChiTietHDBanDTO> ChiTietList { get; set; } = new List<ChiTietHDBanDTO>();
 
         public HoaDonBanDTO()
         {

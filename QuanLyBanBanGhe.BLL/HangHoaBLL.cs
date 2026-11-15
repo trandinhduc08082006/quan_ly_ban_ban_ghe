@@ -3,18 +3,23 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using QuanLyBanBanGhe.DAL;
+using QuanLyBanBanGhe.DAL.Interfaces;
 using QuanLyBanBanGhe.DTO;
 
 namespace QuanLyBanBanGhe.BLL
 {
     public class HangHoaBLL
     {
-        private readonly HangHoaDAL dal;
+        private readonly IHangHoaDAL dal;
         private static readonly Regex MaHangRegex = new Regex(@"^HH\d{4}$");
 
-        public HangHoaBLL()
+        public HangHoaBLL() : this(new HangHoaDAL())
         {
-            dal = new HangHoaDAL();
+        }
+
+        public HangHoaBLL(IHangHoaDAL dal)
+        {
+            this.dal = dal;
         }
 
         public string SinhMaHangHoaMoi()
@@ -125,6 +130,33 @@ namespace QuanLyBanBanGhe.BLL
             return dal.LayKichThuocTheoLoai(maLoai);
         }
 
+        public HangHoaDTO LayHangHoaTheoMa(string maHang)
+        {
+            if (string.IsNullOrWhiteSpace(maHang))
+            {
+                return null;
+            }
+            return dal.LayHangHoaTheoMa(maHang.Trim());
+        }
+
+        public bool KiemTraTonKho(string maHang, int soLuongCan)
+        {
+            if (string.IsNullOrWhiteSpace(maHang))
+            {
+                return false;
+            }
+            return dal.KiemTraTonKho(maHang.Trim(), soLuongCan);
+        }
+
+        public bool CapNhatGiaBanVaTonKho(string maHang, decimal donGiaNhap, int soLuongThem)
+        {
+            if (string.IsNullOrWhiteSpace(maHang))
+            {
+                throw new ArgumentException("Mã sản phẩm không được để trống!");
+            }
+            return dal.CapNhatGiaBanVaTonKho(maHang.Trim(), donGiaNhap, soLuongThem);
+        }
+
         private void KiemTraHopLe(HangHoaDTO hh)
         {
             if (hh == null)
@@ -219,6 +251,35 @@ namespace QuanLyBanBanGhe.BLL
             hh.MaNhaSanXuat = hh.MaNhaSanXuat.Trim();
             hh.MaCongDung = hh.MaCongDung.Trim();
             hh.MaDacDiem = hh.MaDacDiem.Trim();
+        }
+
+        public DataTable TimKiemHangHoa(
+            string maHang,
+            string tenHang,
+            string maLoai,
+            string maKichThuoc,
+            string maChatLieu,
+            string maMau,
+            string maNuocSX,
+            string maHinhDang,
+            string maNhaSX,
+            string maCongDung,
+            string maDacDiem,
+            bool chiLayDangHoatDong = true)
+        {
+            return dal.TimKiemHangHoa(
+                maHang,
+                tenHang,
+                maLoai,
+                maKichThuoc,
+                maChatLieu,
+                maMau,
+                maNuocSX,
+                maHinhDang,
+                maNhaSX,
+                maCongDung,
+                maDacDiem,
+                chiLayDangHoatDong);
         }
     }
 }

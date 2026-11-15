@@ -41,13 +41,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChiTietHoaDonBaseDTO.cs" />
     <Compile Include="ChiTietHDBanDTO.cs" />
     <Compile Include="ChiTietHDNhapDTO.cs" />
     <Compile Include="CongViecDTO.cs" />
     <Compile Include="HangHoaDTO.cs" />
+    <Compile Include="HoaDonBaseDTO.cs" />
     <Compile Include="HoaDonBanDTO.cs" />
     <Compile Include="HoaDonNhapDTO.cs" />
     <Compile Include="KhachHangDTO.cs" />
+    <Compile Include="NguoiBaseDTO.cs" />
     <Compile Include="NhaCungCapDTO.cs" />
     <Compile Include="NhanVienDTO.cs" />
     <Compile Include="PhieuBaoHanhDTO.cs" />

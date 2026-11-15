@@ -4,20 +4,25 @@ using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using QuanLyBanBanGhe.BLL.Helpers;
 using QuanLyBanBanGhe.DAL;
+using QuanLyBanBanGhe.DAL.Interfaces;
 using QuanLyBanBanGhe.DTO;
 
 namespace QuanLyBanBanGhe.BLL
 {
     public class NhanSuBLL
     {
-        private readonly NhanSuDAL dal;
+        private readonly INhanSuDAL dal;
         private static readonly Regex DienThoaiRegex = new Regex(@"^0\d{9}$");
         private static readonly Regex MatKhauRegex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$");
         private static readonly Regex MaNVRegex = new Regex(@"^NV\d{4}$");
 
-        public NhanSuBLL()
+        public NhanSuBLL() : this(new NhanSuDAL())
         {
-            dal = new NhanSuDAL();
+        }
+
+        public NhanSuBLL(INhanSuDAL dal)
+        {
+            this.dal = dal;
         }
 
         public string SinhMaNhanVienMoi()
@@ -378,6 +383,16 @@ namespace QuanLyBanBanGhe.BLL
                             {
                                 dal.CapNhatNhanVien(nv, trans);
                                 dal.CapNhatQuyenVaTrangThaiTaiKhoan(tk.TenDangNhap, tk.Quyen, tk.TrangThaiHoatDong, trans);
+                                if (!string.IsNullOrWhiteSpace(matKhauTho))
+                                {
+                                    string matKhauTrim = matKhauTho.Trim();
+                                    if (!MatKhauRegex.IsMatch(matKhauTrim))
+                                    {
+                                        throw new ArgumentException("Mật khẩu mới phải có tối thiểu 8 ký tự, gồm ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số và 1 ký tự đặc biệt!");
+                                    }
+                                    string matKhauMoiBam = SecurityHelper.HashPassword(matKhauTrim);
+                                    dal.ResetMatKhau(tk.TenDangNhap, matKhauMoiBam, trans);
+                                }
                                 trans.Commit();
                                 return true;
                             }

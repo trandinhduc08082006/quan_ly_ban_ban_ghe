@@ -17,6 +17,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
         private FormMode currentMode;
         private string duongDanAnhNguon;
         private bool dangTaiDuLieu;
+        private bool daTimKiem;
         private Button btnKhoiPhuc;
         private ComboBox cboLocTrangThai;
         private Label lblLocTrangThai;
@@ -33,9 +34,19 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             UIHelper.FormatCurrencyColumns(dgvHangHoa, "colDonGiaNhap", "colDonGiaBan");
             UIHelper.FormatIntegerColumns(dgvHangHoa, "colSoLuong", "colBaoHanh");
             UIHelper.GanXoaChonTuDong(dgvHangHoa);
+            dgvHangHoa.KeyUp += dgvHangHoa_KeyUp;
 
             ToolTip toolTip = new ToolTip();
             toolTip.SetToolTip(picAnh, "Nhấp để xem ảnh phóng to");
+            toolTip.SetToolTip(btnThemLoai, "Thêm nhanh Loại bàn ghế");
+            toolTip.SetToolTip(btnThemChatLieu, "Thêm nhanh Chất liệu");
+            toolTip.SetToolTip(btnThemKichThuoc, "Thêm nhanh Kích thước");
+            toolTip.SetToolTip(btnThemMauSac, "Thêm nhanh Màu sắc");
+            toolTip.SetToolTip(btnThemNuocSX, "Thêm nhanh Nước sản xuất");
+            toolTip.SetToolTip(btnThemHinhDang, "Thêm nhanh Hình dáng");
+            toolTip.SetToolTip(btnThemNhaSX, "Thêm nhanh Nhà sản xuất");
+            toolTip.SetToolTip(btnThemCongDung, "Thêm nhanh Công dụng");
+            toolTip.SetToolTip(btnThemDacDiem, "Thêm nhanh Đặc điểm");
 
             txtMaHang.CharacterCasing = CharacterCasing.Upper;
             txtMaHang.KeyPress += (s, ev) => UIHelper.ChiChoPhepNhapMa(ev);
@@ -44,11 +55,96 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             txtThoiGianBaoHanh.KeyPress += (s, ev) => UIHelper.ChiChoPhepNhapSo(ev);
 
             LoadDanhSachThuocTinh();
+            DangKySuKienTimKiem();
             KhoiTaoBoLocTrangThai();
             LoadDanhSachHangHoa();
             XoaTrang();
             ThietLapTrangThai(FormMode.View);
             UIHelper.XoaChonLuoi(dgvHangHoa);
+        }
+
+        private void DangKySuKienTimKiem()
+        {
+            txtMaHang.TextChanged += TieuChiTextBox_TextChanged;
+            txtTenHang.TextChanged += TieuChiTextBox_TextChanged;
+
+            cboKichThuoc.SelectedIndexChanged += TieuChiCombobox_SelectedIndexChanged;
+            cboChatLieu.SelectedIndexChanged += TieuChiCombobox_SelectedIndexChanged;
+            cboMauSac.SelectedIndexChanged += TieuChiCombobox_SelectedIndexChanged;
+            cboNuocSX.SelectedIndexChanged += TieuChiCombobox_SelectedIndexChanged;
+            cboHinhDang.SelectedIndexChanged += TieuChiCombobox_SelectedIndexChanged;
+            cboNhaSX.SelectedIndexChanged += TieuChiCombobox_SelectedIndexChanged;
+            cboCongDung.SelectedIndexChanged += TieuChiCombobox_SelectedIndexChanged;
+            cboDacDiem.SelectedIndexChanged += TieuChiCombobox_SelectedIndexChanged;
+        }
+
+        private void TieuChiTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (dangTaiDuLieu || currentMode != FormMode.View)
+            {
+                return;
+            }
+
+            CapNhatTrangThaiNutBoQua();
+        }
+
+        private void TieuChiCombobox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (dangTaiDuLieu || currentMode != FormMode.View)
+            {
+                return;
+            }
+
+            CapNhatTrangThaiNutBoQua();
+        }
+
+        private void CapNhatTrangThaiNutBoQua()
+        {
+            if (currentMode != FormMode.View)
+            {
+                return;
+            }
+
+            bool coTieuChi = !string.IsNullOrWhiteSpace(txtMaHang.Text)
+                || !string.IsNullOrWhiteSpace(txtTenHang.Text)
+                || KiemTraCoComboboxDuocChon();
+
+            btnBoQua.Enabled = coTieuChi || daTimKiem;
+        }
+
+        private bool KiemTraCoComboboxDuocChon()
+        {
+            return KiemTraComboboxKhacTatCa(cboLoai)
+                || KiemTraComboboxKhacTatCa(cboKichThuoc)
+                || KiemTraComboboxKhacTatCa(cboChatLieu)
+                || KiemTraComboboxKhacTatCa(cboMauSac)
+                || KiemTraComboboxKhacTatCa(cboNuocSX)
+                || KiemTraComboboxKhacTatCa(cboHinhDang)
+                || KiemTraComboboxKhacTatCa(cboNhaSX)
+                || KiemTraComboboxKhacTatCa(cboCongDung)
+                || KiemTraComboboxKhacTatCa(cboDacDiem);
+        }
+
+        private string LayGiaTriLocCombobox(ComboBox cbo)
+        {
+            if (cbo == null || cbo.SelectedIndex <= 0)
+            {
+                return string.Empty;
+            }
+
+            object selectedValue = cbo.SelectedValue;
+            if (selectedValue is DataRowView drv)
+            {
+                return drv["Ma"]?.ToString() ?? string.Empty;
+            }
+
+            return selectedValue?.ToString() ?? string.Empty;
+        }
+
+        private bool KiemTraComboboxKhacTatCa(ComboBox cbo)
+        {
+            string val = LayGiaTriLocCombobox(cbo);
+            return !string.IsNullOrWhiteSpace(val);
         }
 
         private void KhoiTaoBoLocTrangThai()
@@ -97,54 +193,83 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             flpButtons.Controls.Add(cboLocTrangThai);
         }
 
+        private DataTable TaoBangCoMucTatCa(DataTable dtNguon)
+        {
+            DataTable dt = dtNguon != null ? dtNguon.Clone() : new DataTable();
+            if (!dt.Columns.Contains("Ma"))
+            {
+                dt.Columns.Add("Ma", typeof(string));
+            }
+            if (!dt.Columns.Contains("Ten"))
+            {
+                dt.Columns.Add("Ten", typeof(string));
+            }
+
+            DataRow rowTatCa = dt.NewRow();
+            rowTatCa["Ma"] = string.Empty;
+            rowTatCa["Ten"] = "[Tất cả]";
+            dt.Rows.Add(rowTatCa);
+
+            if (dtNguon != null)
+            {
+                foreach (DataRow row in dtNguon.Rows)
+                {
+                    dt.ImportRow(row);
+                }
+            }
+
+            return dt;
+        }
+
         private void LoadDanhSachThuocTinh()
         {
             dangTaiDuLieu = true;
             try
             {
-                cboLoai.DataSource = thuocTinhBLL.LayDanhSach("loai");
+                cboLoai.DataSource = TaoBangCoMucTatCa(thuocTinhBLL.LayDanhSach("loai"));
                 cboLoai.DisplayMember = "Ten";
                 cboLoai.ValueMember = "Ma";
-                cboLoai.SelectedIndex = -1;
+                cboLoai.SelectedIndex = 0;
 
-                cboChatLieu.DataSource = thuocTinhBLL.LayDanhSach("chat_lieu");
+                cboChatLieu.DataSource = TaoBangCoMucTatCa(thuocTinhBLL.LayDanhSach("chat_lieu"));
                 cboChatLieu.DisplayMember = "Ten";
                 cboChatLieu.ValueMember = "Ma";
-                cboChatLieu.SelectedIndex = -1;
+                cboChatLieu.SelectedIndex = 0;
 
-                cboMauSac.DataSource = thuocTinhBLL.LayDanhSach("mau_sac");
+                cboMauSac.DataSource = TaoBangCoMucTatCa(thuocTinhBLL.LayDanhSach("mau_sac"));
                 cboMauSac.DisplayMember = "Ten";
                 cboMauSac.ValueMember = "Ma";
-                cboMauSac.SelectedIndex = -1;
+                cboMauSac.SelectedIndex = 0;
 
-                cboNuocSX.DataSource = thuocTinhBLL.LayDanhSach("nuoc_san_xuat");
+                cboNuocSX.DataSource = TaoBangCoMucTatCa(thuocTinhBLL.LayDanhSach("nuoc_san_xuat"));
                 cboNuocSX.DisplayMember = "Ten";
                 cboNuocSX.ValueMember = "Ma";
-                cboNuocSX.SelectedIndex = -1;
+                cboNuocSX.SelectedIndex = 0;
 
-                cboHinhDang.DataSource = thuocTinhBLL.LayDanhSach("hinh_dang");
+                cboHinhDang.DataSource = TaoBangCoMucTatCa(thuocTinhBLL.LayDanhSach("hinh_dang"));
                 cboHinhDang.DisplayMember = "Ten";
                 cboHinhDang.ValueMember = "Ma";
-                cboHinhDang.SelectedIndex = -1;
+                cboHinhDang.SelectedIndex = 0;
 
-                cboNhaSX.DataSource = thuocTinhBLL.LayDanhSach("nha_san_xuat");
+                cboNhaSX.DataSource = TaoBangCoMucTatCa(thuocTinhBLL.LayDanhSach("nha_san_xuat"));
                 cboNhaSX.DisplayMember = "Ten";
                 cboNhaSX.ValueMember = "Ma";
-                cboNhaSX.SelectedIndex = -1;
+                cboNhaSX.SelectedIndex = 0;
 
-                cboCongDung.DataSource = thuocTinhBLL.LayDanhSach("cong_dung");
+                cboCongDung.DataSource = TaoBangCoMucTatCa(thuocTinhBLL.LayDanhSach("cong_dung"));
                 cboCongDung.DisplayMember = "Ten";
                 cboCongDung.ValueMember = "Ma";
-                cboCongDung.SelectedIndex = -1;
+                cboCongDung.SelectedIndex = 0;
 
-                cboDacDiem.DataSource = thuocTinhBLL.LayDanhSach("dac_diem");
+                cboDacDiem.DataSource = TaoBangCoMucTatCa(thuocTinhBLL.LayDanhSach("dac_diem"));
                 cboDacDiem.DisplayMember = "Ten";
                 cboDacDiem.ValueMember = "Ma";
-                cboDacDiem.SelectedIndex = -1;
+                cboDacDiem.SelectedIndex = 0;
 
-                cboKichThuoc.DataSource = null;
-                cboKichThuoc.Items.Clear();
-                cboKichThuoc.SelectedIndex = -1;
+                cboKichThuoc.DataSource = TaoBangCoMucTatCa(hangHoaBLL.LayKichThuocTheoLoai(string.Empty));
+                cboKichThuoc.DisplayMember = "Ten";
+                cboKichThuoc.ValueMember = "Ma";
+                cboKichThuoc.SelectedIndex = 0;
             }
             finally
             {
@@ -174,9 +299,11 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 return;
             }
 
+            daTimKiem = false;
             XoaTrang();
             ThietLapTrangThai(FormMode.View);
             LoadDanhSachHangHoa();
+            UIHelper.XoaChonLuoi(dgvHangHoa);
         }
 
         private void cboLoai_SelectedIndexChanged(object sender, EventArgs e)
@@ -186,11 +313,24 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 return;
             }
 
-            string maLoai = cboLoai.SelectedValue?.ToString();
-            cboKichThuoc.DataSource = hangHoaBLL.LayKichThuocTheoLoai(maLoai);
-            cboKichThuoc.DisplayMember = "Ten";
-            cboKichThuoc.ValueMember = "Ma";
-            cboKichThuoc.SelectedIndex = -1;
+            dangTaiDuLieu = true;
+            try
+            {
+                string maLoai = LayGiaTriLocCombobox(cboLoai);
+                cboKichThuoc.DataSource = TaoBangCoMucTatCa(hangHoaBLL.LayKichThuocTheoLoai(maLoai));
+                cboKichThuoc.DisplayMember = "Ten";
+                cboKichThuoc.ValueMember = "Ma";
+                cboKichThuoc.SelectedIndex = 0;
+            }
+            finally
+            {
+                dangTaiDuLieu = false;
+            }
+
+            if (currentMode == FormMode.View)
+            {
+                CapNhatTrangThaiNutBoQua();
+            }
         }
 
         private void txtDonGiaNhap_TextChanged(object sender, EventArgs e)
@@ -331,7 +471,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 btnSua.Visible = false;
                 btnXoa.Visible = false;
                 btnLuu.Visible = false;
-                btnBoQua.Visible = false;
+                btnBoQua.Visible = true;
+                btnBoQua.Enabled = (mode == FormMode.Selected);
                 btnChonAnh.Enabled = false;
                 if (btnKhoiPhuc != null)
                 {
@@ -353,13 +494,45 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 }
             }
 
+            if (string.Equals(UserSession.Quyen, "BanHang", StringComparison.OrdinalIgnoreCase))
+            {
+                btnThem.Visible = false;
+                btnSua.Visible = false;
+                btnXoa.Visible = false;
+                btnLuu.Visible = false;
+                btnChonAnh.Enabled = false;
+                DatTrangThaiNutThemNhanh(false);
+                if (btnKhoiPhuc != null)
+                {
+                    btnKhoiPhuc.Visible = false;
+                }
+            }
+
+            if (btnTimKiem != null)
+            {
+                btnTimKiem.Visible = true;
+                btnTimKiem.Enabled = (mode != FormMode.Insert && mode != FormMode.Update);
+            }
+
             switch (mode)
             {
                 case FormMode.View:
                     DatTrangThaiNhapLieu(false);
-                    txtMaHang.ReadOnly = true;
+                    txtMaHang.ReadOnly = false;
+                    txtTenHang.ReadOnly = false;
                     txtSoLuong.ReadOnly = true;
                     txtDonGiaBan.ReadOnly = true;
+                    cboLoai.Enabled = true;
+                    cboChatLieu.Enabled = true;
+                    cboKichThuoc.Enabled = true;
+                    cboMauSac.Enabled = true;
+                    cboNuocSX.Enabled = true;
+                    cboHinhDang.Enabled = true;
+                    cboNhaSX.Enabled = true;
+                    cboCongDung.Enabled = true;
+                    cboDacDiem.Enabled = true;
+                    DatTrangThaiNutThemNhanh(!string.Equals(UserSession.Quyen, "BanHang", StringComparison.OrdinalIgnoreCase));
+                    CapNhatTrangThaiNutBoQua();
                     break;
 
                 case FormMode.Selected:
@@ -388,6 +561,26 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             }
         }
 
+        private void DatTrangThaiNutThemNhanh(bool moKhoa)
+        {
+            if (btnThemLoai == null)
+            {
+                return;
+            }
+
+            bool choPhep = moKhoa && !string.Equals(UserSession.Quyen, "BanHang", StringComparison.OrdinalIgnoreCase);
+
+            btnThemLoai.Enabled = choPhep;
+            btnThemChatLieu.Enabled = choPhep;
+            btnThemKichThuoc.Enabled = choPhep;
+            btnThemMauSac.Enabled = choPhep;
+            btnThemNuocSX.Enabled = choPhep;
+            btnThemHinhDang.Enabled = choPhep;
+            btnThemNhaSX.Enabled = choPhep;
+            btnThemCongDung.Enabled = choPhep;
+            btnThemDacDiem.Enabled = choPhep;
+        }
+
         private void DatTrangThaiNhapLieu(bool moKhoa)
         {
             txtTenHang.ReadOnly = !moKhoa;
@@ -406,40 +599,168 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             cboDacDiem.Enabled = moKhoa;
 
             btnChonAnh.Enabled = moKhoa;
+            DatTrangThaiNutThemNhanh(moKhoa);
         }
 
         private void XoaTrang()
         {
-            txtMaHang.Clear();
-            txtTenHang.Clear();
-            txtDonGiaNhap.Clear();
-            txtDonGiaBan.Clear();
-            txtSoLuong.Text = "0";
-            txtThoiGianBaoHanh.Clear();
-            txtGhiChu.Clear();
-            txtTenAnh.Clear();
-            duongDanAnhNguon = null;
-
-            if (picAnh.Image != null)
+            dangTaiDuLieu = true;
+            try
             {
-                picAnh.Image.Dispose();
-                picAnh.Image = null;
+                txtMaHang.Clear();
+                txtTenHang.Clear();
+                txtDonGiaNhap.Clear();
+                txtDonGiaBan.Clear();
+                txtSoLuong.Text = "0";
+                txtThoiGianBaoHanh.Clear();
+                txtGhiChu.Clear();
+                txtTenAnh.Clear();
+                duongDanAnhNguon = null;
+
+                if (picAnh.Image != null)
+                {
+                    picAnh.Image.Dispose();
+                    picAnh.Image = null;
+                }
+
+                cboLoai.SelectedIndex = 0;
+                cboChatLieu.SelectedIndex = 0;
+                cboKichThuoc.DataSource = TaoBangCoMucTatCa(hangHoaBLL.LayKichThuocTheoLoai(string.Empty));
+                cboKichThuoc.DisplayMember = "Ten";
+                cboKichThuoc.ValueMember = "Ma";
+                cboKichThuoc.SelectedIndex = 0;
+                cboMauSac.SelectedIndex = 0;
+                cboNuocSX.SelectedIndex = 0;
+                cboHinhDang.SelectedIndex = 0;
+                cboNhaSX.SelectedIndex = 0;
+                cboCongDung.SelectedIndex = 0;
+                cboDacDiem.SelectedIndex = 0;
+            }
+            finally
+            {
+                dangTaiDuLieu = false;
+            }
+        }
+
+        private void NapDuLieuTuDong(DataGridViewRow row)
+        {
+            if (row == null || row.Index < 0 || currentMode == FormMode.Insert || currentMode == FormMode.Update)
+            {
+                return;
+            }
+
+            DataRowView drv = row.DataBoundItem as DataRowView;
+            if (drv == null)
+            {
+                return;
             }
 
             dangTaiDuLieu = true;
             try
             {
-                cboLoai.SelectedIndex = -1;
-                cboChatLieu.SelectedIndex = -1;
-                cboKichThuoc.DataSource = null;
-                cboKichThuoc.Items.Clear();
-                cboKichThuoc.SelectedIndex = -1;
-                cboMauSac.SelectedIndex = -1;
-                cboNuocSX.SelectedIndex = -1;
-                cboHinhDang.SelectedIndex = -1;
-                cboNhaSX.SelectedIndex = -1;
-                cboCongDung.SelectedIndex = -1;
-                cboDacDiem.SelectedIndex = -1;
+                txtMaHang.Text = drv["ma_hang"]?.ToString() ?? string.Empty;
+                txtTenHang.Text = drv["ten_hang_hoa"]?.ToString() ?? string.Empty;
+                txtDonGiaNhap.Text = drv["don_gia_nhap"] != DBNull.Value ? Convert.ToDecimal(drv["don_gia_nhap"]).ToString("N0") : "0";
+                txtDonGiaBan.Text = drv["don_gia_ban"] != DBNull.Value ? Convert.ToDecimal(drv["don_gia_ban"]).ToString("N0") : "0";
+                txtSoLuong.Text = drv["so_luong"] != DBNull.Value ? drv["so_luong"].ToString() : "0";
+                txtThoiGianBaoHanh.Text = drv["thoi_gian_bao_hanh"] != DBNull.Value ? drv["thoi_gian_bao_hanh"].ToString() : string.Empty;
+                txtGhiChu.Text = drv["ghi_chu"]?.ToString() ?? string.Empty;
+
+                if (drv["ma_loai"] != DBNull.Value)
+                {
+                    string maLoai = drv["ma_loai"].ToString();
+                    cboLoai.SelectedValue = maLoai;
+                    cboKichThuoc.DataSource = TaoBangCoMucTatCa(hangHoaBLL.LayKichThuocTheoLoai(maLoai));
+                    cboKichThuoc.DisplayMember = "Ten";
+                    cboKichThuoc.ValueMember = "Ma";
+                }
+                else
+                {
+                    cboLoai.SelectedIndex = 0;
+                    cboKichThuoc.DataSource = TaoBangCoMucTatCa(hangHoaBLL.LayKichThuocTheoLoai(string.Empty));
+                    cboKichThuoc.DisplayMember = "Ten";
+                    cboKichThuoc.ValueMember = "Ma";
+                    cboKichThuoc.SelectedIndex = 0;
+                }
+
+                if (drv["ma_kich_thuoc"] != DBNull.Value)
+                {
+                    cboKichThuoc.SelectedValue = drv["ma_kich_thuoc"].ToString();
+                }
+                else
+                {
+                    cboKichThuoc.SelectedIndex = 0;
+                }
+
+                if (drv["ma_chat_lieu"] != DBNull.Value)
+                {
+                    cboChatLieu.SelectedValue = drv["ma_chat_lieu"].ToString();
+                }
+                else
+                {
+                    cboChatLieu.SelectedIndex = 0;
+                }
+
+                if (drv["ma_mau"] != DBNull.Value)
+                {
+                    cboMauSac.SelectedValue = drv["ma_mau"].ToString();
+                }
+                else
+                {
+                    cboMauSac.SelectedIndex = 0;
+                }
+
+                if (drv["ma_nuoc_san_xuat"] != DBNull.Value)
+                {
+                    cboNuocSX.SelectedValue = drv["ma_nuoc_san_xuat"].ToString();
+                }
+                else
+                {
+                    cboNuocSX.SelectedIndex = 0;
+                }
+
+                if (drv["ma_hinh_dang"] != DBNull.Value)
+                {
+                    cboHinhDang.SelectedValue = drv["ma_hinh_dang"].ToString();
+                }
+                else
+                {
+                    cboHinhDang.SelectedIndex = 0;
+                }
+
+                if (drv["ma_nha_san_xuat"] != DBNull.Value)
+                {
+                    cboNhaSX.SelectedValue = drv["ma_nha_san_xuat"].ToString();
+                }
+                else
+                {
+                    cboNhaSX.SelectedIndex = 0;
+                }
+
+                if (drv["ma_cong_dung"] != DBNull.Value)
+                {
+                    cboCongDung.SelectedValue = drv["ma_cong_dung"].ToString();
+                }
+                else
+                {
+                    cboCongDung.SelectedIndex = 0;
+                }
+
+                if (drv["ma_dac_diem"] != DBNull.Value)
+                {
+                    cboDacDiem.SelectedValue = drv["ma_dac_diem"].ToString();
+                }
+                else
+                {
+                    cboDacDiem.SelectedIndex = 0;
+                }
+
+                string tenAnh = drv["anh"]?.ToString() ?? string.Empty;
+                txtTenAnh.Text = tenAnh;
+                duongDanAnhNguon = null;
+                HienThiAnhSanPham(tenAnh);
+
+                ThietLapTrangThai(FormMode.Selected);
             }
             finally
             {
@@ -454,80 +775,20 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 return;
             }
 
-            DataGridViewRow row = dgvHangHoa.Rows[e.RowIndex];
-            DataRowView drv = row.DataBoundItem as DataRowView;
-            if (drv == null)
+            NapDuLieuTuDong(dgvHangHoa.Rows[e.RowIndex]);
+        }
+
+        private void dgvHangHoa_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
             {
-                return;
+                NapDuLieuTuDong(dgvHangHoa.CurrentRow);
             }
-
-            txtMaHang.Text = drv["ma_hang"]?.ToString() ?? string.Empty;
-            txtTenHang.Text = drv["ten_hang_hoa"]?.ToString() ?? string.Empty;
-            txtDonGiaNhap.Text = drv["don_gia_nhap"] != DBNull.Value ? Convert.ToDecimal(drv["don_gia_nhap"]).ToString("N0") : "0";
-            txtDonGiaBan.Text = drv["don_gia_ban"] != DBNull.Value ? Convert.ToDecimal(drv["don_gia_ban"]).ToString("N0") : "0";
-            txtSoLuong.Text = drv["so_luong"] != DBNull.Value ? drv["so_luong"].ToString() : "0";
-            txtThoiGianBaoHanh.Text = drv["thoi_gian_bao_hanh"] != DBNull.Value ? drv["thoi_gian_bao_hanh"].ToString() : string.Empty;
-            txtGhiChu.Text = drv["ghi_chu"]?.ToString() ?? string.Empty;
-
-            dangTaiDuLieu = true;
-            try
-            {
-                if (drv["ma_loai"] != DBNull.Value)
-                {
-                    string maLoai = drv["ma_loai"].ToString();
-                    cboLoai.SelectedValue = maLoai;
-                    cboKichThuoc.DataSource = hangHoaBLL.LayKichThuocTheoLoai(maLoai);
-                    cboKichThuoc.DisplayMember = "Ten";
-                    cboKichThuoc.ValueMember = "Ma";
-                }
-                if (drv["ma_kich_thuoc"] != DBNull.Value)
-                {
-                    cboKichThuoc.SelectedValue = drv["ma_kich_thuoc"].ToString();
-                }
-                if (drv["ma_chat_lieu"] != DBNull.Value)
-                {
-                    cboChatLieu.SelectedValue = drv["ma_chat_lieu"].ToString();
-                }
-                if (drv["ma_mau"] != DBNull.Value)
-                {
-                    cboMauSac.SelectedValue = drv["ma_mau"].ToString();
-                }
-                if (drv["ma_nuoc_san_xuat"] != DBNull.Value)
-                {
-                    cboNuocSX.SelectedValue = drv["ma_nuoc_san_xuat"].ToString();
-                }
-                if (drv["ma_hinh_dang"] != DBNull.Value)
-                {
-                    cboHinhDang.SelectedValue = drv["ma_hinh_dang"].ToString();
-                }
-                if (drv["ma_nha_san_xuat"] != DBNull.Value)
-                {
-                    cboNhaSX.SelectedValue = drv["ma_nha_san_xuat"].ToString();
-                }
-                if (drv["ma_cong_dung"] != DBNull.Value)
-                {
-                    cboCongDung.SelectedValue = drv["ma_cong_dung"].ToString();
-                }
-                if (drv["ma_dac_diem"] != DBNull.Value)
-                {
-                    cboDacDiem.SelectedValue = drv["ma_dac_diem"].ToString();
-                }
-            }
-            finally
-            {
-                dangTaiDuLieu = false;
-            }
-
-            string tenAnh = drv["anh"]?.ToString() ?? string.Empty;
-            txtTenAnh.Text = tenAnh;
-            duongDanAnhNguon = null;
-            HienThiAnhSanPham(tenAnh);
-
-            ThietLapTrangThai(FormMode.Selected);
         }
 
         private void btnThem_Click(object sender, EventArgs e)
         {
+            daTimKiem = false;
             ThietLapTrangThai(FormMode.Insert);
             UIHelper.XoaChonLuoi(dgvHangHoa);
             txtMaHang.Text = hangHoaBLL.SinhMaHangHoaMoi();
@@ -542,6 +803,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 MessageBox.Show("Vui lòng chọn sản phẩm cần sửa từ danh sách!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+            daTimKiem = false;
             ThietLapTrangThai(FormMode.Update);
         }
 
@@ -568,6 +830,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             {
                 hangHoaBLL.XoaMemHangHoa(txtMaHang.Text.Trim());
                 MessageBox.Show("Xóa sản phẩm thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                daTimKiem = false;
                 LoadDanhSachHangHoa();
                 XoaTrang();
                 ThietLapTrangThai(FormMode.View);
@@ -602,6 +865,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             {
                 hangHoaBLL.KhoiPhucHangHoa(txtMaHang.Text.Trim());
                 MessageBox.Show("Khôi phục sản phẩm thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                daTimKiem = false;
                 LoadDanhSachHangHoa();
                 XoaTrang();
                 ThietLapTrangThai(FormMode.View);
@@ -647,63 +911,63 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 return;
             }
 
-            if (cboLoai.SelectedValue == null || cboLoai.SelectedIndex == -1)
+            if (cboLoai.SelectedValue == null || cboLoai.SelectedIndex == -1 || string.IsNullOrWhiteSpace(cboLoai.SelectedValue.ToString()))
             {
                 MessageBox.Show("Vui lòng chọn loại bàn ghế!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cboLoai.Focus();
                 return;
             }
 
-            if (cboKichThuoc.SelectedValue == null || cboKichThuoc.SelectedIndex == -1)
+            if (cboKichThuoc.SelectedValue == null || cboKichThuoc.SelectedIndex == -1 || string.IsNullOrWhiteSpace(cboKichThuoc.SelectedValue.ToString()))
             {
                 MessageBox.Show("Vui lòng chọn kích thước bàn ghế!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cboKichThuoc.Focus();
                 return;
             }
 
-            if (cboChatLieu.SelectedValue == null || cboChatLieu.SelectedIndex == -1)
+            if (cboChatLieu.SelectedValue == null || cboChatLieu.SelectedIndex == -1 || string.IsNullOrWhiteSpace(cboChatLieu.SelectedValue.ToString()))
             {
                 MessageBox.Show("Vui lòng chọn chất liệu bàn ghế!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cboChatLieu.Focus();
                 return;
             }
 
-            if (cboMauSac.SelectedValue == null || cboMauSac.SelectedIndex == -1)
+            if (cboMauSac.SelectedValue == null || cboMauSac.SelectedIndex == -1 || string.IsNullOrWhiteSpace(cboMauSac.SelectedValue.ToString()))
             {
                 MessageBox.Show("Vui lòng chọn màu sắc bàn ghế!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cboMauSac.Focus();
                 return;
             }
 
-            if (cboNuocSX.SelectedValue == null || cboNuocSX.SelectedIndex == -1)
+            if (cboNuocSX.SelectedValue == null || cboNuocSX.SelectedIndex == -1 || string.IsNullOrWhiteSpace(cboNuocSX.SelectedValue.ToString()))
             {
                 MessageBox.Show("Vui lòng chọn nước sản xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cboNuocSX.Focus();
                 return;
             }
 
-            if (cboHinhDang.SelectedValue == null || cboHinhDang.SelectedIndex == -1)
+            if (cboHinhDang.SelectedValue == null || cboHinhDang.SelectedIndex == -1 || string.IsNullOrWhiteSpace(cboHinhDang.SelectedValue.ToString()))
             {
                 MessageBox.Show("Vui lòng chọn hình dáng bàn ghế!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cboHinhDang.Focus();
                 return;
             }
 
-            if (cboNhaSX.SelectedValue == null || cboNhaSX.SelectedIndex == -1)
+            if (cboNhaSX.SelectedValue == null || cboNhaSX.SelectedIndex == -1 || string.IsNullOrWhiteSpace(cboNhaSX.SelectedValue.ToString()))
             {
                 MessageBox.Show("Vui lòng chọn nhà sản xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cboNhaSX.Focus();
                 return;
             }
 
-            if (cboCongDung.SelectedValue == null || cboCongDung.SelectedIndex == -1)
+            if (cboCongDung.SelectedValue == null || cboCongDung.SelectedIndex == -1 || string.IsNullOrWhiteSpace(cboCongDung.SelectedValue.ToString()))
             {
                 MessageBox.Show("Vui lòng chọn công dụng bàn ghế!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cboCongDung.Focus();
                 return;
             }
 
-            if (cboDacDiem.SelectedValue == null || cboDacDiem.SelectedIndex == -1)
+            if (cboDacDiem.SelectedValue == null || cboDacDiem.SelectedIndex == -1 || string.IsNullOrWhiteSpace(cboDacDiem.SelectedValue.ToString()))
             {
                 MessageBox.Show("Vui lòng chọn đặc điểm bàn ghế!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 cboDacDiem.Focus();
@@ -810,6 +1074,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                     MessageBox.Show("Cập nhật thông tin sản phẩm thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
+                daTimKiem = false;
                 LoadDanhSachHangHoa();
                 XoaTrang();
                 ThietLapTrangThai(FormMode.View);
@@ -823,9 +1088,201 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
 
         private void btnBoQua_Click(object sender, EventArgs e)
         {
+            daTimKiem = false;
             XoaTrang();
             ThietLapTrangThai(FormMode.View);
+            LoadDanhSachHangHoa();
             UIHelper.XoaChonLuoi(dgvHangHoa);
+        }
+
+        private void btnTimKiem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string maHang = txtMaHang.Text.Trim();
+                string tenHang = txtTenHang.Text.Trim();
+                string maLoai = LayGiaTriLocCombobox(cboLoai);
+                string maKichThuoc = LayGiaTriLocCombobox(cboKichThuoc);
+                string maChatLieu = LayGiaTriLocCombobox(cboChatLieu);
+                string maMau = LayGiaTriLocCombobox(cboMauSac);
+                string maNuocSX = LayGiaTriLocCombobox(cboNuocSX);
+                string maHinhDang = LayGiaTriLocCombobox(cboHinhDang);
+                string maNhaSX = LayGiaTriLocCombobox(cboNhaSX);
+                string maCongDung = LayGiaTriLocCombobox(cboCongDung);
+                string maDacDiem = LayGiaTriLocCombobox(cboDacDiem);
+                bool chiLayDangHoatDong = cboLocTrangThai == null || cboLocTrangThai.SelectedIndex != 1;
+
+                DataTable dt = hangHoaBLL.TimKiemHangHoa(
+                    maHang, tenHang, maLoai, maKichThuoc, maChatLieu,
+                    maMau, maNuocSX, maHinhDang, maNhaSX, maCongDung, maDacDiem,
+                    chiLayDangHoatDong);
+
+                dgvHangHoa.DataSource = dt;
+                UIHelper.XoaChonLuoi(dgvHangHoa);
+
+                txtDonGiaNhap.Clear();
+                txtDonGiaBan.Clear();
+                txtSoLuong.Text = "0";
+                txtThoiGianBaoHanh.Clear();
+                txtGhiChu.Clear();
+                txtTenAnh.Clear();
+                duongDanAnhNguon = null;
+                if (picAnh.Image != null)
+                {
+                    picAnh.Image.Dispose();
+                    picAnh.Image = null;
+                }
+
+                daTimKiem = true;
+                ThietLapTrangThai(FormMode.View);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tìm kiếm hàng hóa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void MoHopThoaiThemNhanh(string tenBang, string tieuDe, ComboBox cbo)
+        {
+            if (tenBang == "kich_thuoc")
+            {
+                string maLoai = LayGiaTriLocCombobox(cboLoai);
+                if (string.IsNullOrWhiteSpace(maLoai))
+                {
+                    MessageBox.Show("Vui lòng chọn Loại bàn ghế trước khi thêm Kích thước mới!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    cboLoai.Focus();
+                    return;
+                }
+
+                string tenLoai = cboLoai.SelectedItem is DataRowView drvLoai ? drvLoai["Ten"]?.ToString() : cboLoai.Text;
+                using (frmThemNhanhThuocTinh frm = new frmThemNhanhThuocTinh("kich_thuoc", "Kích thước", maLoai, tenLoai))
+                {
+                    if (frm.ShowDialog(this) == DialogResult.OK)
+                    {
+                        string maVuaThem = frm.MaVuaThem;
+                        dangTaiDuLieu = true;
+                        try
+                        {
+                            cboKichThuoc.DisplayMember = "Ten";
+                            cboKichThuoc.ValueMember = "Ma";
+                            cboKichThuoc.DataSource = TaoBangCoMucTatCa(hangHoaBLL.LayKichThuocTheoLoai(maLoai));
+                            cboKichThuoc.SelectedValue = maVuaThem;
+
+                            if (cboKichThuoc.SelectedIndex < 0 || cboKichThuoc.SelectedValue == null)
+                            {
+                                foreach (DataRowView item in cboKichThuoc.Items)
+                                {
+                                    if (string.Equals(item["Ma"]?.ToString(), maVuaThem, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        cboKichThuoc.SelectedItem = item;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            dangTaiDuLieu = false;
+                        }
+
+                        if (currentMode == FormMode.View)
+                        {
+                            CapNhatTrangThaiNutBoQua();
+                        }
+                    }
+                }
+                return;
+            }
+
+            using (frmThemNhanhThuocTinh frm = new frmThemNhanhThuocTinh(tenBang, tieuDe))
+            {
+                if (frm.ShowDialog(this) == DialogResult.OK)
+                {
+                    string maVuaThem = frm.MaVuaThem;
+                    dangTaiDuLieu = true;
+                    try
+                    {
+                        cbo.DisplayMember = "Ten";
+                        cbo.ValueMember = "Ma";
+                        cbo.DataSource = TaoBangCoMucTatCa(thuocTinhBLL.LayDanhSach(tenBang));
+                        cbo.SelectedValue = maVuaThem;
+
+                        if (cbo.SelectedIndex < 0 || cbo.SelectedValue == null)
+                        {
+                            foreach (DataRowView item in cbo.Items)
+                            {
+                                if (string.Equals(item["Ma"]?.ToString(), maVuaThem, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    cbo.SelectedItem = item;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (tenBang == "loai")
+                        {
+                            cboKichThuoc.DisplayMember = "Ten";
+                            cboKichThuoc.ValueMember = "Ma";
+                            cboKichThuoc.DataSource = TaoBangCoMucTatCa(hangHoaBLL.LayKichThuocTheoLoai(maVuaThem));
+                            cboKichThuoc.SelectedIndex = 0;
+                        }
+                    }
+                    finally
+                    {
+                        dangTaiDuLieu = false;
+                    }
+
+                    if (currentMode == FormMode.View)
+                    {
+                        CapNhatTrangThaiNutBoQua();
+                    }
+                }
+            }
+        }
+
+        private void btnThemLoai_Click(object sender, EventArgs e)
+        {
+            MoHopThoaiThemNhanh("loai", "Loại bàn ghế", cboLoai);
+        }
+
+        private void btnThemChatLieu_Click(object sender, EventArgs e)
+        {
+            MoHopThoaiThemNhanh("chat_lieu", "Chất liệu", cboChatLieu);
+        }
+
+        private void btnThemKichThuoc_Click(object sender, EventArgs e)
+        {
+            MoHopThoaiThemNhanh("kich_thuoc", "Kích thước", cboKichThuoc);
+        }
+
+        private void btnThemMauSac_Click(object sender, EventArgs e)
+        {
+            MoHopThoaiThemNhanh("mau_sac", "Màu sắc", cboMauSac);
+        }
+
+        private void btnThemNuocSX_Click(object sender, EventArgs e)
+        {
+            MoHopThoaiThemNhanh("nuoc_san_xuat", "Nước sản xuất", cboNuocSX);
+        }
+
+        private void btnThemHinhDang_Click(object sender, EventArgs e)
+        {
+            MoHopThoaiThemNhanh("hinh_dang", "Hình dáng", cboHinhDang);
+        }
+
+        private void btnThemNhaSX_Click(object sender, EventArgs e)
+        {
+            MoHopThoaiThemNhanh("nha_san_xuat", "Nhà sản xuất", cboNhaSX);
+        }
+
+        private void btnThemCongDung_Click(object sender, EventArgs e)
+        {
+            MoHopThoaiThemNhanh("cong_dung", "Công dụng", cboCongDung);
+        }
+
+        private void btnThemDacDiem_Click(object sender, EventArgs e)
+        {
+            MoHopThoaiThemNhanh("dac_diem", "Đặc điểm", cboDacDiem);
         }
     }
 }

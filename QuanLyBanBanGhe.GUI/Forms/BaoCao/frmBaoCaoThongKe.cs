@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Windows.Forms;
+using Microsoft.Reporting.WinForms;
 using QuanLyBanBanGhe.BLL;
 using QuanLyBanBanGhe.GUI.Helpers;
 
@@ -41,14 +43,38 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
                 dangKhoiTao = false;
             }
 
-            TaiBaoCao1();
-            TaiBaoCao2();
-            TaiBaoCao3();
-            TaiBaoCao4();
+            TaiBaoCaoTheoTab(tabBaoCao.SelectedIndex);
+        }
+
+        private void tabBaoCao_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (dangKhoiTao) return;
+            TaiBaoCaoTheoTab(tabBaoCao.SelectedIndex);
+        }
+
+        private void TaiBaoCaoTheoTab(int tabIndex)
+        {
+            switch (tabIndex)
+            {
+                case 0:
+                    TaiBaoCao1();
+                    break;
+                case 1:
+                    TaiBaoCao2();
+                    break;
+                case 2:
+                    TaiBaoCao3();
+                    break;
+                case 3:
+                    TaiBaoCao4();
+                    break;
+            }
         }
 
         private void GanSuKienControl()
         {
+            tabBaoCao.SelectedIndexChanged += tabBaoCao_SelectedIndexChanged;
+
             cboNam1.KeyPress += cboNam_KeyPress;
             cboNam2.KeyPress += cboNam_KeyPress;
             cboNam3.KeyPress += cboNam_KeyPress;
@@ -382,16 +408,43 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             TaiBaoCao1();
         }
 
-        private void btnXuatExcel1_Click(object sender, EventArgs e)
+        private void btnInBaoCao1_Click(object sender, EventArgs e)
         {
             if (!KiemTraNamHopLe(cboNam1, out int nam)) return;
+
+            DataTable dt = dgvTop10.DataSource as DataTable;
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                TaiBaoCao1();
+                dt = dgvTop10.DataSource as DataTable;
+            }
+
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                MessageBox.Show("Không có dữ liệu để xuất báo cáo!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             try
             {
-                ExcelExportHelper.ExportToExcel(dgvTop10, string.Format("Top 10 bàn ghế bán chạy năm {0}", nam));
+                string nguoiLap = string.IsNullOrWhiteSpace(UserSession.TenNhanVien) ? "Người Quản Lý" : UserSession.TenNhanVien;
+                List<ReportParameter> parameters = new List<ReportParameter>
+                {
+                    new ReportParameter("pNam", nam.ToString()),
+                    new ReportParameter("pNgayTao", DateTime.Now.ToString("dd/MM/yyyy")),
+                    new ReportParameter("pNguoiLap", nguoiLap)
+                };
+
+                RdlcReportHelper.HienThiBaoCao(
+                    "rptTop10BanChay.rdlc",
+                    "DataSetTop10",
+                    dt,
+                    parameters,
+                    string.Format("Báo Cáo Top 10 Bàn Ghế Bán Chạy - Năm {0}", nam));
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi xuất Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi hiển thị báo cáo: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -445,33 +498,66 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             TaiBaoCao2();
         }
 
-        private void btnXuatExcel2_Click(object sender, EventArgs e)
+        private void btnInBaoCao2_Click(object sender, EventArgs e)
         {
             if (!KiemTraNamHopLe(cboNam2, out int nam)) return;
 
+            DataTable dt = dgvNhapHang.DataSource as DataTable;
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                TaiBaoCao2();
+                dt = dgvNhapHang.DataSource as DataTable;
+            }
+
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                MessageBox.Show("Không có dữ liệu để xuất báo cáo!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             int thang = Convert.ToInt32(cboThang2.SelectedValue ?? 0);
             int quy = Convert.ToInt32(cboQuy2.SelectedValue ?? 0);
+            string tenNV = cboNhanVien2.Text;
+
             string tieuDe;
+            string dieuKien;
             if (thang > 0)
             {
-                tieuDe = string.Format("Báo cáo nhập hàng tháng {0} năm {1}", thang, nam);
+                tieuDe = string.Format("BÁO CÁO NHẬP HÀNG THÁNG {0} NĂM {1}", thang, nam);
+                dieuKien = string.Format("Thời gian: Tháng {0}/{1} | Nhân viên: {2}", thang, nam, tenNV);
             }
             else if (quy > 0)
             {
-                tieuDe = string.Format("Báo cáo nhập hàng quý {0} năm {1}", quy, nam);
+                tieuDe = string.Format("BÁO CÁO NHẬP HÀNG QUÝ {0} NĂM {1}", quy, nam);
+                dieuKien = string.Format("Thời gian: Quý {0}/{1} | Nhân viên: {2}", quy, nam, tenNV);
             }
             else
             {
-                tieuDe = string.Format("Báo cáo nhập hàng năm {0}", nam);
+                tieuDe = string.Format("BÁO CÁO NHẬP HÀNG NĂM {0}", nam);
+                dieuKien = string.Format("Thời gian: Cả năm {0} | Nhân viên: {1}", nam, tenNV);
             }
 
             try
             {
-                ExcelExportHelper.ExportToExcel(dgvNhapHang, tieuDe);
+                string nguoiLap = string.IsNullOrWhiteSpace(UserSession.TenNhanVien) ? "Người Quản Lý" : UserSession.TenNhanVien;
+                List<ReportParameter> parameters = new List<ReportParameter>
+                {
+                    new ReportParameter("pTieuDe", tieuDe),
+                    new ReportParameter("pDieuKien", dieuKien),
+                    new ReportParameter("pNgayTao", DateTime.Now.ToString("dd/MM/yyyy")),
+                    new ReportParameter("pNguoiLap", nguoiLap)
+                };
+
+                RdlcReportHelper.HienThiBaoCao(
+                    "rptBaoCaoNhapHang.rdlc",
+                    "DataSetNhapHang",
+                    dt,
+                    parameters,
+                    tieuDe);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi xuất Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi hiển thị báo cáo: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -527,33 +613,66 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             TaiBaoCao3();
         }
 
-        private void btnXuatExcel3_Click(object sender, EventArgs e)
+        private void btnInBaoCao3_Click(object sender, EventArgs e)
         {
             if (!KiemTraNamHopLe(cboNam3, out int nam)) return;
 
+            DataTable dt = dgvBanHang.DataSource as DataTable;
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                TaiBaoCao3();
+                dt = dgvBanHang.DataSource as DataTable;
+            }
+
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                MessageBox.Show("Không có dữ liệu để xuất báo cáo!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             int thang = Convert.ToInt32(cboThang3.SelectedValue ?? 0);
             int quy = Convert.ToInt32(cboQuy3.SelectedValue ?? 0);
+            string tenNV = cboNhanVien3.Text;
+
             string tieuDe;
+            string dieuKien;
             if (thang > 0)
             {
-                tieuDe = string.Format("Báo cáo bán hàng tháng {0} năm {1}", thang, nam);
+                tieuDe = string.Format("BÁO CÁO BÁN HÀNG THÁNG {0} NĂM {1}", thang, nam);
+                dieuKien = string.Format("Thời gian: Tháng {0}/{1} | Nhân viên: {2}", thang, nam, tenNV);
             }
             else if (quy > 0)
             {
-                tieuDe = string.Format("Báo cáo bán hàng quý {0} năm {1}", quy, nam);
+                tieuDe = string.Format("BÁO CÁO BÁN HÀNG QUÝ {0} NĂM {1}", quy, nam);
+                dieuKien = string.Format("Thời gian: Quý {0}/{1} | Nhân viên: {2}", quy, nam, tenNV);
             }
             else
             {
-                tieuDe = string.Format("Báo cáo bán hàng năm {0}", nam);
+                tieuDe = string.Format("BÁO CÁO BÁN HÀNG NĂM {0}", nam);
+                dieuKien = string.Format("Thời gian: Cả năm {0} | Nhân viên: {1}", nam, tenNV);
             }
 
             try
             {
-                ExcelExportHelper.ExportToExcel(dgvBanHang, tieuDe);
+                string nguoiLap = string.IsNullOrWhiteSpace(UserSession.TenNhanVien) ? "Người Quản Lý" : UserSession.TenNhanVien;
+                List<ReportParameter> parameters = new List<ReportParameter>
+                {
+                    new ReportParameter("pTieuDe", tieuDe),
+                    new ReportParameter("pDieuKien", dieuKien),
+                    new ReportParameter("pNgayTao", DateTime.Now.ToString("dd/MM/yyyy")),
+                    new ReportParameter("pNguoiLap", nguoiLap)
+                };
+
+                RdlcReportHelper.HienThiBaoCao(
+                    "rptBaoCaoBanHang.rdlc",
+                    "DataSetBanHang",
+                    dt,
+                    parameters,
+                    tieuDe);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi xuất Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi hiển thị báo cáo: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -586,16 +705,50 @@ namespace QuanLyBanBanGhe.GUI.Forms.BaoCao
             TaiBaoCao4();
         }
 
-        private void btnXuatExcel4_Click(object sender, EventArgs e)
+        private void btnInBaoCao4_Click(object sender, EventArgs e)
         {
             if (!KiemTraNamHopLe(cboNam4, out int nam)) return;
+
+            DataTable dt0 = dgvNVDoanhSo0.DataSource as DataTable;
+            DataTable dtThap = dgvNVDoanhSoThap.DataSource as DataTable;
+            if ((dt0 == null || dt0.Rows.Count == 0) && (dtThap == null || dtThap.Rows.Count == 0))
+            {
+                TaiBaoCao4();
+                dt0 = dgvNVDoanhSo0.DataSource as DataTable;
+                dtThap = dgvNVDoanhSoThap.DataSource as DataTable;
+            }
+
+            if ((dt0 == null || dt0.Rows.Count == 0) && (dtThap == null || dtThap.Rows.Count == 0))
+            {
+                MessageBox.Show("Không có dữ liệu để xuất báo cáo!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             try
             {
-                ExcelExportHelper.ExportBaoCao4ToExcel(dgvNVDoanhSo0, dgvNVDoanhSoThap, nam);
+                string nguoiLap = string.IsNullOrWhiteSpace(UserSession.TenNhanVien) ? "Người Quản Lý" : UserSession.TenNhanVien;
+                List<ReportParameter> parameters = new List<ReportParameter>
+                {
+                    new ReportParameter("pNam", nam.ToString()),
+                    new ReportParameter("pNgayTao", DateTime.Now.ToString("dd/MM/yyyy")),
+                    new ReportParameter("pNguoiLap", nguoiLap)
+                };
+
+                List<ReportDataSource> dataSources = new List<ReportDataSource>
+                {
+                    new ReportDataSource("DataSetDoanhSo0", dt0 ?? new DataTable()),
+                    new ReportDataSource("DataSetDoanhSoThap", dtThap ?? new DataTable())
+                };
+
+                RdlcReportHelper.HienThiBaoCaoNhieuNguon(
+                    "rptNhanVienDoanhSoThap.rdlc",
+                    dataSources,
+                    parameters,
+                    string.Format("Báo Cáo Nhân Viên Doanh Số Thấp - Năm {0}", nam));
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi xuất Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi hiển thị báo cáo: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

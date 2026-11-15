@@ -39,6 +39,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             UIHelper.FormatCurrencyColumns(dgvNhanVien, "colLuong");
             UIHelper.FormatDateColumns(dgvNhanVien, "colNgaySinh");
             UIHelper.GanXoaChonTuDong(dgvNhanVien);
+            dgvNhanVien.KeyUp += dgvNhanVien_KeyUp;
             dgvNhanVien.CellFormatting += dgvNhanVien_CellFormatting;
 
             txtMaNV.CharacterCasing = CharacterCasing.Upper;
@@ -274,7 +275,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                     txtMaNV.ReadOnly = true;
                     txtTenDangNhap.ReadOnly = true;
                     txtLuong.ReadOnly = true;
-                    btnResetMatKhau.Enabled = !dangXemDaXoa && !string.IsNullOrEmpty(txtTenDangNhap.Text);
+                    btnResetMatKhau.Enabled = false;
 
                     bool laTaiKhoanHeThong = string.Equals(txtMaNV.Text.Trim(), "NV0001", StringComparison.OrdinalIgnoreCase) ||
                                              string.Equals(txtMaNV.Text.Trim(), "NV0002", StringComparison.OrdinalIgnoreCase) ||
@@ -361,14 +362,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             }
         }
 
-        private void dgvNhanVien_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void NapDuLieuTuDong(DataGridViewRow row)
         {
-            if (e.RowIndex < 0 || currentMode == FormMode.Insert || currentMode == FormMode.Update)
+            if (row == null || row.Index < 0 || currentMode == FormMode.Insert || currentMode == FormMode.Update)
             {
                 return;
             }
 
-            DataGridViewRow row = dgvNhanVien.Rows[e.RowIndex];
             DataRowView drv = row.DataBoundItem as DataRowView;
             if (drv == null)
             {
@@ -438,6 +438,24 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
             ThietLapTrangThai(FormMode.Selected);
         }
 
+        private void dgvNhanVien_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || currentMode == FormMode.Insert || currentMode == FormMode.Update)
+            {
+                return;
+            }
+
+            NapDuLieuTuDong(dgvNhanVien.Rows[e.RowIndex]);
+        }
+
+        private void dgvNhanVien_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
+            {
+                NapDuLieuTuDong(dgvNhanVien.CurrentRow);
+            }
+        }
+
         private void btnResetMatKhau_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtTenDangNhap.Text))
@@ -446,28 +464,25 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 return;
             }
 
-            string matKhauNhap = txtMatKhauMoi.Text.Trim();
+            DialogResult dr = MessageBox.Show(
+                string.Format("Bạn có chắc chắn muốn đặt lại mật khẩu cho tài khoản '{0}' về mật khẩu mặc định không?", txtTenDangNhap.Text),
+                "Xác nhận đặt lại mật khẩu",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (dr != DialogResult.Yes)
+            {
+                return;
+            }
 
             try
             {
-                string matKhauKetQua = nhanSuBLL.ResetMatKhau(txtTenDangNhap.Text.Trim(), txtTenNV.Text.Trim(), matKhauNhap);
-
-                if (string.IsNullOrEmpty(matKhauNhap))
-                {
-                    MessageBox.Show(
-                        string.Format("Đã reset mật khẩu tài khoản '{0}' về mặc định: {1}", txtTenDangNhap.Text, matKhauKetQua),
-                        "Thành công",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show(
-                        string.Format("Đã cập nhật mật khẩu mới cho tài khoản '{0}' thành công!", txtTenDangNhap.Text),
-                        "Thành công",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                }
+                string matKhauKetQua = nhanSuBLL.ResetMatKhau(txtTenDangNhap.Text.Trim(), txtTenNV.Text.Trim(), null);
+                MessageBox.Show(
+                    string.Format("Đã reset mật khẩu tài khoản '{0}' về mặc định: {1}", txtTenDangNhap.Text, matKhauKetQua),
+                    "Thành công",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
 
                 txtMatKhauMoi.Clear();
             }
@@ -647,8 +662,16 @@ namespace QuanLyBanBanGhe.GUI.Forms.DanhMuc
                 }
                 else if (currentMode == FormMode.Update)
                 {
-                    nhanSuBLL.CapNhatNhanVien(nv, tk, txtMatKhauMoi.Text.Trim());
-                    MessageBox.Show("Cập nhật thông tin nhân viên thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string matKhauMoi = string.IsNullOrWhiteSpace(txtMatKhauMoi.Text) ? null : txtMatKhauMoi.Text.Trim();
+                    nhanSuBLL.CapNhatNhanVien(nv, tk, matKhauMoi);
+                    if (!string.IsNullOrEmpty(matKhauMoi))
+                    {
+                        MessageBox.Show("Cập nhật thông tin nhân viên và đổi mật khẩu mới thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Cập nhật thông tin nhân viên thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
 
                 LoadDanhSachNhanVien();

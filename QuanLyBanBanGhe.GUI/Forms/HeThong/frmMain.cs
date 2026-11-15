@@ -36,6 +36,11 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
             if (currentChildForm != null)
             {
                 currentChildForm.Close();
+                if (!currentChildForm.IsDisposed)
+                {
+                    childForm.Dispose();
+                    return;
+                }
             }
 
             currentChildForm = childForm;
@@ -64,6 +69,10 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
             if (currentChildForm != null)
             {
                 currentChildForm.Close();
+                if (!currentChildForm.IsDisposed)
+                {
+                    return;
+                }
                 currentChildForm = null;
             }
 
@@ -91,7 +100,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
             Label lblHeader = new Label();
             lblHeader.Text = "CHÀO MỪNG ĐẾN VỚI HỆ THỐNG QUẢN LÝ BÁN BÀN GHẾ";
             lblHeader.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
-            lblHeader.ForeColor = Color.DarkBlue;
+            lblHeader.ForeColor = Color.Black;
             lblHeader.TextAlign = ContentAlignment.MiddleCenter;
             lblHeader.Size = new Size(780, 40);
             lblHeader.Location = new Point(0, 10);
@@ -127,7 +136,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
             Label lblUserGreeting = new Label();
             lblUserGreeting.Text = string.Format("Xin chào, {0}!", UserSession.TenNhanVien ?? "Người dùng");
             lblUserGreeting.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-            lblUserGreeting.ForeColor = Color.FromArgb(0, 71, 160);
+            lblUserGreeting.ForeColor = Color.Black;
             lblUserGreeting.Location = new Point(20, 28);
             lblUserGreeting.Size = new Size(700, 25);
 
@@ -180,7 +189,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
             Label lblGuideDetails = new Label();
             if (string.Equals(UserSession.Quyen, "BanHang", StringComparison.OrdinalIgnoreCase))
             {
-                lblGuideDetails.Text = "• Bán hàng: Lập hóa đơn bán bàn ghế cho khách hàng, tự động tính tổng tiền và in hóa đơn Excel.\n\n• Khách hàng: Quản lý danh bạ khách hàng, thêm mới hoặc cập nhật thông tin khách hàng.\n\n• Tìm kiếm & Tra cứu: Tra cứu thông tin hàng hóa và xem lại các hóa đơn bán hàng đã lập.";
+                lblGuideDetails.Text = "• Bán hàng: Lập hóa đơn bán bàn ghế cho khách hàng, tự động tính tổng tiền và in hóa đơn.\n\n• Khách hàng: Quản lý danh bạ khách hàng, thêm mới hoặc cập nhật thông tin khách hàng.\n\n• Hàng hóa: Tra cứu thông tin hàng hóa và xem lại các hóa đơn bán hàng đã lập.";
             }
             else if (string.Equals(UserSession.Quyen, "ThuKho", StringComparison.OrdinalIgnoreCase))
             {
@@ -188,7 +197,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
             }
             else
             {
-                lblGuideDetails.Text = "• Bán hàng & Nhập hàng: Lập hóa đơn xuất bán, nhập kho, quản lý giao dịch và in phiếu hóa đơn Excel.\n\n• Quản lý danh mục & hàng hóa: Quản lý 9 bảng thuộc tính, hàng hóa, đối tác khách hàng và nhà cung cấp.\n\n• Quản trị & Báo cáo: Quản lý nhân sự, tài khoản phân quyền và xem 4 tab báo cáo thống kê doanh thu.";
+                lblGuideDetails.Text = "• Bán hàng & Nhập hàng: Lập hóa đơn xuất bán, nhập kho, quản lý giao dịch và in phiếu hóa đơn.\n\n• Quản lý danh mục & hàng hóa: Quản lý 9 bảng thuộc tính, hàng hóa, đối tác khách hàng và nhà cung cấp.\n\n• Quản trị & Báo cáo: Quản lý nhân sự, tài khoản phân quyền và xem 4 tab báo cáo thống kê doanh thu.";
             }
             lblGuideDetails.Location = new Point(20, 58);
             lblGuideDetails.Size = new Size(700, 115);
@@ -271,7 +280,6 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
             btnNavKhachHang.Visible = true;
             btnNavNhaCungCap.Visible = true;
             btnNavNhanVien.Visible = true;
-            btnNavTimKiemHangHoa.Visible = true;
             btnNavTimKiemHDBan.Visible = true;
             btnNavTimKiemHDNhap.Visible = true;
             btnNavBaoCao.Visible = true;
@@ -280,7 +288,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
 
             if (string.Equals(UserSession.Quyen, "BanHang", StringComparison.OrdinalIgnoreCase))
             {
-                btnNavHangHoa.Visible = false;
+                btnNavHangHoa.Visible = true;
                 btnNavTimKiemHDNhap.Visible = false;
                 btnNavNhapHang.Visible = false;
                 btnNavNhaCungCap.Visible = false;
@@ -344,11 +352,6 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
             OpenChildForm(new frmNhanVien(), "QUẢN LÝ NHÂN SỰ VÀ TÀI KHOẢN", btnNavNhanVien);
         }
 
-        private void btnNavTimKiemHangHoa_Click(object sender, EventArgs e)
-        {
-            OpenChildForm(new frmTimKiemHangHoa(), "TÌM KIẾM HÀNG HÓA", btnNavTimKiemHangHoa);
-        }
-
         private void btnNavTimKiemHDBan_Click(object sender, EventArgs e)
         {
             OpenChildForm(new frmTimKiemHDBan(), "TÌM KIẾM HÓA ĐƠN BÁN", btnNavTimKiemHDBan);
@@ -374,12 +377,33 @@ namespace QuanLyBanBanGhe.GUI.Forms.HeThong
 
         private void btnNavDangXuat_Click(object sender, EventArgs e)
         {
+            if (currentChildForm != null)
+            {
+                currentChildForm.Close();
+                if (!currentChildForm.IsDisposed)
+                {
+                    return;
+                }
+            }
+
             DialogResult dr = MessageBox.Show("Bạn có chắc chắn muốn đăng xuất không?", "Xác nhận đăng xuất", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (dr == DialogResult.Yes)
             {
                 UserSession.IsLoggingOut = true;
                 UserSession.Clear();
                 Close();
+            }
+        }
+
+        private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (currentChildForm != null)
+            {
+                currentChildForm.Close();
+                if (!currentChildForm.IsDisposed)
+                {
+                    e.Cancel = true;
+                }
             }
         }
 

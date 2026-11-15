@@ -1,42 +1,29 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using QuanLyBanBanGhe.DAL.Interfaces;
 using QuanLyBanBanGhe.DTO;
 
 namespace QuanLyBanBanGhe.DAL
 {
-    public class DoiTacDAL
+    public class DoiTacDAL : BaseDAL, IDoiTacDAL
     {
         public DataTable LayDanhSachKhachHang(bool chiLayDangHoatDong = true)
         {
-            string sql = @"
-SELECT ma_khach, ten_khach, dia_chi, dien_thoai, trang_thai_xoa 
-FROM dbo.khach_hang 
-WHERE trang_thai_xoa = @trang_thai_xoa 
-ORDER BY ma_khach";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@trang_thai_xoa", chiLayDangHoatDong ? 0 : 1)
             };
-            return DatabaseHelper.ExecuteQuery(sql, parameters);
+            return DatabaseHelper.ExecuteReaderSP("sp_KhachHang_LayDanhSach", parameters);
         }
 
         public bool KiemTraTonTaiKhachHang(string maKhach)
         {
-            string sql = "SELECT COUNT(1) FROM dbo.khach_hang WHERE ma_khach = @ma_khach";
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@ma_khach", maKhach)
-            };
-            int count = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sql, parameters));
-            return count > 0;
+            return base.KiemTraTonTai("khach_hang", "ma_khach", maKhach);
         }
 
         public bool ThemKhachHang(KhachHangDTO kh)
         {
-            string sql = @"
-INSERT INTO dbo.khach_hang (ma_khach, ten_khach, dia_chi, dien_thoai, trang_thai_xoa)
-VALUES (@ma_khach, @ten_khach, @dia_chi, @dien_thoai, 0)";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_khach", kh.MaKhach),
@@ -44,17 +31,11 @@ VALUES (@ma_khach, @ten_khach, @dia_chi, @dien_thoai, 0)";
                 new SqlParameter("@dia_chi", (object)kh.DiaChi ?? DBNull.Value),
                 new SqlParameter("@dien_thoai", (object)kh.DienThoai ?? DBNull.Value)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_KhachHang_Them", parameters) > 0;
         }
 
         public bool CapNhatKhachHang(KhachHangDTO kh)
         {
-            string sql = @"
-UPDATE dbo.khach_hang 
-SET ten_khach = @ten_khach, 
-    dia_chi = @dia_chi, 
-    dien_thoai = @dien_thoai 
-WHERE ma_khach = @ma_khach";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_khach", kh.MaKhach),
@@ -62,69 +43,72 @@ WHERE ma_khach = @ma_khach";
                 new SqlParameter("@dia_chi", (object)kh.DiaChi ?? DBNull.Value),
                 new SqlParameter("@dien_thoai", (object)kh.DienThoai ?? DBNull.Value)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_KhachHang_CapNhat", parameters) > 0;
         }
 
         public bool XoaMemKhachHang(string maKhach)
         {
-            string sql = "UPDATE dbo.khach_hang SET trang_thai_xoa = 1 WHERE ma_khach = @ma_khach";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_khach", maKhach)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_KhachHang_XoaMem", parameters) > 0;
         }
 
         public int DemPhieuBaoHanhChuaHoanTat(string maKhach)
         {
-            string sql = "SELECT COUNT(1) FROM dbo.phieu_bao_hanh WHERE ma_khach = @ma_khach AND trang_thai_xoa = 0 AND trang_thai IN ('TiepNhan', 'DangXuLy', 'DaXong')";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_khach", maKhach)
             };
-            return Convert.ToInt32(DatabaseHelper.ExecuteScalar(sql, parameters));
+            return Convert.ToInt32(DatabaseHelper.ExecuteScalarSP("sp_KhachHang_DemPhieuBaoHanhChuaHoanTat", parameters));
         }
 
         public bool KhoiPhucKhachHang(string maKhach)
         {
-            string sql = "UPDATE dbo.khach_hang SET trang_thai_xoa = 0 WHERE ma_khach = @ma_khach";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_khach", maKhach)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_KhachHang_KhoiPhuc", parameters) > 0;
+        }
+
+        public bool KiemTraTrungSoDienThoaiKhachHang(string dienThoai, string maKhachBoQua = null)
+        {
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@dien_thoai", dienThoai),
+                new SqlParameter("@ma_khach", (object)maKhachBoQua ?? DBNull.Value)
+            };
+            return Convert.ToInt32(DatabaseHelper.ExecuteScalarSP("sp_KhachHang_KiemTraTrungSDT", parameters)) > 0;
+        }
+
+        public string LaySoDienThoaiKhachHang(string maKhach)
+        {
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@ma_khach", maKhach)
+            };
+            object result = DatabaseHelper.ExecuteScalarSP("sp_KhachHang_LaySDT", parameters);
+            return result != null && result != DBNull.Value ? result.ToString().Trim() : string.Empty;
         }
 
         public DataTable LayDanhSachNhaCungCap(bool chiLayDangHoatDong = true)
         {
-            string sql = @"
-SELECT ma_nha_cung_cap, ten_nha_cung_cap, dia_chi, dien_thoai, trang_thai_xoa 
-FROM dbo.nha_cung_cap 
-WHERE trang_thai_xoa = @trang_thai_xoa 
-ORDER BY ma_nha_cung_cap";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@trang_thai_xoa", chiLayDangHoatDong ? 0 : 1)
             };
-            return DatabaseHelper.ExecuteQuery(sql, parameters);
+            return DatabaseHelper.ExecuteReaderSP("sp_NhaCungCap_LayDanhSach", parameters);
         }
 
         public bool KiemTraTonTaiNhaCungCap(string maNCC)
         {
-            string sql = "SELECT COUNT(1) FROM dbo.nha_cung_cap WHERE ma_nha_cung_cap = @ma_nha_cung_cap";
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@ma_nha_cung_cap", maNCC)
-            };
-            int count = Convert.ToInt32(DatabaseHelper.ExecuteScalar(sql, parameters));
-            return count > 0;
+            return base.KiemTraTonTai("nha_cung_cap", "ma_nha_cung_cap", maNCC);
         }
 
         public bool ThemNhaCungCap(NhaCungCapDTO ncc)
         {
-            string sql = @"
-INSERT INTO dbo.nha_cung_cap (ma_nha_cung_cap, ten_nha_cung_cap, dia_chi, dien_thoai, trang_thai_xoa)
-VALUES (@ma_nha_cung_cap, @ten_nha_cung_cap, @dia_chi, @dien_thoai, 0)";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_nha_cung_cap", ncc.MaNhaCungCap),
@@ -132,17 +116,11 @@ VALUES (@ma_nha_cung_cap, @ten_nha_cung_cap, @dia_chi, @dien_thoai, 0)";
                 new SqlParameter("@dia_chi", (object)ncc.DiaChi ?? DBNull.Value),
                 new SqlParameter("@dien_thoai", (object)ncc.DienThoai ?? DBNull.Value)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_NhaCungCap_Them", parameters) > 0;
         }
 
         public bool CapNhatNhaCungCap(NhaCungCapDTO ncc)
         {
-            string sql = @"
-UPDATE dbo.nha_cung_cap 
-SET ten_nha_cung_cap = @ten_nha_cung_cap, 
-    dia_chi = @dia_chi, 
-    dien_thoai = @dien_thoai 
-WHERE ma_nha_cung_cap = @ma_nha_cung_cap";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_nha_cung_cap", ncc.MaNhaCungCap),
@@ -150,27 +128,25 @@ WHERE ma_nha_cung_cap = @ma_nha_cung_cap";
                 new SqlParameter("@dia_chi", (object)ncc.DiaChi ?? DBNull.Value),
                 new SqlParameter("@dien_thoai", (object)ncc.DienThoai ?? DBNull.Value)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_NhaCungCap_CapNhat", parameters) > 0;
         }
 
         public bool XoaMemNhaCungCap(string maNCC)
         {
-            string sql = "UPDATE dbo.nha_cung_cap SET trang_thai_xoa = 1 WHERE ma_nha_cung_cap = @ma_nha_cung_cap";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_nha_cung_cap", maNCC)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_NhaCungCap_XoaMem", parameters) > 0;
         }
 
         public bool KhoiPhucNhaCungCap(string maNCC)
         {
-            string sql = "UPDATE dbo.nha_cung_cap SET trang_thai_xoa = 0 WHERE ma_nha_cung_cap = @ma_nha_cung_cap";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@ma_nha_cung_cap", maNCC)
             };
-            return DatabaseHelper.ExecuteNonQuery(sql, parameters) > 0;
+            return DatabaseHelper.ExecuteNonQuerySP("sp_NhaCungCap_KhoiPhuc", parameters) > 0;
         }
 
         public string SinhMaKhachHangMoi()
@@ -181,6 +157,32 @@ WHERE ma_nha_cung_cap = @ma_nha_cung_cap";
         public string SinhMaNhaCungCapMoi()
         {
             return DatabaseHelper.SinhMaTuDong("dbo.nha_cung_cap", "ma_nha_cung_cap", "NCC");
+        }
+
+        public DataTable TimKiemKhachHang(string maKhach, string tenKhach, string dienThoai, string diaChi, bool chiLayDangHoatDong = true)
+        {
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@trang_thai_xoa", chiLayDangHoatDong ? 0 : 1),
+                new SqlParameter("@ma_khach", string.IsNullOrWhiteSpace(maKhach) ? (object)DBNull.Value : maKhach.Trim()),
+                new SqlParameter("@ten_khach", string.IsNullOrWhiteSpace(tenKhach) ? (object)DBNull.Value : tenKhach.Trim()),
+                new SqlParameter("@dien_thoai", string.IsNullOrWhiteSpace(dienThoai) ? (object)DBNull.Value : dienThoai.Trim()),
+                new SqlParameter("@dia_chi", string.IsNullOrWhiteSpace(diaChi) ? (object)DBNull.Value : diaChi.Trim())
+            };
+            return DatabaseHelper.ExecuteReaderSP("sp_KhachHang_TimKiem", parameters);
+        }
+
+        public DataTable TimKiemNhaCungCap(string maNCC, string tenNCC, string dienThoai, string diaChi, bool chiLayDangHoatDong = true)
+        {
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@trang_thai_xoa", chiLayDangHoatDong ? 0 : 1),
+                new SqlParameter("@ma_ncc", string.IsNullOrWhiteSpace(maNCC) ? (object)DBNull.Value : maNCC.Trim()),
+                new SqlParameter("@ten_ncc", string.IsNullOrWhiteSpace(tenNCC) ? (object)DBNull.Value : tenNCC.Trim()),
+                new SqlParameter("@dien_thoai", string.IsNullOrWhiteSpace(dienThoai) ? (object)DBNull.Value : dienThoai.Trim()),
+                new SqlParameter("@dia_chi", string.IsNullOrWhiteSpace(diaChi) ? (object)DBNull.Value : diaChi.Trim())
+            };
+            return DatabaseHelper.ExecuteReaderSP("sp_NhaCungCap_TimKiem", parameters);
         }
     }
 }
