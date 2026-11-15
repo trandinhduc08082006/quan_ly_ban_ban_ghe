@@ -20,8 +20,6 @@ bld/
 msbuild.log
 
 *.nupkg
-packages/
-!packages/repositories.config
 project.lock.json
 project.assets.json
 
