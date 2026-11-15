@@ -1,4 +1,4 @@
-USE QuanLyBanBanGhe;
+﻿USE QuanLyBanBanGhe;
 GO
 
 SET NOCOUNT ON;
