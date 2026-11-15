@@ -25,7 +25,8 @@ namespace QuanLyBanBanGhe.DAL
                 new SqlParameter("@ten_cong_viec", cv.TenCongViec),
                 new SqlParameter("@muc_luong", cv.MucLuong)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_CongViec_Them", parameters) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_CongViec_Them", parameters);
+            return rows > 0 || rows == -1;
         }
 
         public bool SuaCongViec(CongViecDTO cv)
@@ -36,7 +37,8 @@ namespace QuanLyBanBanGhe.DAL
                 new SqlParameter("@ten_cong_viec", cv.TenCongViec),
                 new SqlParameter("@muc_luong", cv.MucLuong)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_CongViec_Sua", parameters) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_CongViec_Sua", parameters);
+            return rows > 0 || rows == -1;
         }
 
         public bool XoaMemCongViec(string maCongViec)
@@ -45,7 +47,8 @@ namespace QuanLyBanBanGhe.DAL
             {
                 new SqlParameter("@ma_cong_viec", maCongViec)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_CongViec_XoaMem", parameters) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_CongViec_XoaMem", parameters);
+            return rows > 0 || rows == -1;
         }
 
         public bool KhoiPhucCongViec(string maCongViec)
@@ -54,7 +57,8 @@ namespace QuanLyBanBanGhe.DAL
             {
                 new SqlParameter("@ma_cong_viec", maCongViec)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_CongViec_KhoiPhuc", parameters) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_CongViec_KhoiPhuc", parameters);
+            return rows > 0 || rows == -1;
         }
 
         public CongViecDTO LayCongViecTheoMa(string maCongViec)
@@ -160,7 +164,8 @@ namespace QuanLyBanBanGhe.DAL
                 new SqlParameter("@dia_chi", (object)nv.DiaChi ?? DBNull.Value),
                 new SqlParameter("@ma_cong_viec", (object)nv.MaCongViec ?? DBNull.Value)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_NhanVien_Them", parameters, trans) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_NhanVien_Them", parameters, trans);
+            return rows > 0 || rows == -1;
         }
 
         public bool CapNhatNhanVien(NhanVienDTO nv, SqlTransaction trans = null)
@@ -175,7 +180,8 @@ namespace QuanLyBanBanGhe.DAL
                 new SqlParameter("@dia_chi", (object)nv.DiaChi ?? DBNull.Value),
                 new SqlParameter("@ma_cong_viec", (object)nv.MaCongViec ?? DBNull.Value)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_NhanVien_CapNhat", parameters, trans) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_NhanVien_CapNhat", parameters, trans);
+            return rows > 0 || rows == -1;
         }
 
         public bool XoaMemNhanVien(string maNV)
@@ -184,7 +190,8 @@ namespace QuanLyBanBanGhe.DAL
             {
                 new SqlParameter("@ma_nhan_vien", maNV)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_NhanVien_XoaMem", parameters) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_NhanVien_XoaMem", parameters);
+            return rows > 0 || rows == -1;
         }
 
         public bool KhoiPhucNhanVien(string maNV)
@@ -193,7 +200,8 @@ namespace QuanLyBanBanGhe.DAL
             {
                 new SqlParameter("@ma_nhan_vien", maNV)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_NhanVien_KhoiPhuc", parameters) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_NhanVien_KhoiPhuc", parameters);
+            return rows > 0 || rows == -1;
         }
 
         public bool KiemTraTonTaiTaiKhoan(string tenDangNhap)
@@ -230,7 +238,8 @@ namespace QuanLyBanBanGhe.DAL
                 new SqlParameter("@trang_thai_hoat_dong", tk.TrangThaiHoatDong),
                 new SqlParameter("@ma_nhan_vien", tk.MaNhanVien)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_TaiKhoan_Them", parameters, trans) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_TaiKhoan_Them", parameters, trans);
+            return rows > 0 || rows == -1;
         }
 
         public bool CapNhatQuyenVaTrangThaiTaiKhoan(string tenDangNhap, string quyen, bool hoatDong, SqlTransaction trans = null)
@@ -241,7 +250,8 @@ namespace QuanLyBanBanGhe.DAL
                 new SqlParameter("@quyen", quyen),
                 new SqlParameter("@trang_thai_hoat_dong", hoatDong)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_TaiKhoan_CapNhatQuyenVaTrangThai", parameters, trans) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_TaiKhoan_CapNhatQuyenVaTrangThai", parameters, trans);
+            return rows > 0 || rows == -1;
         }
 
         public bool DoiTrangThaiTaiKhoan(string tenDangNhap, bool hoatDong)
@@ -251,7 +261,8 @@ namespace QuanLyBanBanGhe.DAL
                 new SqlParameter("@ten_dang_nhap", tenDangNhap),
                 new SqlParameter("@trang_thai_hoat_dong", hoatDong)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_TaiKhoan_DoiTrangThai", parameters) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_TaiKhoan_DoiTrangThai", parameters);
+            return rows > 0 || rows == -1;
         }
 
         public bool ResetMatKhau(string tenDangNhap, string matKhauBam, SqlTransaction trans = null)
@@ -261,7 +272,8 @@ namespace QuanLyBanBanGhe.DAL
                 new SqlParameter("@ten_dang_nhap", tenDangNhap),
                 new SqlParameter("@mat_khau", matKhauBam)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_TaiKhoan_ResetMatKhau", parameters, trans) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_TaiKhoan_ResetMatKhau", parameters, trans);
+            return rows > 0 || rows == -1;
         }
 
         public DataTable LayThongTinDangNhap(string tenDangNhap)

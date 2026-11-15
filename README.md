@@ -10,8 +10,8 @@
 | STT | Họ và Tên | Mã Sinh Viên | Lớp - Khóa - Trường |
 |:---:|:---|:---:|:---|
 | 1 | **Trần Đình Đức** | 241230712 | Công nghệ thông tin 4 - K65 - UTC |
-| 2 | **Tô Đình Khoát** | 241230764 | Công nghệ thông tin 4 - K65 - UTC |
-| 3 | **Phùng Trung Hiếu** | 241230727 | Công nghệ thông tin 4 - K65 - UTC |
+| 2 | **Phùng Trung Hiếu** | 241230727 | Công nghệ thông tin 4 - K65 - UTC |
+| 3 | **Tô Đình Khoát** | 241230764 | Công nghệ thông tin 4 - K65 - UTC |
 | 4 | **Phạm Chí Kiên** | 241230767 | Công nghệ thông tin 4 - K65 - UTC |
 
 ---

@@ -57,6 +57,7 @@
     <Compile Include="Interfaces\IHoaDonNhapDAL.cs" />
     <Compile Include="Interfaces\INhanSuDAL.cs" />
     <Compile Include="Interfaces\IThuocTinhDAL.cs" />
+    <Compile Include="Interfaces\ITimKiemDAL.cs" />
     <Compile Include="NhanSuDAL.cs" />
     <Compile Include="PhieuBaoHanhDAL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,4 +1,4 @@
-namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
+﻿namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
 {
     partial class frmPhieuBaoHanh
     {
@@ -132,8 +132,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.txtTimNhanh.Name = "txtTimNhanh";
             this.txtTimNhanh.Size = new System.Drawing.Size(250, 24);
             this.txtTimNhanh.TabIndex = 1;
-            this.txtTimNhanh.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtTimNhanh_KeyDown);
             this.txtTimNhanh.Enter += new System.EventHandler(this.txtTimNhanh_Enter);
+            this.txtTimNhanh.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtTimNhanh_KeyDown);
             this.txtTimNhanh.Leave += new System.EventHandler(this.txtTimNhanh_Leave);
             this.btnTimNhanh.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnTimNhanh.Location = new System.Drawing.Point(360, 21);
@@ -146,7 +146,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.lblMaPhieu.AutoSize = true;
             this.lblMaPhieu.Location = new System.Drawing.Point(440, 25);
             this.lblMaPhieu.Name = "lblMaPhieu";
-            this.lblMaPhieu.Size = new System.Drawing.Size(65, 17);
+            this.lblMaPhieu.Size = new System.Drawing.Size(66, 17);
             this.lblMaPhieu.TabIndex = 3;
             this.lblMaPhieu.Text = "Mã phiếu:";
             this.txtMaPhieu.Location = new System.Drawing.Point(530, 22);
@@ -171,7 +171,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.lblSoHDB.AutoSize = true;
             this.lblSoHDB.Location = new System.Drawing.Point(440, 59);
             this.lblSoHDB.Name = "lblSoHDB";
-            this.lblSoHDB.Size = new System.Drawing.Size(74, 17);
+            this.lblSoHDB.Size = new System.Drawing.Size(73, 17);
             this.lblSoHDB.TabIndex = 7;
             this.lblSoHDB.Text = "HĐ bán số:";
             this.cboSoHDB.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -184,7 +184,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.lblHangHoa.AutoSize = true;
             this.lblHangHoa.Location = new System.Drawing.Point(15, 93);
             this.lblHangHoa.Name = "lblHangHoa";
-            this.lblHangHoa.Size = new System.Drawing.Size(68, 17);
+            this.lblHangHoa.Size = new System.Drawing.Size(69, 17);
             this.lblHangHoa.TabIndex = 9;
             this.lblHangHoa.Text = "Sản phẩm:";
             this.cboHangHoa.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -198,7 +198,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.lblHanBH.AutoSize = true;
             this.lblHanBH.Location = new System.Drawing.Point(440, 93);
             this.lblHanBH.Name = "lblHanBH";
-            this.lblHanBH.Size = new System.Drawing.Size(56, 17);
+            this.lblHanBH.Size = new System.Drawing.Size(54, 17);
             this.lblHanBH.TabIndex = 11;
             this.lblHanBH.Text = "Hạn BH:";
             this.lblTrangThaiHanBH.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -210,7 +210,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.lblNhanVien.AutoSize = true;
             this.lblNhanVien.Location = new System.Drawing.Point(15, 127);
             this.lblNhanVien.Name = "lblNhanVien";
-            this.lblNhanVien.Size = new System.Drawing.Size(89, 17);
+            this.lblNhanVien.Size = new System.Drawing.Size(87, 17);
             this.lblNhanVien.TabIndex = 13;
             this.lblNhanVien.Text = "NV tiếp nhận:";
             this.txtNhanVien.Location = new System.Drawing.Point(105, 124);
@@ -234,7 +234,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.lblNgayHenTra.AutoSize = true;
             this.lblNgayHenTra.Location = new System.Drawing.Point(15, 161);
             this.lblNgayHenTra.Name = "lblNgayHenTra";
-            this.lblNgayHenTra.Size = new System.Drawing.Size(55, 17);
+            this.lblNgayHenTra.Size = new System.Drawing.Size(54, 17);
             this.lblNgayHenTra.TabIndex = 17;
             this.lblNgayHenTra.Text = "Hẹn trả:";
             this.chkCoNgayHen.AutoSize = true;
@@ -274,10 +274,11 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.lblTrangThai.AutoSize = true;
             this.lblTrangThai.Location = new System.Drawing.Point(15, 195);
             this.lblTrangThai.Name = "lblTrangThai";
-            this.lblTrangThai.Size = new System.Drawing.Size(70, 17);
+            this.lblTrangThai.Size = new System.Drawing.Size(69, 17);
             this.lblTrangThai.TabIndex = 23;
             this.lblTrangThai.Text = "Trạng thái:";
             this.cboTrangThai.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboTrangThai.DropDownWidth = 315;
             this.cboTrangThai.FormattingEnabled = true;
             this.cboTrangThai.Location = new System.Drawing.Point(105, 192);
             this.cboTrangThai.Name = "cboTrangThai";
@@ -286,7 +287,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.lblChiPhi.AutoSize = true;
             this.lblChiPhi.Location = new System.Drawing.Point(440, 195);
             this.lblChiPhi.Name = "lblChiPhi";
-            this.lblChiPhi.Size = new System.Drawing.Size(83, 17);
+            this.lblChiPhi.Size = new System.Drawing.Size(90, 17);
             this.lblChiPhi.TabIndex = 25;
             this.lblChiPhi.Text = "Chi phí (VNĐ):";
             this.txtChiPhi.Location = new System.Drawing.Point(530, 192);
@@ -310,7 +311,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.lblMoTaLoi.AutoSize = true;
             this.lblMoTaLoi.Location = new System.Drawing.Point(5, 4);
             this.lblMoTaLoi.Name = "lblMoTaLoi";
-            this.lblMoTaLoi.Size = new System.Drawing.Size(65, 17);
+            this.lblMoTaLoi.Size = new System.Drawing.Size(64, 17);
             this.lblMoTaLoi.TabIndex = 0;
             this.lblMoTaLoi.Text = "Mô tả lỗi:";
             this.txtMoTaLoi.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -338,7 +339,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.lblGhiChu.AutoSize = true;
             this.lblGhiChu.Location = new System.Drawing.Point(5, 132);
             this.lblGhiChu.Name = "lblGhiChu";
-            this.lblGhiChu.Size = new System.Drawing.Size(55, 17);
+            this.lblGhiChu.Size = new System.Drawing.Size(54, 17);
             this.lblGhiChu.TabIndex = 4;
             this.lblGhiChu.Text = "Ghi chú:";
             this.txtGhiChu.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -365,7 +366,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.flpNut.Location = new System.Drawing.Point(0, 0);
             this.flpNut.Name = "flpNut";
             this.flpNut.Padding = new System.Windows.Forms.Padding(0, 8, 0, 8);
-            this.flpNut.Size = new System.Drawing.Size(575, 48);
+            this.flpNut.Size = new System.Drawing.Size(567, 48);
             this.flpNut.TabIndex = 0;
             this.flpNut.WrapContents = false;
             this.btnThem.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -423,13 +424,13 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.pnlTimKiem.Controls.Add(this.txtTimKiem);
             this.pnlTimKiem.Controls.Add(this.lblTimKiem);
             this.pnlTimKiem.Dock = System.Windows.Forms.DockStyle.Right;
-            this.pnlTimKiem.Location = new System.Drawing.Point(575, 0);
+            this.pnlTimKiem.Location = new System.Drawing.Point(567, 0);
             this.pnlTimKiem.Name = "pnlTimKiem";
-            this.pnlTimKiem.Size = new System.Drawing.Size(585, 48);
+            this.pnlTimKiem.Size = new System.Drawing.Size(593, 48);
             this.pnlTimKiem.TabIndex = 1;
             this.btnLamMoi.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnLamMoi.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnLamMoi.Location = new System.Drawing.Point(509, 8);
+            this.btnLamMoi.Location = new System.Drawing.Point(515, 8);
             this.btnLamMoi.Name = "btnLamMoi";
             this.btnLamMoi.Size = new System.Drawing.Size(68, 32);
             this.btnLamMoi.TabIndex = 3;
@@ -438,7 +439,7 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.btnLamMoi.Click += new System.EventHandler(this.btnLamMoi_Click);
             this.btnTimKiem.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnTimKiem.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnTimKiem.Location = new System.Drawing.Point(438, 8);
+            this.btnTimKiem.Location = new System.Drawing.Point(444, 8);
             this.btnTimKiem.Name = "btnTimKiem";
             this.btnTimKiem.Size = new System.Drawing.Size(65, 32);
             this.btnTimKiem.TabIndex = 2;
@@ -450,8 +451,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.txtTimKiem.Name = "txtTimKiem";
             this.txtTimKiem.Size = new System.Drawing.Size(360, 24);
             this.txtTimKiem.TabIndex = 1;
-            this.txtTimKiem.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtTimKiem_KeyDown);
             this.txtTimKiem.Enter += new System.EventHandler(this.txtTimKiem_Enter);
+            this.txtTimKiem.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtTimKiem_KeyDown);
             this.txtTimKiem.Leave += new System.EventHandler(this.txtTimKiem_Leave);
             this.lblTimKiem.AutoSize = true;
             this.lblTimKiem.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -472,7 +473,6 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.grpDanhSach.Text = "Danh sách phiếu bảo hành";
             this.dgvPhieuBaoHanh.AllowUserToAddRows = false;
             this.dgvPhieuBaoHanh.AllowUserToDeleteRows = false;
-            this.dgvPhieuBaoHanh.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.None;
             this.dgvPhieuBaoHanh.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dgvPhieuBaoHanh.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvPhieuBaoHanh.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -496,9 +496,8 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.dgvPhieuBaoHanh.Name = "dgvPhieuBaoHanh";
             this.dgvPhieuBaoHanh.ReadOnly = true;
             this.dgvPhieuBaoHanh.RowHeadersWidth = 35;
-            this.dgvPhieuBaoHanh.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.dgvPhieuBaoHanh.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvPhieuBaoHanh.Size = new System.Drawing.Size(1044, 345);
+            this.dgvPhieuBaoHanh.Size = new System.Drawing.Size(1140, 345);
             this.dgvPhieuBaoHanh.TabIndex = 0;
             this.dgvPhieuBaoHanh.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvPhieuBaoHanh_CellClick);
             this.colMaPhieu.DataPropertyName = "ma_phieu_bao_hanh";
@@ -510,7 +509,6 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             this.colSoHDB.HeaderText = "Số HĐ bán";
             this.colSoHDB.Name = "colSoHDB";
             this.colSoHDB.ReadOnly = true;
-            this.colSoHDB.Width = 100;
             this.colTenHang.DataPropertyName = "ten_hang_hoa";
             this.colTenHang.HeaderText = "Sản phẩm";
             this.colTenHang.Name = "colTenHang";

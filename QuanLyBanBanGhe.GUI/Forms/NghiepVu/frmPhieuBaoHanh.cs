@@ -167,9 +167,9 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             lblLocTrangThai = new Label
             {
                 Name = "lblLocTrangThai",
-                Text = "Xem:",
-                Size = new Size(36, 32),
-                Margin = new Padding(4, 0, 2, 0),
+                Text = "Trạng thái:",
+                Size = new Size(75, 32),
+                Margin = new Padding(10, 0, 4, 0),
                 TextAlign = ContentAlignment.MiddleRight,
                 Font = new Font("Segoe UI", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0),
                 Visible = true
@@ -179,8 +179,9 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             {
                 Name = "cboLocTrangThai",
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Size = new Size(116, 25),
-                Margin = new Padding(0, 4, 4, 0),
+                Size = new Size(150, 25),
+                DropDownWidth = 150,
+                Margin = new Padding(0, 4, 10, 0),
                 Font = new Font("Segoe UI", 9.5F, FontStyle.Regular, GraphicsUnit.Point, 0),
                 Visible = true
             };
@@ -875,28 +876,33 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
         {
             if (string.IsNullOrWhiteSpace(txtMaPhieu.Text))
             {
-                MessageBox.Show("Vui lòng chọn phiếu bảo hành cần xóa!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Vui lòng chọn phiếu bảo hành cần xóa từ danh sách!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            DialogResult dr = MessageBox.Show(string.Format("Bạn có chắc chắn muốn xóa phiếu bảo hành '{0}' không?", txtMaPhieu.Text.Trim()), "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (dr == DialogResult.Yes)
+            DialogResult dr = MessageBox.Show(
+                string.Format("Bạn có chắc chắn muốn xóa phiếu bảo hành '{0}' không?", txtMaPhieu.Text.Trim()),
+                "Xác nhận xóa",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (dr != DialogResult.Yes)
             {
-                try
-                {
-                    if (bll.XoaMem(txtMaPhieu.Text.Trim()))
-                    {
-                        MessageBox.Show("Xóa phiếu bảo hành thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadDanhSach();
-                        XoaTrang();
-                        ThietLapTrangThai(FormMode.View);
-                        UIHelper.XoaChonLuoi(dgvPhieuBaoHanh);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi khi xóa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                return;
+            }
+
+            try
+            {
+                bll.XoaMem(txtMaPhieu.Text.Trim());
+                MessageBox.Show("Xóa phiếu bảo hành thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadDanhSach();
+                XoaTrang();
+                ThietLapTrangThai(FormMode.View);
+                UIHelper.XoaChonLuoi(dgvPhieuBaoHanh);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -965,25 +971,21 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
             {
                 if (currentMode == FormMode.Insert)
                 {
-                    if (bll.Them(dto))
-                    {
-                        MessageBox.Show("Tiếp nhận phiếu bảo hành thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadDanhSach();
-                        XoaTrang();
-                        ThietLapTrangThai(FormMode.View);
-                        UIHelper.XoaChonLuoi(dgvPhieuBaoHanh);
-                    }
+                    bll.Them(dto);
+                    MessageBox.Show("Tiếp nhận phiếu bảo hành thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadDanhSach();
+                    XoaTrang();
+                    ThietLapTrangThai(FormMode.View);
+                    UIHelper.XoaChonLuoi(dgvPhieuBaoHanh);
                 }
                 else if (currentMode == FormMode.Update)
                 {
-                    if (bll.Sua(dto))
-                    {
-                        MessageBox.Show("Cập nhật phiếu bảo hành thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadDanhSach();
-                        XoaTrang();
-                        ThietLapTrangThai(FormMode.View);
-                        UIHelper.XoaChonLuoi(dgvPhieuBaoHanh);
-                    }
+                    bll.Sua(dto);
+                    MessageBox.Show("Cập nhật phiếu bảo hành thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadDanhSach();
+                    XoaTrang();
+                    ThietLapTrangThai(FormMode.View);
+                    UIHelper.XoaChonLuoi(dgvPhieuBaoHanh);
                 }
             }
             catch (Exception ex)
@@ -1005,28 +1007,33 @@ namespace QuanLyBanBanGhe.GUI.Forms.NghiepVu
         {
             if (string.IsNullOrWhiteSpace(txtMaPhieu.Text))
             {
-                MessageBox.Show("Vui lòng chọn phiếu bảo hành cần khôi phục!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Vui lòng chọn phiếu bảo hành cần khôi phục từ danh sách!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            DialogResult dr = MessageBox.Show(string.Format("Bạn có chắc chắn muốn khôi phục phiếu bảo hành '{0}' hoạt động trở lại không?", txtMaPhieu.Text.Trim()), "Xác nhận khôi phục", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (dr == DialogResult.Yes)
+            DialogResult dr = MessageBox.Show(
+                string.Format("Bạn có chắc chắn muốn khôi phục phiếu bảo hành '{0}' hoạt động trở lại không?", txtMaPhieu.Text.Trim()),
+                "Xác nhận khôi phục",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (dr != DialogResult.Yes)
             {
-                try
-                {
-                    if (bll.KhoiPhuc(txtMaPhieu.Text.Trim()))
-                    {
-                        MessageBox.Show("Khôi phục phiếu bảo hành thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadDanhSach();
-                        XoaTrang();
-                        ThietLapTrangThai(FormMode.View);
-                        UIHelper.XoaChonLuoi(dgvPhieuBaoHanh);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi khi khôi phục: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                return;
+            }
+
+            try
+            {
+                bll.KhoiPhuc(txtMaPhieu.Text.Trim());
+                MessageBox.Show("Khôi phục phiếu bảo hành thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadDanhSach();
+                XoaTrang();
+                ThietLapTrangThai(FormMode.View);
+                UIHelper.XoaChonLuoi(dgvPhieuBaoHanh);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

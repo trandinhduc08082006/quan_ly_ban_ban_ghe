@@ -1,31 +1,21 @@
 using System;
 using System.Data;
 using QuanLyBanBanGhe.DAL;
+using QuanLyBanBanGhe.DAL.Interfaces;
 
 namespace QuanLyBanBanGhe.BLL
 {
     public class TimKiemBLL
     {
-        private readonly TimKiemDAL dal;
+        private readonly ITimKiemDAL dal;
 
-        public TimKiemBLL()
+        public TimKiemBLL() : this(new TimKiemDAL())
         {
-            dal = new TimKiemDAL();
         }
 
-        public DataTable TimKiemHangHoa(
-            string tuKhoa,
-            string maLoai,
-            string maKichThuoc,
-            string maHinhDang,
-            string maChatLieu,
-            string maNuocSX,
-            string maMau,
-            string maNhaSX,
-            string maCongDung,
-            string maDacDiem)
+        public TimKiemBLL(ITimKiemDAL dal)
         {
-            return dal.TimKiemHangHoa(tuKhoa, maLoai, maKichThuoc, maHinhDang, maChatLieu, maNuocSX, maMau, maNhaSX, maCongDung, maDacDiem);
+            this.dal = dal;
         }
 
         public DataTable TimKiemHoaDonNhap(DateTime tuNgay, DateTime denNgay, string maNhanVien, string maNCC)
@@ -47,5 +37,5 @@ namespace QuanLyBanBanGhe.BLL
 
             return dal.TimKiemHoaDonBan(tuNgay, denNgay, maNhanVien, maKhach);
         }
-}
+    }
 }

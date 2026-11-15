@@ -1,12 +1,18 @@
 namespace QuanLyBanBanGhe.DTO
 {
-    public class NhaCungCapDTO
+    public class NhaCungCapDTO : NguoiBaseDTO
     {
-        public string MaNhaCungCap { get; set; }
-        public string TenNhaCungCap { get; set; }
-        public string DiaChi { get; set; }
-        public string DienThoai { get; set; }
-        public bool TrangThaiXoa { get; set; }
+        public string MaNhaCungCap
+        {
+            get => MaDinhDanh;
+            set => MaDinhDanh = value;
+        }
+
+        public string TenNhaCungCap
+        {
+            get => HoTen;
+            set => HoTen = value;
+        }
 
         public NhaCungCapDTO()
         {

@@ -32,7 +32,8 @@ namespace QuanLyBanBanGhe.DAL
                 new SqlParameter("@chi_phi_sua_chua", chiPhi),
                 new SqlParameter("@bien_phap_xu_ly", (object)ghiChu ?? DBNull.Value)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_BaoHanh_CapNhatTrangThai", parameters) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_BaoHanh_CapNhatTrangThai", parameters);
+            return rows > 0 || rows == -1;
         }
 
         public DataTable LayTatCa(bool daXoa = false)
@@ -100,7 +101,8 @@ namespace QuanLyBanBanGhe.DAL
                 new SqlParameter("@trang_thai", dto.TrangThai ?? "TiepNhan"),
                 new SqlParameter("@ghi_chu", (object)dto.GhiChu ?? DBNull.Value)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_BaoHanh_Them", parameters) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_BaoHanh_Them", parameters);
+            return rows > 0 || rows == -1;
         }
 
         public bool Sua(PhieuBaoHanhDTO dto)
@@ -126,7 +128,8 @@ namespace QuanLyBanBanGhe.DAL
                 new SqlParameter("@trang_thai", dto.TrangThai ?? "TiepNhan"),
                 new SqlParameter("@ghi_chu", (object)dto.GhiChu ?? DBNull.Value)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_BaoHanh_Sua", parameters) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_BaoHanh_Sua", parameters);
+            return rows > 0 || rows == -1;
         }
 
         public bool XoaMem(string maPhieu)
@@ -135,7 +138,8 @@ namespace QuanLyBanBanGhe.DAL
             {
                 new SqlParameter("@ma_phieu", maPhieu)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_BaoHanh_XoaMem", parameters) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_BaoHanh_XoaMem", parameters);
+            return rows > 0 || rows == -1;
         }
 
         public bool KhoiPhuc(string maPhieu)
@@ -144,7 +148,8 @@ namespace QuanLyBanBanGhe.DAL
             {
                 new SqlParameter("@ma_phieu", maPhieu)
             };
-            return DatabaseHelper.ExecuteNonQuerySP("sp_BaoHanh_KhoiPhuc", parameters) > 0;
+            int rows = DatabaseHelper.ExecuteNonQuerySP("sp_BaoHanh_KhoiPhuc", parameters);
+            return rows > 0 || rows == -1;
         }
 
         public DataTable TimKiem(string tuKhoa, string trangThai, bool daXoa = false)
